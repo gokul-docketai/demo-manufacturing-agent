@@ -10,6 +10,10 @@ import {
   Sparkles,
   Send,
   X,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
 } from "lucide-react";
 
 interface CRMColumn {
@@ -48,19 +52,19 @@ function generateAIValues(prompt: string, deals: Deal[]): string[] {
   const lower = prompt.toLowerCase();
 
   if (lower.includes("risk") || lower.includes("score")) {
-    const scores = ["Low", "Medium", "High", "Low", "Medium-High", "Low", "High", "Medium", "Low", "Medium", "High", "Medium-High", "Low", "Medium", "High", "Low", "Medium"];
+    const scores = ["Low", "Medium", "High", "Low", "Medium-High", "Low", "High", "Medium", "Low", "Medium", "High", "Medium-High", "Low", "Medium", "High", "Low", "Medium", "Medium-High", "Low", "High", "Medium", "Low", "High", "Low", "Medium", "High", "Low", "Medium-High", "Low", "High"];
     return deals.map((_, i) => scores[i % scores.length]);
   }
 
   if (lower.includes("competitor") || lower.includes("competition")) {
-    const vals = ["Pacific Machining", "MidWest Metal", "Shenzhen MetalWorks", "None identified", "GlobalParts Inc", "None identified", "TechCast Co", "WindFab LLC", "SteelCo", "RoboSupply", "DefenseTech", "HeavyMfg Inc", "ChipFab Co", "FluidTech", "MoldMasters", "AeroParts Ltd", "LabSupply Co"];
+    const vals = ["Pacific Machining", "MidWest Metal", "Shenzhen MetalWorks", "None identified", "GlobalParts Inc", "None identified", "TechCast Co", "WindFab LLC", "SteelCo", "RoboSupply", "DefenseTech", "HeavyMfg Inc", "ChipFab Co", "FluidTech", "MoldMasters", "AeroParts Ltd", "LabSupply Co", "TurboParts Inc", "CompositeCo", "StampTech Ltd", "OptiMfg Co", "ForgeMaster", "ShieldTech", "MarineFab Corp", "InstruParts", "AgriMetal Co", "AeroForge LLC", "MoldWorks Inc", "PowerFab Ltd", "RailTech Co"];
     return deals.map((_, i) => vals[i % vals.length]);
   }
 
   const templates = [
-    ["High", "Medium", "Low", "Medium-High", "Low", "High", "Medium", "Low", "Medium", "High", "Medium-High", "Low", "Medium", "High", "Low", "High", "Medium"],
-    ["92%", "67%", "88%", "45%", "71%", "83%", "79%", "34%", "56%", "91%", "62%", "85%", "41%", "87%", "58%", "73%", "50%"],
-    ["Strong fit", "Moderate fit", "Strong fit", "Exploring", "New lead", "Strong fit", "Moderate fit", "Exploring", "Moderate fit", "Strong fit", "New lead", "Strong fit", "Re-engage", "Strong fit", "New lead", "Strong fit", "Moderate fit"],
+    ["High", "Medium", "Low", "Medium-High", "Low", "High", "Medium", "Low", "Medium", "High", "Medium-High", "Low", "Medium", "High", "Low", "High", "Medium", "Low", "Medium-High", "High", "Low", "Medium", "High", "Low", "Medium", "High", "Medium-High", "Low", "High", "Medium"],
+    ["92%", "67%", "88%", "45%", "71%", "83%", "79%", "34%", "56%", "91%", "62%", "85%", "41%", "87%", "58%", "73%", "50%", "78%", "39%", "94%", "55%", "81%", "66%", "43%", "89%", "52%", "76%", "61%", "84%", "48%"],
+    ["Strong fit", "Moderate fit", "Strong fit", "Exploring", "New lead", "Strong fit", "Moderate fit", "Exploring", "Moderate fit", "Strong fit", "New lead", "Strong fit", "Re-engage", "Strong fit", "New lead", "Strong fit", "Moderate fit", "Strong fit", "Exploring", "New lead", "Moderate fit", "Strong fit", "Re-engage", "New lead", "Strong fit", "Moderate fit", "Strong fit", "Exploring", "Strong fit", "Re-engage"],
   ];
   const chosen = templates[Math.floor(Math.random() * templates.length)];
   return deals.map((_, i) => chosen[i % chosen.length]);
@@ -115,12 +119,15 @@ interface DealsPageProps {
   onAccountClick?: (accountId: string) => void;
 }
 
+const TOTAL_PAGES = 31;
+
 export function DealsPage({ onAccountClick }: DealsPageProps) {
   const [columns, setColumns] = useState<CRMColumn[]>(defaultColumns);
   const [aiData, setAiData] = useState<Record<string, string[]>>({});
   const [popoverOpen, setPopoverOpen] = useState(false);
   const [prompt, setPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
   const popoverRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -173,9 +180,9 @@ export function DealsPage({ onAccountClick }: DealsPageProps) {
               <h1 className="text-xl font-bold text-foreground tracking-tight">
                 Deals
               </h1>
-              <p className="text-xs text-muted-foreground">
+              {/* <p className="text-xs text-muted-foreground">
                 CRM deals pipeline
-              </p>
+              </p> */}
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -183,7 +190,7 @@ export function DealsPage({ onAccountClick }: DealsPageProps) {
               variant="secondary"
               className="text-[10px] px-2 py-0.5 font-semibold bg-warm-100 text-warm-600 border-warm-200"
             >
-              {mockDealsTable.length} deals
+              924 deals
             </Badge>
           </div>
         </div>
@@ -369,6 +376,109 @@ export function DealsPage({ onAccountClick }: DealsPageProps) {
               </tbody>
             </table>
           </div>
+        </div>
+
+        {/* Pagination */}
+        <div className="flex items-center justify-between px-4 py-3 border-t border-warm-200/60">
+          <p className="text-[11px] text-muted-foreground">
+            Showing <span className="font-medium text-foreground">1–30</span> of{" "}
+            <span className="font-medium text-foreground">924</span> deals
+          </p>
+
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setCurrentPage(1)}
+              disabled={currentPage === 1}
+              className={cn(
+                "h-7 w-7 rounded-md flex items-center justify-center text-[11px] transition-colors",
+                currentPage === 1
+                  ? "text-warm-300 cursor-not-allowed"
+                  : "text-warm-500 hover:bg-warm-100 hover:text-warm-700"
+              )}
+            >
+              <ChevronsLeft className="h-3.5 w-3.5" />
+            </button>
+            <button
+              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+              disabled={currentPage === 1}
+              className={cn(
+                "h-7 w-7 rounded-md flex items-center justify-center text-[11px] transition-colors",
+                currentPage === 1
+                  ? "text-warm-300 cursor-not-allowed"
+                  : "text-warm-500 hover:bg-warm-100 hover:text-warm-700"
+              )}
+            >
+              <ChevronLeft className="h-3.5 w-3.5" />
+            </button>
+
+            {(() => {
+              const pages: (number | string)[] = [];
+              if (TOTAL_PAGES <= 7) {
+                for (let i = 1; i <= TOTAL_PAGES; i++) pages.push(i);
+              } else {
+                pages.push(1);
+                if (currentPage > 3) pages.push("...");
+                const start = Math.max(2, currentPage - 1);
+                const end = Math.min(TOTAL_PAGES - 1, currentPage + 1);
+                for (let i = start; i <= end; i++) pages.push(i);
+                if (currentPage < TOTAL_PAGES - 2) pages.push("...");
+                pages.push(TOTAL_PAGES);
+              }
+              return pages.map((p, idx) =>
+                typeof p === "string" ? (
+                  <span
+                    key={`ellipsis-${idx}`}
+                    className="h-7 w-7 flex items-center justify-center text-[11px] text-warm-400"
+                  >
+                    ...
+                  </span>
+                ) : (
+                  <button
+                    key={p}
+                    onClick={() => setCurrentPage(p)}
+                    className={cn(
+                      "h-7 min-w-[28px] px-1 rounded-md flex items-center justify-center text-[11px] font-medium transition-colors",
+                      currentPage === p
+                        ? "bg-warm-800 text-white"
+                        : "text-warm-600 hover:bg-warm-100 hover:text-warm-800"
+                    )}
+                  >
+                    {p}
+                  </button>
+                )
+              );
+            })()}
+
+            <button
+              onClick={() => setCurrentPage(Math.min(TOTAL_PAGES, currentPage + 1))}
+              disabled={currentPage === TOTAL_PAGES}
+              className={cn(
+                "h-7 w-7 rounded-md flex items-center justify-center text-[11px] transition-colors",
+                currentPage === TOTAL_PAGES
+                  ? "text-warm-300 cursor-not-allowed"
+                  : "text-warm-500 hover:bg-warm-100 hover:text-warm-700"
+              )}
+            >
+              <ChevronRight className="h-3.5 w-3.5" />
+            </button>
+            <button
+              onClick={() => setCurrentPage(TOTAL_PAGES)}
+              disabled={currentPage === TOTAL_PAGES}
+              className={cn(
+                "h-7 w-7 rounded-md flex items-center justify-center text-[11px] transition-colors",
+                currentPage === TOTAL_PAGES
+                  ? "text-warm-300 cursor-not-allowed"
+                  : "text-warm-500 hover:bg-warm-100 hover:text-warm-700"
+              )}
+            >
+              <ChevronsRight className="h-3.5 w-3.5" />
+            </button>
+          </div>
+
+          <p className="text-[11px] text-muted-foreground">
+            Page <span className="font-medium text-foreground">{currentPage}</span> of{" "}
+            <span className="font-medium text-foreground">{TOTAL_PAGES}</span>
+          </p>
         </div>
       </div>
     </div>

@@ -5,6 +5,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import {
   RFQ,
+  RFQSource,
   ConciergeMessage,
   mockRFQs,
 } from "@/lib/concierge-data";
@@ -46,6 +47,9 @@ import {
   ThumbsUp,
   ThumbsDown,
   ExternalLink,
+  Phone,
+  Globe,
+  PenLine,
 } from "lucide-react";
 
 // ─── Main Concierge Page ────────────────────────────────────────────────────
@@ -196,6 +200,31 @@ export function ConciergePage() {
   );
 }
 
+// ─── Source Config ───────────────────────────────────────────────────────────
+
+const sourceConfig: Record<RFQSource, { icon: typeof Mail; label: string; className: string }> = {
+  email: {
+    icon: Mail,
+    label: "Email",
+    className: "bg-blue-50 text-blue-600 border-blue-200",
+  },
+  call: {
+    icon: Phone,
+    label: "Call",
+    className: "bg-violet-50 text-violet-600 border-violet-200",
+  },
+  manual: {
+    icon: PenLine,
+    label: "Manual",
+    className: "bg-warm-50 text-warm-600 border-warm-200",
+  },
+  "web-form": {
+    icon: Globe,
+    label: "Web Form",
+    className: "bg-teal-50 text-teal-600 border-teal-200",
+  },
+};
+
 // ─── RFQ List Item ──────────────────────────────────────────────────────────
 
 function RFQListItem({
@@ -225,6 +254,8 @@ function RFQListItem({
   };
 
   const status = statusConfig[rfq.status];
+  const source = sourceConfig[rfq.source];
+  const SourceIcon = source.icon;
 
   return (
     <button
@@ -255,6 +286,11 @@ function RFQListItem({
       <div className="flex items-center gap-2 text-[10px] text-warm-400 mt-1">
         <Clock className="h-2.5 w-2.5 shrink-0" />
         <span>{rfq.receivedAt}</span>
+        <span className="text-warm-300">|</span>
+        <span className={cn("inline-flex items-center gap-1 px-1.5 py-0 rounded-full border text-[9px] font-semibold", source.className)}>
+          <SourceIcon className="h-2.5 w-2.5" />
+          {source.label}
+        </span>
         {hasMessages && (
           <>
             <span className="text-warm-300">|</span>
@@ -450,24 +486,39 @@ function ConversationPanel({
               {rfq.dealValue}
             </p>
           </div>
-          <Badge
-            variant="secondary"
-            className={cn(
-              "text-[10px] px-2 py-0.5 font-semibold",
-              rfq.status === "new" &&
-                "bg-blue-50 text-blue-700 border-blue-200",
-              rfq.status === "in-progress" &&
-                "bg-amber-50 text-amber-700 border-amber-200",
-              rfq.status === "quoted" &&
-                "bg-green-50 text-green-700 border-green-200"
-            )}
-          >
-            {rfq.status === "new"
-              ? "New"
-              : rfq.status === "in-progress"
-                ? "In Progress"
-                : "Quoted"}
-          </Badge>
+          <div className="flex items-center gap-2">
+            {(() => {
+              const src = sourceConfig[rfq.source];
+              const SrcIcon = src.icon;
+              return (
+                <Badge
+                  variant="secondary"
+                  className={cn("text-[10px] px-2 py-0.5 font-semibold gap-1", src.className)}
+                >
+                  <SrcIcon className="h-3 w-3" />
+                  {src.label}
+                </Badge>
+              );
+            })()}
+            <Badge
+              variant="secondary"
+              className={cn(
+                "text-[10px] px-2 py-0.5 font-semibold",
+                rfq.status === "new" &&
+                  "bg-blue-50 text-blue-700 border-blue-200",
+                rfq.status === "in-progress" &&
+                  "bg-amber-50 text-amber-700 border-amber-200",
+                rfq.status === "quoted" &&
+                  "bg-green-50 text-green-700 border-green-200"
+              )}
+            >
+              {rfq.status === "new"
+                ? "New"
+                : rfq.status === "in-progress"
+                  ? "In Progress"
+                  : "Quoted"}
+            </Badge>
+          </div>
         </div>
       </div>
 
@@ -499,7 +550,7 @@ function ConversationPanel({
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
-            placeholder="Reply as sales engineer..."
+            placeholder="Reply..."
             disabled={isLoading}
             className="h-10 text-sm bg-warm-50 border-warm-200 placeholder:text-warm-400 focus-visible:ring-warm-300"
           />

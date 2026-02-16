@@ -6,6 +6,8 @@ export interface RFQAttachment {
   content: string;
 }
 
+export type RFQSource = "email" | "call" | "manual" | "web-form";
+
 export interface RFQ {
   id: string;
   title: string;
@@ -16,6 +18,7 @@ export interface RFQ {
   dealTitle: string;
   dealValue: string;
   status: "new" | "in-progress" | "quoted";
+  source: RFQSource;
   receivedAt: string;
   attachments: RFQAttachment[];
 }
@@ -54,6 +57,7 @@ Senior Procurement Engineer, Tesla Motors`,
     dealTitle: "Tesla EPS Bracket Program — Model Y",
     dealValue: "$1.2M",
     status: "new",
+    source: "email",
     receivedAt: "2 hours ago",
     attachments: [
       {
@@ -166,6 +170,7 @@ Supply Chain Manager, Rivian Automotive`,
     dealTitle: "Rivian R1T Steering Knuckle Supply",
     dealValue: "$890K",
     status: "new",
+    source: "email",
     receivedAt: "5 hours ago",
     attachments: [
       {
@@ -267,6 +272,7 @@ Director of Powertrain Procurement, Lucid Motors`,
     dealTitle: "Lucid Air Steering Rack Housing",
     dealValue: "$1.8M",
     status: "in-progress",
+    source: "call",
     receivedAt: "1 day ago",
     attachments: [
       {
@@ -364,6 +370,7 @@ Senior Buyer — Chassis & Steering, BMW Group`,
     dealTitle: "BMW 3-Series Torque Sensor Plate",
     dealValue: "$2.1M",
     status: "in-progress",
+    source: "email",
     receivedAt: "2 days ago",
     attachments: [
       {
@@ -480,6 +487,7 @@ Commodity Manager — Driveline, Magna International`,
     dealTitle: "Magna Driveline U-Joint Yoke Supply",
     dealValue: "$950K",
     status: "new",
+    source: "web-form",
     receivedAt: "3 hours ago",
     attachments: [
       {

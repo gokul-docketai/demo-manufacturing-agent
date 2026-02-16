@@ -8,9 +8,9 @@ export type Page = "home" | "accounts" | "deals" | "concierge";
 
 const topItems: { icon: typeof Home; label: string; page: Page }[] = [
   { icon: Home, label: "Home", page: "home" },
-  { icon: Building2, label: "Accounts", page: "accounts" },
-  { icon: Handshake, label: "Deals", page: "deals" },
   { icon: Inbox, label: "Concierge", page: "concierge" },
+  { icon: Handshake, label: "Deals", page: "deals" },
+  { icon: Building2, label: "Accounts", page: "accounts" },
 ];
 
 const bottomItems = [

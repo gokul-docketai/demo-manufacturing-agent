@@ -547,7 +547,7 @@ export function AccountDetailDrawer({ account, open, onOpenChange }: AccountDeta
 
         {/* Tabs */}
         <Tabs defaultValue="details" className="px-4 pb-4">
-          <TabsList variant="line" className="mb-3 overflow-x-auto">
+          <TabsList variant="line" className="mb-3 overflow-x-auto no-scrollbar">
             <TabsTrigger value="details" className="text-[11px] px-2">
               Details
             </TabsTrigger>

@@ -125,6 +125,15 @@
   background: var(--color-warm-400);
 }
 
+/* Hide scrollbar but keep scroll functionality */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 /* Smooth transitions for mode switching */
 .mode-transition {
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);

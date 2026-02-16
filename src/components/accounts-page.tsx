@@ -11,6 +11,10 @@ import {
   Sparkles,
   Send,
   X,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
 } from "lucide-react";
 
 interface CRMColumn {
@@ -45,6 +49,10 @@ const aiColumnResponses: Record<string, (acc: Account) => string> = {
       "acc-5": "Pending", "acc-6": "Low", "acc-7": "Low", "acc-8": "High",
       "acc-9": "Medium", "acc-10": "Low", "acc-11": "Pending", "acc-12": "Low",
       "acc-13": "High", "acc-14": "Low", "acc-15": "Medium",
+      "acc-16": "Low", "acc-17": "Pending", "acc-18": "Low", "acc-19": "Medium",
+      "acc-20": "Low", "acc-21": "Low", "acc-22": "Pending", "acc-23": "Low",
+      "acc-24": "High", "acc-25": "Low", "acc-26": "Pending", "acc-27": "Low",
+      "acc-28": "Medium", "acc-29": "Low", "acc-30": "High",
     };
     return map[acc.id] || "N/A";
   },
@@ -59,9 +67,9 @@ function generateAIValues(prompt: string, accounts: Account[]): string[] {
   }
 
   const templates = [
-    ["High", "Medium", "Low", "Medium-High", "Low", "High", "Medium", "Low", "Medium", "High", "Medium-High", "Low", "Medium", "High", "Low"],
-    ["92%", "67%", "88%", "45%", "71%", "83%", "79%", "34%", "56%", "91%", "62%", "85%", "41%", "87%", "58%"],
-    ["Strong fit", "Moderate fit", "Strong fit", "Exploring", "New lead", "Strong fit", "Moderate fit", "Exploring", "Moderate fit", "Strong fit", "New lead", "Strong fit", "Re-engage", "Strong fit", "New lead"],
+    ["High", "Medium", "Low", "Medium-High", "Low", "High", "Medium", "Low", "Medium", "High", "Medium-High", "Low", "Medium", "High", "Low", "High", "Low", "Medium", "Medium-High", "Low", "High", "Medium", "Low", "High", "Low", "Medium", "High", "Low", "Medium-High", "High"],
+    ["92%", "67%", "88%", "45%", "71%", "83%", "79%", "34%", "56%", "91%", "62%", "85%", "41%", "87%", "58%", "76%", "49%", "88%", "63%", "92%", "81%", "55%", "73%", "39%", "94%", "47%", "86%", "68%", "90%", "52%"],
+    ["Strong fit", "Moderate fit", "Strong fit", "Exploring", "New lead", "Strong fit", "Moderate fit", "Exploring", "Moderate fit", "Strong fit", "New lead", "Strong fit", "Re-engage", "Strong fit", "New lead", "Strong fit", "Exploring", "Moderate fit", "Strong fit", "New lead", "Strong fit", "Re-engage", "Moderate fit", "Exploring", "Strong fit", "New lead", "Strong fit", "Moderate fit", "Strong fit", "Re-engage"],
   ];
   const chosen = templates[Math.floor(Math.random() * templates.length)];
   return accounts.map((_, i) => chosen[i % chosen.length]);
@@ -94,12 +102,15 @@ interface AccountsPageProps {
   onAccountSelect?: (accountId: string | null) => void;
 }
 
+const TOTAL_PAGES = 34;
+
 export function AccountsPage({ selectedAccountId, onAccountSelect }: AccountsPageProps) {
   const [columns, setColumns] = useState<CRMColumn[]>(defaultColumns);
   const [aiData, setAiData] = useState<Record<string, string[]>>({});
   const [popoverOpen, setPopoverOpen] = useState(false);
   const [prompt, setPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
   const popoverRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -168,9 +179,9 @@ export function AccountsPage({ selectedAccountId, onAccountSelect }: AccountsPag
               <h1 className="text-xl font-bold text-foreground tracking-tight">
                 Accounts
               </h1>
-              <p className="text-xs text-muted-foreground">
+              {/* <p className="text-xs text-muted-foreground">
                 CRM accounts overview
-              </p>
+              </p> */}
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -178,7 +189,7 @@ export function AccountsPage({ selectedAccountId, onAccountSelect }: AccountsPag
               variant="secondary"
               className="text-[10px] px-2 py-0.5 font-semibold bg-warm-100 text-warm-600 border-warm-200"
             >
-              {mockAccounts.length} accounts
+              1,012 accounts
             </Badge>
           </div>
         </div>
@@ -360,6 +371,109 @@ export function AccountsPage({ selectedAccountId, onAccountSelect }: AccountsPag
               </tbody>
             </table>
           </div>
+        </div>
+
+        {/* Pagination */}
+        <div className="flex items-center justify-between px-4 py-3 border-t border-warm-200/60">
+          <p className="text-[11px] text-muted-foreground">
+            Showing <span className="font-medium text-foreground">1–30</span> of{" "}
+            <span className="font-medium text-foreground">1,012</span> accounts
+          </p>
+
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setCurrentPage(1)}
+              disabled={currentPage === 1}
+              className={cn(
+                "h-7 w-7 rounded-md flex items-center justify-center text-[11px] transition-colors",
+                currentPage === 1
+                  ? "text-warm-300 cursor-not-allowed"
+                  : "text-warm-500 hover:bg-warm-100 hover:text-warm-700"
+              )}
+            >
+              <ChevronsLeft className="h-3.5 w-3.5" />
+            </button>
+            <button
+              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+              disabled={currentPage === 1}
+              className={cn(
+                "h-7 w-7 rounded-md flex items-center justify-center text-[11px] transition-colors",
+                currentPage === 1
+                  ? "text-warm-300 cursor-not-allowed"
+                  : "text-warm-500 hover:bg-warm-100 hover:text-warm-700"
+              )}
+            >
+              <ChevronLeft className="h-3.5 w-3.5" />
+            </button>
+
+            {(() => {
+              const pages: (number | string)[] = [];
+              if (TOTAL_PAGES <= 7) {
+                for (let i = 1; i <= TOTAL_PAGES; i++) pages.push(i);
+              } else {
+                pages.push(1);
+                if (currentPage > 3) pages.push("...");
+                const start = Math.max(2, currentPage - 1);
+                const end = Math.min(TOTAL_PAGES - 1, currentPage + 1);
+                for (let i = start; i <= end; i++) pages.push(i);
+                if (currentPage < TOTAL_PAGES - 2) pages.push("...");
+                pages.push(TOTAL_PAGES);
+              }
+              return pages.map((p, idx) =>
+                typeof p === "string" ? (
+                  <span
+                    key={`ellipsis-${idx}`}
+                    className="h-7 w-7 flex items-center justify-center text-[11px] text-warm-400"
+                  >
+                    ...
+                  </span>
+                ) : (
+                  <button
+                    key={p}
+                    onClick={() => setCurrentPage(p)}
+                    className={cn(
+                      "h-7 min-w-[28px] px-1 rounded-md flex items-center justify-center text-[11px] font-medium transition-colors",
+                      currentPage === p
+                        ? "bg-warm-800 text-white"
+                        : "text-warm-600 hover:bg-warm-100 hover:text-warm-800"
+                    )}
+                  >
+                    {p}
+                  </button>
+                )
+              );
+            })()}
+
+            <button
+              onClick={() => setCurrentPage(Math.min(TOTAL_PAGES, currentPage + 1))}
+              disabled={currentPage === TOTAL_PAGES}
+              className={cn(
+                "h-7 w-7 rounded-md flex items-center justify-center text-[11px] transition-colors",
+                currentPage === TOTAL_PAGES
+                  ? "text-warm-300 cursor-not-allowed"
+                  : "text-warm-500 hover:bg-warm-100 hover:text-warm-700"
+              )}
+            >
+              <ChevronRight className="h-3.5 w-3.5" />
+            </button>
+            <button
+              onClick={() => setCurrentPage(TOTAL_PAGES)}
+              disabled={currentPage === TOTAL_PAGES}
+              className={cn(
+                "h-7 w-7 rounded-md flex items-center justify-center text-[11px] transition-colors",
+                currentPage === TOTAL_PAGES
+                  ? "text-warm-300 cursor-not-allowed"
+                  : "text-warm-500 hover:bg-warm-100 hover:text-warm-700"
+              )}
+            >
+              <ChevronsRight className="h-3.5 w-3.5" />
+            </button>
+          </div>
+
+          <p className="text-[11px] text-muted-foreground">
+            Page <span className="font-medium text-foreground">{currentPage}</span> of{" "}
+            <span className="font-medium text-foreground">{TOTAL_PAGES}</span>
+          </p>
         </div>
       </div>
 
