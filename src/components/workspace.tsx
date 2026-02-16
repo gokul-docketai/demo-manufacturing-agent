@@ -15,6 +15,7 @@ import { StageNavigator } from "@/components/stage-navigator";
 import { AISidebar } from "@/components/ai-sidebar";
 import { AccountsPage } from "@/components/accounts-page";
 import { DealsPage } from "@/components/deals-page";
+import { ConciergePage } from "@/components/concierge-page";
 import { CoworkMode } from "@/components/cowork-mode";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -158,6 +159,18 @@ export function Workspace() {
         <NavSidebar activePage={activePage} onNavigate={handleNavigate} />
         <div className="ml-12">
           <DealsPage />
+        </div>
+      </div>
+    );
+  }
+
+  // Concierge page
+  if (activePage === "concierge") {
+    return (
+      <div className="min-h-screen bg-background">
+        <NavSidebar activePage={activePage} onNavigate={handleNavigate} />
+        <div className="ml-12">
+          <ConciergePage />
         </div>
       </div>
     );

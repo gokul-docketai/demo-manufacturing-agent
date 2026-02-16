@@ -1,15 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { Home, Building2, Handshake, Settings, User, Zap } from "lucide-react";
+import { Home, Building2, Handshake, Settings, User, Zap, Inbox } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export type Page = "home" | "accounts" | "deals";
+export type Page = "home" | "accounts" | "deals" | "concierge";
 
 const topItems: { icon: typeof Home; label: string; page: Page }[] = [
   { icon: Home, label: "Home", page: "home" },
   { icon: Building2, label: "Accounts", page: "accounts" },
   { icon: Handshake, label: "Deals", page: "deals" },
+  { icon: Inbox, label: "Concierge", page: "concierge" },
 ];
 
 const bottomItems = [
