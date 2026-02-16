@@ -20,6 +20,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+import { QuoteCanvasDrawer, QuoteData } from "@/components/quote-canvas-drawer";
 import {
   Inbox,
   Send,
@@ -38,6 +39,13 @@ import {
   Pencil,
   CheckCircle,
   X,
+  Ruler,
+  ClipboardList,
+  HelpCircle,
+  Database,
+  ThumbsUp,
+  ThumbsDown,
+  ExternalLink,
 } from "lucide-react";
 
 // ─── Main Concierge Page ────────────────────────────────────────────────────
@@ -50,6 +58,8 @@ export function ConciergePage() {
     Record<string, ConciergeMessage[]>
   >({});
   const [searchQuery, setSearchQuery] = useState("");
+  const [quoteDrawerOpen, setQuoteDrawerOpen] = useState(false);
+  const [quoteDrawerData, setQuoteDrawerData] = useState<QuoteData | null>(null);
 
   const selectedRFQ = mockRFQs.find((r) => r.id === selectedRFQId) || null;
 
@@ -76,6 +86,11 @@ export function ConciergePage() {
     },
     []
   );
+
+  const handleOpenQuote = useCallback((data: QuoteData) => {
+    setQuoteDrawerData(data);
+    setQuoteDrawerOpen(true);
+  }, []);
 
   return (
     <div className="h-screen flex flex-col overflow-hidden">
@@ -155,6 +170,7 @@ export function ConciergePage() {
               rfq={selectedRFQ}
               messages={getMessages(selectedRFQ.id)}
               setMessages={(msgs) => setMessages(selectedRFQ.id, msgs)}
+              onOpenQuote={handleOpenQuote}
             />
           ) : (
             <div className="flex-1 flex items-center justify-center text-muted-foreground">
@@ -169,6 +185,13 @@ export function ConciergePage() {
           )}
         </div>
       </div>
+
+      {/* Quote Canvas Drawer */}
+      <QuoteCanvasDrawer
+        open={quoteDrawerOpen}
+        onOpenChange={setQuoteDrawerOpen}
+        quoteData={quoteDrawerData}
+      />
     </div>
   );
 }
@@ -250,10 +273,12 @@ function ConversationPanel({
   rfq,
   messages,
   setMessages,
+  onOpenQuote,
 }: {
   rfq: RFQ;
   messages: ConciergeMessage[];
   setMessages: (msgs: ConciergeMessage[] | ((prev: ConciergeMessage[]) => ConciergeMessage[])) => void;
+  onOpenQuote: (data: QuoteData) => void;
 }) {
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -457,7 +482,7 @@ function ConversationPanel({
             msg.isLoading ? (
               <TypingIndicator key={msg.id} />
             ) : (
-              <MessageBubble key={msg.id} message={msg} />
+              <MessageBubble key={msg.id} message={msg} onOpenQuote={onOpenQuote} />
             )
           )}
 
@@ -493,6 +518,191 @@ function ConversationPanel({
 }
 
 // ─── RFQ Card (First message) ───────────────────────────────────────────────
+
+const attachmentTypeConfig = {
+  drawing: {
+    icon: Ruler,
+    label: "Engineering Drawing",
+    headerBg: "bg-indigo-50/80",
+    headerBorder: "border-indigo-200/60",
+    headerText: "text-indigo-700",
+    iconBg: "bg-indigo-100",
+    iconColor: "text-indigo-600",
+    badgeBg: "bg-indigo-100 text-indigo-700 border-indigo-200",
+    contentBorder: "border-indigo-100/60",
+  },
+  specs: {
+    icon: ClipboardList,
+    label: "Technical Specification",
+    headerBg: "bg-emerald-50/80",
+    headerBorder: "border-emerald-200/60",
+    headerText: "text-emerald-700",
+    iconBg: "bg-emerald-100",
+    iconColor: "text-emerald-600",
+    badgeBg: "bg-emerald-100 text-emerald-700 border-emerald-200",
+    contentBorder: "border-emerald-100/60",
+  },
+  questions: {
+    icon: HelpCircle,
+    label: "Supplier Questions",
+    headerBg: "bg-amber-50/80",
+    headerBorder: "border-amber-200/60",
+    headerText: "text-amber-700",
+    iconBg: "bg-amber-100",
+    iconColor: "text-amber-600",
+    badgeBg: "bg-amber-100 text-amber-700 border-amber-200",
+    contentBorder: "border-amber-100/60",
+  },
+};
+
+function AttachmentContentRenderer({ content, type }: { content: string; type: "questions" | "specs" | "drawing" }) {
+  if (type === "questions") {
+    const lines = content.split("\n").filter((l) => l.trim());
+    return (
+      <div className="space-y-2 py-1">
+        {lines.map((line, i) => {
+          const match = line.match(/^(\d+)\.\s*(.*)/);
+          if (!match) return <p key={i} className="text-[13px] text-foreground/70">{line}</p>;
+          return (
+            <div key={i} className="flex gap-2.5 items-start">
+              <span className="shrink-0 w-6 h-6 rounded-full bg-amber-100 text-amber-700 text-[11px] font-bold flex items-center justify-center mt-0.5">
+                {match[1]}
+              </span>
+              <p className="text-[13px] text-foreground/80 leading-relaxed pt-0.5">{match[2]}</p>
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+
+  const sections = content.split("\n\n").filter((s) => s.trim());
+  return (
+    <div className="space-y-3 py-1">
+      {sections.map((section, i) => {
+        const lines = section.split("\n");
+        const firstLine = lines[0]?.trim() || "";
+        const isHeader = /^[A-Z][A-Z &\-/]+$/.test(firstLine) || /^[A-Z][A-Z ]+[—–-]/.test(firstLine);
+
+        if (isHeader && lines.length > 1) {
+          const bodyLines = lines.slice(1);
+          const isTable = bodyLines.some((l) => l.includes("|"));
+
+          if (isTable) {
+            const tableLines = bodyLines.filter((l) => l.trim().startsWith("|"));
+            const headerRow = tableLines[0];
+            const dataRows = tableLines.slice(2);
+            if (headerRow) {
+              const headers = headerRow.split("|").map((h) => h.trim()).filter(Boolean);
+              const rows = dataRows.map((r) => r.split("|").map((c) => c.trim()).filter(Boolean));
+              return (
+                <div key={i}>
+                  <h4 className="text-[11px] font-bold text-foreground uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                    <span className={cn("w-1 h-3.5 rounded-full", type === "drawing" ? "bg-indigo-400" : type === "specs" ? "bg-emerald-400" : "bg-amber-400")} />
+                    {firstLine}
+                  </h4>
+                  <div className="overflow-x-auto rounded-lg border border-warm-200/60">
+                    <table className="text-[12px] w-full border-collapse">
+                      <thead>
+                        <tr className="bg-warm-100/80">
+                          {headers.map((h, hi) => (
+                            <th key={hi} className="px-3 py-1.5 text-left font-semibold text-foreground/90 border-b border-warm-200/60 whitespace-nowrap">{h}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {rows.map((row, ri) => (
+                          <tr key={ri} className={ri % 2 === 0 ? "bg-white/50" : "bg-warm-50/30"}>
+                            {row.map((cell, ci) => (
+                              <td key={ci} className="px-3 py-1.5 text-foreground/75 border-b border-warm-200/20 whitespace-nowrap">{cell}</td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              );
+            }
+          }
+
+          const keyValueLines = bodyLines.filter((l) => l.includes(":") || l.includes("|"));
+          const isKeyValue = keyValueLines.length >= bodyLines.length * 0.5;
+
+          if (isKeyValue) {
+            return (
+              <div key={i}>
+                <h4 className="text-[11px] font-bold text-foreground uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                  <span className={cn("w-1 h-3.5 rounded-full", type === "drawing" ? "bg-indigo-400" : type === "specs" ? "bg-emerald-400" : "bg-amber-400")} />
+                  {firstLine}
+                </h4>
+                <div className="space-y-0.5 rounded-lg border border-warm-200/40 overflow-hidden">
+                  {bodyLines.map((line, li) => {
+                    const pipeFields = line.split("|").map((f) => f.trim()).filter(Boolean);
+                    if (pipeFields.length >= 2) {
+                      return (
+                        <div key={li} className={cn("flex flex-wrap gap-x-4 gap-y-0.5 px-3 py-1.5 text-[12px]", li % 2 === 0 ? "bg-warm-50/40" : "")}>
+                          {pipeFields.map((field, fi) => {
+                            const colonIdx = field.indexOf(":");
+                            if (colonIdx > 0) {
+                              return (
+                                <span key={fi}>
+                                  <span className="font-semibold text-foreground/80">{field.slice(0, colonIdx + 1)}</span>
+                                  <span className="text-foreground/65">{field.slice(colonIdx + 1)}</span>
+                                </span>
+                              );
+                            }
+                            return <span key={fi} className="text-foreground/70">{field}</span>;
+                          })}
+                        </div>
+                      );
+                    }
+                    const colonIdx = line.indexOf(":");
+                    if (colonIdx > 0) {
+                      return (
+                        <div key={li} className={cn("px-3 py-1.5 text-[12px]", li % 2 === 0 ? "bg-warm-50/40" : "")}>
+                          <span className="font-semibold text-foreground/80">{line.slice(0, colonIdx + 1)}</span>
+                          <span className="text-foreground/65">{line.slice(colonIdx + 1)}</span>
+                        </div>
+                      );
+                    }
+                    return (
+                      <div key={li} className={cn("px-3 py-1.5 text-[12px] text-foreground/70", li % 2 === 0 ? "bg-warm-50/40" : "")}>
+                        {line}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          }
+
+          return (
+            <div key={i}>
+              <h4 className="text-[11px] font-bold text-foreground uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                <span className={cn("w-1 h-3.5 rounded-full", type === "drawing" ? "bg-indigo-400" : type === "specs" ? "bg-emerald-400" : "bg-amber-400")} />
+                {firstLine}
+              </h4>
+              <div className="text-[12px] text-foreground/70 leading-relaxed space-y-1 pl-3">
+                {bodyLines.map((line, li) => (
+                  <p key={li}>{line}</p>
+                ))}
+              </div>
+            </div>
+          );
+        }
+
+        return (
+          <div key={i} className="text-[12px] text-foreground/70 leading-relaxed pl-3">
+            {lines.map((line, li) => (
+              <p key={li}>{line}</p>
+            ))}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 function RFQCard({ rfq }: { rfq: RFQ }) {
   const [expandedAttachments, setExpandedAttachments] = useState<Set<number>>(
@@ -545,51 +755,65 @@ function RFQCard({ rfq }: { rfq: RFQ }) {
           </span>
         </div>
 
-        <p className="text-[13px] text-foreground/80 leading-relaxed mb-4">
+        <p className="text-[13px] text-foreground/80 leading-relaxed whitespace-pre-wrap mb-4">
           {rfq.description}
         </p>
 
         {/* Attachments */}
         {rfq.attachments.length > 0 && (
-          <div className="space-y-2">
+          <div className="space-y-3">
             <span className="text-[11px] font-semibold text-warm-500 uppercase tracking-wider flex items-center gap-1.5">
               <Paperclip className="h-3 w-3" />
               Attachments ({rfq.attachments.length})
             </span>
-            {rfq.attachments.map((att, idx) => (
-              <div
-                key={idx}
-                className="rounded-lg border border-warm-200/60 overflow-hidden"
-              >
-                <button
-                  onClick={() => toggleAttachment(idx)}
-                  className="w-full flex items-center gap-2 px-3 py-2 hover:bg-warm-50/50 transition-colors text-left"
+            {rfq.attachments.map((att, idx) => {
+              const config = attachmentTypeConfig[att.type];
+              const TypeIcon = config.icon;
+              const isExpanded = expandedAttachments.has(idx);
+
+              return (
+                <div
+                  key={idx}
+                  className={cn("rounded-lg border overflow-hidden", config.contentBorder)}
                 >
-                  <FileText className="h-3.5 w-3.5 text-warm-500 shrink-0" />
-                  <span className="text-[12px] font-medium text-foreground flex-1">
-                    {att.name}
-                  </span>
-                  <Badge
-                    variant="secondary"
-                    className="text-[9px] px-1.5 py-0 font-medium bg-warm-100 text-warm-500 border-warm-200"
+                  <button
+                    onClick={() => toggleAttachment(idx)}
+                    className={cn(
+                      "w-full flex items-center gap-2.5 px-3.5 py-2.5 transition-colors text-left",
+                      isExpanded ? config.headerBg : "hover:bg-warm-50/50"
+                    )}
                   >
-                    {att.type}
-                  </Badge>
-                  {expandedAttachments.has(idx) ? (
-                    <ChevronDown className="h-3 w-3 text-warm-400" />
-                  ) : (
-                    <ChevronRight className="h-3 w-3 text-warm-400" />
+                    <div className={cn("h-7 w-7 rounded-md flex items-center justify-center shrink-0", config.iconBg)}>
+                      <TypeIcon className={cn("h-3.5 w-3.5", config.iconColor)} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <span className="text-[13px] font-medium text-foreground block truncate">
+                        {att.name}
+                      </span>
+                      <span className={cn("text-[10px]", config.headerText)}>
+                        {config.label}
+                      </span>
+                    </div>
+                    <Badge
+                      variant="secondary"
+                      className={cn("text-[9px] px-1.5 py-0 font-semibold shrink-0", config.badgeBg)}
+                    >
+                      {att.type.toUpperCase()}
+                    </Badge>
+                    {isExpanded ? (
+                      <ChevronDown className="h-3.5 w-3.5 text-warm-400 shrink-0" />
+                    ) : (
+                      <ChevronRight className="h-3.5 w-3.5 text-warm-400 shrink-0" />
+                    )}
+                  </button>
+                  {isExpanded && (
+                    <div className={cn("px-4 pb-4 pt-2 border-t", config.headerBorder)}>
+                      <AttachmentContentRenderer content={att.content} type={att.type} />
+                    </div>
                   )}
-                </button>
-                {expandedAttachments.has(idx) && (
-                  <div className="px-3 pb-3 pt-1 border-t border-warm-200/40">
-                    <pre className="text-[12px] text-foreground/70 leading-relaxed whitespace-pre-wrap font-sans">
-                      {att.content}
-                    </pre>
-                  </div>
-                )}
-              </div>
-            ))}
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
@@ -597,25 +821,26 @@ function RFQCard({ rfq }: { rfq: RFQ }) {
   );
 }
 
-// ─── Email Draft Parser ─────────────────────────────────────────────────────
+// ─── Email / Quote Draft Parser ──────────────────────────────────────────────
 
 interface ParsedContent {
-  type: "markdown" | "email_draft";
+  type: "markdown" | "email_draft" | "quote_draft";
   content: string;
 }
 
 function parseAgentMessage(content: string): ParsedContent[] {
   const parts: ParsedContent[] = [];
-  const emailRegex = /<!-- EMAIL_DRAFT -->([\s\S]*?)<!-- \/EMAIL_DRAFT -->/g;
+  const blockRegex = /<!-- (EMAIL_DRAFT|QUOTE_DRAFT) -->([\s\S]*?)<!-- \/\1 -->/g;
   let lastIndex = 0;
   let match;
 
-  while ((match = emailRegex.exec(content)) !== null) {
+  while ((match = blockRegex.exec(content)) !== null) {
     if (match.index > lastIndex) {
       const before = content.slice(lastIndex, match.index).trim();
       if (before) parts.push({ type: "markdown", content: before });
     }
-    parts.push({ type: "email_draft", content: match[1].trim() });
+    const blockType = match[1] === "QUOTE_DRAFT" ? "quote_draft" : "email_draft";
+    parts.push({ type: blockType, content: match[2].trim() });
     lastIndex = match.index + match[0].length;
   }
 
@@ -629,94 +854,335 @@ function parseAgentMessage(content: string): ParsedContent[] {
   return parts;
 }
 
+// ─── ERP Citation Renderer ───────────────────────────────────────────────────
+
+const ERP_CITATION_REGEX = /\[ERP:\s*([^\]]+)\]/g;
+
+function renderTextWithCitations(text: string): React.ReactNode[] {
+  const parts: React.ReactNode[] = [];
+  let lastIndex = 0;
+  let match;
+  const regex = new RegExp(ERP_CITATION_REGEX.source, "g");
+
+  while ((match = regex.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push(text.slice(lastIndex, match.index));
+    }
+    const citationText = match[1].trim();
+    parts.push(
+      <span
+        key={`cite-${match.index}`}
+        className="inline-flex items-center gap-1 px-1.5 py-0.5 mx-0.5 rounded-md bg-violet-100/80 border border-violet-200/60 text-[10px] font-medium text-violet-700 align-middle whitespace-nowrap"
+        title={citationText}
+      >
+        <Database className="h-2.5 w-2.5 shrink-0" />
+        <span className="max-w-[220px] truncate">{citationText}</span>
+      </span>
+    );
+    lastIndex = match.index + match[0].length;
+  }
+
+  if (lastIndex < text.length) {
+    parts.push(text.slice(lastIndex));
+  }
+
+  return parts.length > 0 ? parts : [text];
+}
+
+function CitationAwareText({ children }: { children: React.ReactNode }) {
+  if (typeof children === "string") {
+    return <>{renderTextWithCitations(children)}</>;
+  }
+
+  if (Array.isArray(children)) {
+    return (
+      <>
+        {children.map((child, i) => {
+          if (typeof child === "string") {
+            return <span key={i}>{renderTextWithCitations(child)}</span>;
+          }
+          return child;
+        })}
+      </>
+    );
+  }
+
+  return <>{children}</>;
+}
+
+// ─── Recommended Actions Block ───────────────────────────────────────────────
+
+function RecommendedActionsBlock({ items }: { items: string[] }) {
+  const [feedback, setFeedback] = useState<Record<number, "up" | "down" | null>>({});
+
+  const handleFeedback = (index: number, type: "up" | "down") => {
+    setFeedback((prev) => ({
+      ...prev,
+      [index]: prev[index] === type ? null : type,
+    }));
+  };
+
+  return (
+    <div className="mb-2">
+      <div className="space-y-1.5">
+        {items.map((item, idx) => (
+          <div
+            key={idx}
+            className="flex items-start gap-2 group rounded-lg border border-warm-200/40 bg-warm-50/30 px-3 py-2"
+          >
+            <span className="shrink-0 mt-0.5 w-1.5 h-1.5 rounded-full bg-warm-400" />
+            <div className="flex-1 min-w-0 text-[13px] leading-relaxed text-foreground/85 break-words">
+              <CitationAwareText>{item}</CitationAwareText>
+            </div>
+            <div className="shrink-0 flex items-center gap-1 ml-2">
+              <button
+                onClick={() => handleFeedback(idx, "up")}
+                className={cn(
+                  "p-1 rounded-md transition-colors",
+                  feedback[idx] === "up"
+                    ? "bg-green-100 text-green-600"
+                    : "text-warm-300 hover:text-green-500 hover:bg-green-50"
+                )}
+                title="Helpful"
+              >
+                <ThumbsUp className="h-3 w-3" />
+              </button>
+              <button
+                onClick={() => handleFeedback(idx, "down")}
+                className={cn(
+                  "p-1 rounded-md transition-colors",
+                  feedback[idx] === "down"
+                    ? "bg-red-100 text-red-500"
+                    : "text-warm-300 hover:text-red-400 hover:bg-red-50"
+                )}
+                title="Not helpful"
+              >
+                <ThumbsDown className="h-3 w-3" />
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── Markdown Section Splitter ───────────────────────────────────────────────
+
+interface MarkdownSection {
+  type: "markdown" | "recommended_actions";
+  content: string;
+  items?: string[];
+}
+
+function splitRecommendedActions(content: string): MarkdownSection[] {
+  const headingRegex = /^(#{1,3})\s+.*Recommended\s+(?:Actions|[Nn]ext\s+[Ss]teps|[Ss]teps).*/im;
+  const boldHeadingRegex = /^\*\*.*Recommended\s+(?:Actions|[Nn]ext\s+[Ss]teps|[Ss]teps).*\*\*/im;
+  const colonHeadingRegex = /^Recommended\s+(?:actions|next\s+steps|steps)[^:]*:/im;
+
+  const match = content.match(headingRegex) || content.match(boldHeadingRegex) || content.match(colonHeadingRegex);
+  if (!match || match.index === undefined) {
+    return [{ type: "markdown", content }];
+  }
+
+  const sections: MarkdownSection[] = [];
+  const beforeSection = content.slice(0, match.index).trim();
+  if (beforeSection) {
+    sections.push({ type: "markdown", content: beforeSection });
+  }
+
+  const afterHeading = content.slice(match.index + match[0].length);
+
+  const nextHeadingMatch = afterHeading.match(/\n(?=#{1,3}\s|\*\*Section)/m);
+  const sectionBody = nextHeadingMatch && nextHeadingMatch.index !== undefined
+    ? afterHeading.slice(0, nextHeadingMatch.index)
+    : afterHeading;
+
+  const remainder = nextHeadingMatch && nextHeadingMatch.index !== undefined
+    ? afterHeading.slice(nextHeadingMatch.index).trim()
+    : "";
+
+  const bulletLines = sectionBody
+    .split("\n")
+    .map((l) => l.trim())
+    .filter((l) => /^[-*]\s+/.test(l) || /^\d+\.\s+/.test(l))
+    .map((l) => l.replace(/^[-*]\s+/, "").replace(/^\d+\.\s+/, ""));
+
+  if (bulletLines.length > 0) {
+    sections.push({
+      type: "recommended_actions",
+      content: match[0],
+      items: bulletLines,
+    });
+  } else {
+    sections.push({ type: "markdown", content: match[0] + sectionBody });
+  }
+
+  if (remainder) {
+    sections.push({ type: "markdown", content: remainder });
+  }
+
+  return sections;
+}
+
 // ─── Markdown Renderer ──────────────────────────────────────────────────────
 
-function AgentMarkdown({ content }: { content: string }) {
+const markdownComponents = {
+  h1: ({ children }: { children?: React.ReactNode }) => (
+    <h1 className="text-base font-bold text-foreground mt-3 mb-1.5 first:mt-0">
+      <CitationAwareText>{children}</CitationAwareText>
+    </h1>
+  ),
+  h2: ({ children }: { children?: React.ReactNode }) => (
+    <h2 className="text-sm font-bold text-foreground mt-3 mb-1 first:mt-0">
+      <CitationAwareText>{children}</CitationAwareText>
+    </h2>
+  ),
+  h3: ({ children }: { children?: React.ReactNode }) => (
+    <h3 className="text-[13px] font-semibold text-foreground mt-2 mb-1 first:mt-0">
+      <CitationAwareText>{children}</CitationAwareText>
+    </h3>
+  ),
+  p: ({ children }: { children?: React.ReactNode }) => (
+    <p className="text-[13px] leading-relaxed text-foreground/85 mb-2 last:mb-0">
+      <CitationAwareText>{children}</CitationAwareText>
+    </p>
+  ),
+  ul: ({ children }: { children?: React.ReactNode }) => (
+    <ul className="text-[13px] leading-relaxed space-y-1 mb-2 ml-4 list-disc marker:text-warm-400">
+      {children}
+    </ul>
+  ),
+  ol: ({ children }: { children?: React.ReactNode }) => (
+    <ol className="text-[13px] leading-relaxed space-y-1 mb-2 ml-4 list-decimal marker:text-warm-400">
+      {children}
+    </ol>
+  ),
+  li: ({ children }: { children?: React.ReactNode }) => (
+    <li className="text-foreground/85"><CitationAwareText>{children}</CitationAwareText></li>
+  ),
+  strong: ({ children }: { children?: React.ReactNode }) => (
+    <strong className="font-semibold text-foreground"><CitationAwareText>{children}</CitationAwareText></strong>
+  ),
+  em: ({ children }: { children?: React.ReactNode }) => (
+    <em className="italic text-foreground/75"><CitationAwareText>{children}</CitationAwareText></em>
+  ),
+  code: ({ children, className }: { children?: React.ReactNode; className?: string }) => {
+    const isInline = !className;
+    if (isInline) {
+      const text = String(children);
+      if (ERP_CITATION_REGEX.test(text)) {
+        ERP_CITATION_REGEX.lastIndex = 0;
+        return <CitationAwareText>{text}</CitationAwareText>;
+      }
+    }
+    return isInline ? (
+      <code className="text-[12px] bg-warm-200/50 px-1 py-0.5 rounded text-foreground font-mono">
+        {children}
+      </code>
+    ) : (
+      <code className="block text-[12px] bg-warm-200/30 px-3 py-2 rounded-lg text-foreground/85 font-mono whitespace-pre-wrap mb-2">
+        {children}
+      </code>
+    );
+  },
+  table: ({ children }: { children?: React.ReactNode }) => (
+    <div className="overflow-x-auto mb-2">
+      <table className="text-[12px] w-full border-collapse">
+        {children}
+      </table>
+    </div>
+  ),
+  thead: ({ children }: { children?: React.ReactNode }) => (
+    <thead className="bg-warm-100/60 text-left">{children}</thead>
+  ),
+  th: ({ children }: { children?: React.ReactNode }) => (
+    <th className="px-2 py-1.5 font-semibold text-foreground border-b border-warm-200/60">
+      <CitationAwareText>{children}</CitationAwareText>
+    </th>
+  ),
+  td: ({ children }: { children?: React.ReactNode }) => (
+    <td className="px-2 py-1.5 text-foreground/85 border-b border-warm-200/30">
+      <CitationAwareText>{children}</CitationAwareText>
+    </td>
+  ),
+  hr: () => <hr className="my-3 border-warm-200/50" />,
+  blockquote: ({ children }: { children?: React.ReactNode }) => (
+    <blockquote className="border-l-2 border-warm-400 pl-3 my-2 text-foreground/70 italic">
+      {children}
+    </blockquote>
+  ),
+};
+
+const emailMarkdownComponents = {
+  ...markdownComponents,
+  p: ({ children }: { children?: React.ReactNode }) => (
+    <p className="text-[12px] leading-relaxed text-foreground/80 mb-1 last:mb-0">
+      {children}
+    </p>
+  ),
+  ul: ({ children }: { children?: React.ReactNode }) => (
+    <ul className="text-[12px] leading-relaxed space-y-0.5 mb-1 ml-4 list-disc marker:text-warm-400">
+      {children}
+    </ul>
+  ),
+  ol: ({ children }: { children?: React.ReactNode }) => (
+    <ol className="text-[12px] leading-relaxed space-y-0.5 mb-1 ml-4 list-decimal marker:text-warm-400">
+      {children}
+    </ol>
+  ),
+  li: ({ children }: { children?: React.ReactNode }) => (
+    <li className="text-foreground/80">{children}</li>
+  ),
+  h1: ({ children }: { children?: React.ReactNode }) => (
+    <h1 className="text-[13px] font-semibold text-foreground mt-2 mb-0.5 first:mt-0">{children}</h1>
+  ),
+  h2: ({ children }: { children?: React.ReactNode }) => (
+    <h2 className="text-[12px] font-semibold text-foreground mt-2 mb-0.5 first:mt-0">{children}</h2>
+  ),
+  h3: ({ children }: { children?: React.ReactNode }) => (
+    <h3 className="text-[12px] font-semibold text-foreground mt-1.5 mb-0.5 first:mt-0">{children}</h3>
+  ),
+};
+
+function EmailBodyMarkdown({ content }: { content: string }) {
   return (
     <ReactMarkdown
       remarkPlugins={[remarkGfm]}
-      components={{
-        h1: ({ children }) => (
-          <h1 className="text-base font-bold text-foreground mt-3 mb-1.5 first:mt-0">
-            {children}
-          </h1>
-        ),
-        h2: ({ children }) => (
-          <h2 className="text-sm font-bold text-foreground mt-3 mb-1 first:mt-0">
-            {children}
-          </h2>
-        ),
-        h3: ({ children }) => (
-          <h3 className="text-[13px] font-semibold text-foreground mt-2 mb-1 first:mt-0">
-            {children}
-          </h3>
-        ),
-        p: ({ children }) => (
-          <p className="text-[13px] leading-relaxed text-foreground/85 mb-2 last:mb-0">
-            {children}
-          </p>
-        ),
-        ul: ({ children }) => (
-          <ul className="text-[13px] leading-relaxed space-y-1 mb-2 ml-4 list-disc marker:text-warm-400">
-            {children}
-          </ul>
-        ),
-        ol: ({ children }) => (
-          <ol className="text-[13px] leading-relaxed space-y-1 mb-2 ml-4 list-decimal marker:text-warm-400">
-            {children}
-          </ol>
-        ),
-        li: ({ children }) => (
-          <li className="text-foreground/85">{children}</li>
-        ),
-        strong: ({ children }) => (
-          <strong className="font-semibold text-foreground">{children}</strong>
-        ),
-        em: ({ children }) => (
-          <em className="italic text-foreground/75">{children}</em>
-        ),
-        code: ({ children, className }) => {
-          const isInline = !className;
-          return isInline ? (
-            <code className="text-[12px] bg-warm-200/50 px-1 py-0.5 rounded text-foreground font-mono">
-              {children}
-            </code>
-          ) : (
-            <code className="block text-[12px] bg-warm-200/30 px-3 py-2 rounded-lg text-foreground/85 font-mono whitespace-pre-wrap mb-2">
-              {children}
-            </code>
-          );
-        },
-        table: ({ children }) => (
-          <div className="overflow-x-auto mb-2">
-            <table className="text-[12px] w-full border-collapse">
-              {children}
-            </table>
-          </div>
-        ),
-        thead: ({ children }) => (
-          <thead className="bg-warm-100/60 text-left">{children}</thead>
-        ),
-        th: ({ children }) => (
-          <th className="px-2 py-1.5 font-semibold text-foreground border-b border-warm-200/60">
-            {children}
-          </th>
-        ),
-        td: ({ children }) => (
-          <td className="px-2 py-1.5 text-foreground/85 border-b border-warm-200/30">
-            {children}
-          </td>
-        ),
-        hr: () => <hr className="my-3 border-warm-200/50" />,
-        blockquote: ({ children }) => (
-          <blockquote className="border-l-2 border-warm-400 pl-3 my-2 text-foreground/70 italic">
-            {children}
-          </blockquote>
-        ),
-      }}
+      components={emailMarkdownComponents as never}
     >
       {content}
     </ReactMarkdown>
+  );
+}
+
+function AgentMarkdown({ content }: { content: string }) {
+  const sections = useMemo(() => splitRecommendedActions(content), [content]);
+
+  return (
+    <div>
+      {sections.map((section, idx) => {
+        if (section.type === "recommended_actions" && section.items) {
+          return (
+            <div key={idx}>
+              <h3 className="text-[13px] font-semibold text-foreground mt-2 mb-1.5">
+                Recommended Actions
+              </h3>
+              <RecommendedActionsBlock items={section.items} />
+            </div>
+          );
+        }
+        return (
+          <ReactMarkdown
+            key={idx}
+            remarkPlugins={[remarkGfm]}
+            components={markdownComponents as never}
+          >
+            {section.content}
+          </ReactMarkdown>
+        );
+      })}
+    </div>
   );
 }
 
@@ -777,8 +1243,8 @@ function EmailDraftCard({ draftContent }: { draftContent: string }) {
               {subject}
             </div>
           )}
-          <div className="text-[12px] text-foreground/80 leading-relaxed whitespace-pre-wrap border-t border-blue-200/30 pt-2">
-            <AgentMarkdown content={body} />
+          <div className="text-[12px] text-foreground/80 leading-relaxed border-t border-blue-200/30 pt-2">
+            <EmailBodyMarkdown content={body} />
           </div>
         </div>
 
@@ -937,9 +1403,83 @@ function EmailDraftModal({
   );
 }
 
+// ─── Quote Preview Card ─────────────────────────────────────────────────────
+
+function QuotePreviewCard({
+  jsonContent,
+  onOpenQuote,
+}: {
+  jsonContent: string;
+  onOpenQuote: (data: QuoteData) => void;
+}) {
+  const quoteData = useMemo<QuoteData | null>(() => {
+    try {
+      return JSON.parse(jsonContent);
+    } catch {
+      return null;
+    }
+  }, [jsonContent]);
+
+  if (!quoteData) {
+    return (
+      <div className="rounded-lg border border-red-200/60 bg-red-50/30 px-3 py-2 mt-2 mb-1 text-[12px] text-red-600">
+        Failed to parse quote data.
+      </div>
+    );
+  }
+
+  const total = quoteData.lineItems.reduce(
+    (sum, li) => sum + li.qty * li.unitPrice,
+    0
+  );
+
+  return (
+    <div className="rounded-lg border border-emerald-200/60 bg-emerald-50/30 overflow-hidden mt-2 mb-1">
+      <div className="px-3 py-2 bg-emerald-50/60 border-b border-emerald-200/40 flex items-center gap-2">
+        <FileText className="h-3.5 w-3.5 text-emerald-600" />
+        <span className="text-[11px] font-semibold text-emerald-700 uppercase tracking-wider">
+          Quote Generated
+        </span>
+      </div>
+      <div className="px-3 py-3">
+        <div className="flex items-center justify-between mb-2">
+          <div>
+            <span className="text-[13px] font-semibold text-foreground block">
+              {quoteData.quoteNumber}
+            </span>
+            <span className="text-[11px] text-muted-foreground">
+              {quoteData.to.company} &middot; {quoteData.lineItems.length} line item{quoteData.lineItems.length !== 1 ? "s" : ""}
+            </span>
+          </div>
+          <span className="text-sm font-bold text-foreground">
+            {total.toLocaleString("en-US", {
+              style: "currency",
+              currency: "USD",
+            })}
+          </span>
+        </div>
+        <Button
+          size="sm"
+          onClick={() => onOpenQuote(quoteData)}
+          className="w-full h-8 text-[11px] font-medium bg-emerald-700 hover:bg-emerald-600 text-white gap-1.5"
+        >
+          <ExternalLink className="h-3 w-3" />
+          Open Quote
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 // ─── Message Bubble ─────────────────────────────────────────────────────────
 
-function MessageBubble({ message }: { message: ConciergeMessage }) {
+function MessageBubble({
+  message,
+  onOpenQuote,
+}: {
+  message: ConciergeMessage;
+  onOpenQuote: (data: QuoteData) => void;
+}) {
   const isAgent = message.role === "agent";
 
   const parsedParts = useMemo(
@@ -977,7 +1517,13 @@ function MessageBubble({ message }: { message: ConciergeMessage }) {
         {isAgent && parsedParts ? (
           <div>
             {parsedParts.map((part, idx) =>
-              part.type === "email_draft" ? (
+              part.type === "quote_draft" ? (
+                <QuotePreviewCard
+                  key={idx}
+                  jsonContent={part.content}
+                  onOpenQuote={onOpenQuote}
+                />
+              ) : part.type === "email_draft" ? (
                 <EmailDraftCard key={idx} draftContent={part.content} />
               ) : (
                 <AgentMarkdown key={idx} content={part.content} />
