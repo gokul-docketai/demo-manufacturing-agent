@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { mockAccounts, Account } from "@/lib/mock-data";
+import { AccountDetailDrawer } from "@/components/account-detail-drawer";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import {
@@ -88,7 +89,12 @@ function HealthDot({ health }: { health: Account["health"] }) {
   );
 }
 
-export function AccountsPage() {
+interface AccountsPageProps {
+  selectedAccountId?: string | null;
+  onAccountSelect?: (accountId: string | null) => void;
+}
+
+export function AccountsPage({ selectedAccountId, onAccountSelect }: AccountsPageProps) {
   const [columns, setColumns] = useState<CRMColumn[]>(defaultColumns);
   const [aiData, setAiData] = useState<Record<string, string[]>>({});
   const [popoverOpen, setPopoverOpen] = useState(false);
@@ -96,6 +102,22 @@ export function AccountsPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const popoverRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const selectedAccount = useMemo(
+    () => mockAccounts.find((a) => a.id === selectedAccountId) ?? null,
+    [selectedAccountId]
+  );
+
+  const drawerOpen = selectedAccount !== null;
+
+  const handleDrawerOpenChange = useCallback(
+    (open: boolean) => {
+      if (!open) {
+        onAccountSelect?.(null);
+      }
+    },
+    [onAccountSelect]
+  );
 
   useEffect(() => {
     if (popoverOpen && inputRef.current) {
@@ -261,7 +283,11 @@ export function AccountsPage() {
                 {mockAccounts.map((acc, rowIdx) => (
                   <tr
                     key={acc.id}
-                    className="hover:bg-warm-50/50 transition-colors cursor-pointer"
+                    onClick={() => onAccountSelect?.(acc.id)}
+                    className={cn(
+                      "hover:bg-warm-50/50 transition-colors cursor-pointer",
+                      selectedAccountId === acc.id && "bg-warm-100/70"
+                    )}
                   >
                     {columns.map((col) => {
                       if (col.isAI) {
@@ -336,6 +362,12 @@ export function AccountsPage() {
           </div>
         </div>
       </div>
+
+      <AccountDetailDrawer
+        account={selectedAccount}
+        open={drawerOpen}
+        onOpenChange={handleDrawerOpenChange}
+      />
     </div>
   );
 }

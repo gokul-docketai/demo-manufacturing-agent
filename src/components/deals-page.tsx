@@ -91,15 +91,31 @@ function ProbabilityCell({ value }: { value: number }) {
   );
 }
 
-function AccountTag({ name }: { name: string }) {
+function AccountTag({ name, onClick }: { name: string; onClick?: () => void }) {
   return (
-    <span className="inline-flex items-center gap-1 text-[11px] font-medium px-1.5 py-0.5 rounded-md bg-warm-100 text-warm-700 border border-warm-200/60">
+    <button
+      type="button"
+      onClick={(e) => {
+        if (onClick) {
+          e.stopPropagation();
+          onClick();
+        }
+      }}
+      className={cn(
+        "inline-flex items-center gap-1 text-[11px] font-medium px-1.5 py-0.5 rounded-md bg-warm-100 text-warm-700 border border-warm-200/60",
+        onClick && "cursor-pointer hover:bg-warm-200/80 hover:border-warm-300/60 transition-colors"
+      )}
+    >
       {name}
-    </span>
+    </button>
   );
 }
 
-export function DealsPage() {
+interface DealsPageProps {
+  onAccountClick?: (accountId: string) => void;
+}
+
+export function DealsPage({ onAccountClick }: DealsPageProps) {
   const [columns, setColumns] = useState<CRMColumn[]>(defaultColumns);
   const [aiData, setAiData] = useState<Record<string, string[]>>({});
   const [popoverOpen, setPopoverOpen] = useState(false);
@@ -302,7 +318,10 @@ export function DealsPage() {
                       if (col.key === "accountName") {
                         return (
                           <td key={col.key} className="px-3 py-2.5 whitespace-nowrap">
-                            <AccountTag name={deal.accountName} />
+                            <AccountTag
+                              name={deal.accountName}
+                              onClick={onAccountClick ? () => onAccountClick(deal.accountId) : undefined}
+                            />
                           </td>
                         );
                       }

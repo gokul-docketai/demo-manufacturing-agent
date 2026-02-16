@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
   mockDeals,
@@ -39,12 +40,34 @@ import {
 type AppMode = "action" | "detail" | "cowork";
 
 export function Workspace() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
   const [mode, setMode] = useState<AppMode>("action");
-  const [activePage, setActivePage] = useState<Page>("home");
+  const [activePage, setActivePage] = useState<Page>(() => {
+    const p = searchParams.get("page");
+    if (p === "accounts" || p === "deals" || p === "concierge" || p === "home") return p;
+    return "home";
+  });
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeStage, setActiveStage] = useState<Stage | null>(null);
   const [selectedDealId, setSelectedDealId] = useState<string | null>(null);
+  const [selectedAccountId, setSelectedAccountId] = useState<string | null>(
+    () => searchParams.get("accountId")
+  );
   const [approvedDeals, setApprovedDeals] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (activePage !== "home") {
+      params.set("page", activePage);
+    }
+    if (selectedAccountId) {
+      params.set("accountId", selectedAccountId);
+    }
+    const qs = params.toString();
+    router.replace(qs ? `?${qs}` : "/", { scroll: false });
+  }, [activePage, selectedAccountId, router]);
 
   const priorityDeals = useMemo(
     () => mockDeals.filter((d) => d.priority && !approvedDeals.has(d.id)),
@@ -107,6 +130,14 @@ export function Workspace() {
     setActivePage(page);
     setMode("action");
     setSelectedDealId(null);
+    setSelectedAccountId(null);
+  }, []);
+
+  const handleAccountClickFromDeals = useCallback((accountId: string) => {
+    setActivePage("accounts");
+    setSelectedAccountId(accountId);
+    setMode("action");
+    setSelectedDealId(null);
   }, []);
 
   // Cowork mode — full screen
@@ -146,7 +177,10 @@ export function Workspace() {
       <div className="min-h-screen bg-background">
         <NavSidebar activePage={activePage} onNavigate={handleNavigate} />
         <div className="ml-12">
-          <AccountsPage />
+          <AccountsPage
+            selectedAccountId={selectedAccountId}
+            onAccountSelect={setSelectedAccountId}
+          />
         </div>
       </div>
     );
@@ -158,7 +192,7 @@ export function Workspace() {
       <div className="min-h-screen bg-background">
         <NavSidebar activePage={activePage} onNavigate={handleNavigate} />
         <div className="ml-12">
-          <DealsPage />
+          <DealsPage onAccountClick={handleAccountClickFromDeals} />
         </div>
       </div>
     );
