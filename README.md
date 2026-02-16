@@ -1,5 +1,15 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Screenshots
+
+![Screen 1](screen1.png)
+
+![Screen 2](screen2.png)
+
+![Screen 3](screen3.png)
+
+![Screen 4](screen4.png)
+
 ## Getting Started
 
 First, run the development server:
