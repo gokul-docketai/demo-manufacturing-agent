@@ -1,6 +1,8 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import {
   RFQ,
   ConciergeMessage,
@@ -10,6 +12,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import {
   Inbox,
@@ -25,6 +34,10 @@ import {
   DollarSign,
   Search,
   MessageSquare,
+  Mail,
+  Pencil,
+  CheckCircle,
+  X,
 } from "lucide-react";
 
 // ─── Main Concierge Page ────────────────────────────────────────────────────
@@ -584,15 +597,358 @@ function RFQCard({ rfq }: { rfq: RFQ }) {
   );
 }
 
+// ─── Email Draft Parser ─────────────────────────────────────────────────────
+
+interface ParsedContent {
+  type: "markdown" | "email_draft";
+  content: string;
+}
+
+function parseAgentMessage(content: string): ParsedContent[] {
+  const parts: ParsedContent[] = [];
+  const emailRegex = /<!-- EMAIL_DRAFT -->([\s\S]*?)<!-- \/EMAIL_DRAFT -->/g;
+  let lastIndex = 0;
+  let match;
+
+  while ((match = emailRegex.exec(content)) !== null) {
+    if (match.index > lastIndex) {
+      const before = content.slice(lastIndex, match.index).trim();
+      if (before) parts.push({ type: "markdown", content: before });
+    }
+    parts.push({ type: "email_draft", content: match[1].trim() });
+    lastIndex = match.index + match[0].length;
+  }
+
+  const remaining = content.slice(lastIndex).trim();
+  if (remaining) parts.push({ type: "markdown", content: remaining });
+
+  if (parts.length === 0) {
+    parts.push({ type: "markdown", content });
+  }
+
+  return parts;
+}
+
+// ─── Markdown Renderer ──────────────────────────────────────────────────────
+
+function AgentMarkdown({ content }: { content: string }) {
+  return (
+    <ReactMarkdown
+      remarkPlugins={[remarkGfm]}
+      components={{
+        h1: ({ children }) => (
+          <h1 className="text-base font-bold text-foreground mt-3 mb-1.5 first:mt-0">
+            {children}
+          </h1>
+        ),
+        h2: ({ children }) => (
+          <h2 className="text-sm font-bold text-foreground mt-3 mb-1 first:mt-0">
+            {children}
+          </h2>
+        ),
+        h3: ({ children }) => (
+          <h3 className="text-[13px] font-semibold text-foreground mt-2 mb-1 first:mt-0">
+            {children}
+          </h3>
+        ),
+        p: ({ children }) => (
+          <p className="text-[13px] leading-relaxed text-foreground/85 mb-2 last:mb-0">
+            {children}
+          </p>
+        ),
+        ul: ({ children }) => (
+          <ul className="text-[13px] leading-relaxed space-y-1 mb-2 ml-4 list-disc marker:text-warm-400">
+            {children}
+          </ul>
+        ),
+        ol: ({ children }) => (
+          <ol className="text-[13px] leading-relaxed space-y-1 mb-2 ml-4 list-decimal marker:text-warm-400">
+            {children}
+          </ol>
+        ),
+        li: ({ children }) => (
+          <li className="text-foreground/85">{children}</li>
+        ),
+        strong: ({ children }) => (
+          <strong className="font-semibold text-foreground">{children}</strong>
+        ),
+        em: ({ children }) => (
+          <em className="italic text-foreground/75">{children}</em>
+        ),
+        code: ({ children, className }) => {
+          const isInline = !className;
+          return isInline ? (
+            <code className="text-[12px] bg-warm-200/50 px-1 py-0.5 rounded text-foreground font-mono">
+              {children}
+            </code>
+          ) : (
+            <code className="block text-[12px] bg-warm-200/30 px-3 py-2 rounded-lg text-foreground/85 font-mono whitespace-pre-wrap mb-2">
+              {children}
+            </code>
+          );
+        },
+        table: ({ children }) => (
+          <div className="overflow-x-auto mb-2">
+            <table className="text-[12px] w-full border-collapse">
+              {children}
+            </table>
+          </div>
+        ),
+        thead: ({ children }) => (
+          <thead className="bg-warm-100/60 text-left">{children}</thead>
+        ),
+        th: ({ children }) => (
+          <th className="px-2 py-1.5 font-semibold text-foreground border-b border-warm-200/60">
+            {children}
+          </th>
+        ),
+        td: ({ children }) => (
+          <td className="px-2 py-1.5 text-foreground/85 border-b border-warm-200/30">
+            {children}
+          </td>
+        ),
+        hr: () => <hr className="my-3 border-warm-200/50" />,
+        blockquote: ({ children }) => (
+          <blockquote className="border-l-2 border-warm-400 pl-3 my-2 text-foreground/70 italic">
+            {children}
+          </blockquote>
+        ),
+      }}
+    >
+      {content}
+    </ReactMarkdown>
+  );
+}
+
+// ─── Email Draft Card ───────────────────────────────────────────────────────
+
+function EmailDraftCard({ draftContent }: { draftContent: string }) {
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editedContent, setEditedContent] = useState(draftContent);
+
+  const { to, subject, body } = useMemo(() => {
+    const lines = draftContent.split("\n");
+    let to = "";
+    let subject = "";
+    const bodyLines: string[] = [];
+    let pastHeaders = false;
+
+    for (const line of lines) {
+      if (!pastHeaders && line.match(/^\*?\*?To:\*?\*?\s*/i)) {
+        to = line.replace(/^\*?\*?To:\*?\*?\s*/i, "").trim();
+      } else if (!pastHeaders && line.match(/^\*?\*?Subject:\*?\*?\s*/i)) {
+        subject = line.replace(/^\*?\*?Subject:\*?\*?\s*/i, "").trim();
+      } else if (!pastHeaders && line.trim() === "") {
+        if (to || subject) pastHeaders = true;
+      } else if (pastHeaders || (!to && !subject)) {
+        pastHeaders = true;
+        bodyLines.push(line);
+      }
+    }
+
+    return {
+      to,
+      subject,
+      body: bodyLines.join("\n").trim(),
+    };
+  }, [draftContent]);
+
+  return (
+    <>
+      <div className="rounded-lg border border-blue-200/60 bg-blue-50/30 overflow-hidden mt-2 mb-1">
+        {/* Email header */}
+        <div className="px-3 py-2 bg-blue-50/60 border-b border-blue-200/40 flex items-center gap-2">
+          <Mail className="h-3.5 w-3.5 text-blue-600" />
+          <span className="text-[11px] font-semibold text-blue-700 uppercase tracking-wider">
+            Draft Email
+          </span>
+        </div>
+
+        {/* Email content */}
+        <div className="px-3 py-2.5">
+          {to && (
+            <div className="text-[11px] text-muted-foreground mb-0.5">
+              <span className="font-semibold text-foreground/70">To:</span> {to}
+            </div>
+          )}
+          {subject && (
+            <div className="text-[11px] text-muted-foreground mb-2">
+              <span className="font-semibold text-foreground/70">Subject:</span>{" "}
+              {subject}
+            </div>
+          )}
+          <div className="text-[12px] text-foreground/80 leading-relaxed whitespace-pre-wrap border-t border-blue-200/30 pt-2">
+            <AgentMarkdown content={body} />
+          </div>
+        </div>
+
+        {/* CTA buttons */}
+        <div className="px-3 py-2.5 border-t border-blue-200/40 flex items-center gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              setEditedContent(draftContent);
+              setModalOpen(true);
+            }}
+            className="h-7 px-3 text-[11px] font-medium border-warm-300 text-warm-700 hover:bg-warm-100 gap-1.5"
+          >
+            <Pencil className="h-3 w-3" />
+            Edit &amp; Send
+          </Button>
+          <Button
+            size="sm"
+            className="h-7 px-3 text-[11px] font-medium bg-warm-800 hover:bg-warm-700 text-warm-50 gap-1.5"
+          >
+            <CheckCircle className="h-3 w-3" />
+            Approve &amp; Send
+          </Button>
+        </div>
+      </div>
+
+      {/* Edit Modal */}
+      <EmailDraftModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        content={editedContent}
+        onContentChange={setEditedContent}
+        to={to}
+        subject={subject}
+      />
+    </>
+  );
+}
+
+// ─── Email Draft Modal ──────────────────────────────────────────────────────
+
+function EmailDraftModal({
+  open,
+  onClose,
+  content,
+  onContentChange,
+  to,
+  subject,
+}: {
+  open: boolean;
+  onClose: () => void;
+  content: string;
+  onContentChange: (val: string) => void;
+  to: string;
+  subject: string;
+}) {
+  const [editTo, setEditTo] = useState(to);
+  const [editSubject, setEditSubject] = useState(subject);
+  const [editBody, setEditBody] = useState("");
+
+  useEffect(() => {
+    if (open) {
+      setEditTo(to);
+      setEditSubject(subject);
+      const lines = content.split("\n");
+      const bodyLines: string[] = [];
+      let pastHeaders = false;
+      for (const line of lines) {
+        if (!pastHeaders && line.match(/^\*?\*?To:\*?\*?\s*/i)) continue;
+        if (!pastHeaders && line.match(/^\*?\*?Subject:\*?\*?\s*/i)) continue;
+        if (!pastHeaders && line.trim() === "" && bodyLines.length === 0) {
+          pastHeaders = true;
+          continue;
+        }
+        pastHeaders = true;
+        bodyLines.push(line);
+      }
+      setEditBody(bodyLines.join("\n").trim());
+    }
+  }, [open, content, to, subject]);
+
+  const handleSave = () => {
+    const updated = `**To:** ${editTo}\n**Subject:** ${editSubject}\n\n${editBody}`;
+    onContentChange(updated);
+    onClose();
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
+      <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2 text-base">
+            <Mail className="h-4 w-4 text-warm-600" />
+            Edit Email Draft
+          </DialogTitle>
+        </DialogHeader>
+
+        <div className="flex-1 min-h-0 overflow-y-auto space-y-3 py-2">
+          {/* To field */}
+          <div>
+            <label className="text-[11px] font-semibold text-warm-500 uppercase tracking-wider mb-1 block">
+              To
+            </label>
+            <Input
+              value={editTo}
+              onChange={(e) => setEditTo(e.target.value)}
+              className="h-9 text-sm bg-warm-50 border-warm-200"
+            />
+          </div>
+
+          {/* Subject field */}
+          <div>
+            <label className="text-[11px] font-semibold text-warm-500 uppercase tracking-wider mb-1 block">
+              Subject
+            </label>
+            <Input
+              value={editSubject}
+              onChange={(e) => setEditSubject(e.target.value)}
+              className="h-9 text-sm bg-warm-50 border-warm-200"
+            />
+          </div>
+
+          {/* Body field */}
+          <div>
+            <label className="text-[11px] font-semibold text-warm-500 uppercase tracking-wider mb-1 block">
+              Body
+            </label>
+            <textarea
+              value={editBody}
+              onChange={(e) => setEditBody(e.target.value)}
+              rows={14}
+              className="w-full rounded-md border border-warm-200 bg-warm-50 px-3 py-2 text-sm text-foreground leading-relaxed focus:outline-none focus:ring-2 focus:ring-warm-300 resize-none"
+            />
+          </div>
+        </div>
+
+        <DialogFooter className="gap-2 pt-2">
+          <Button
+            variant="outline"
+            onClick={onClose}
+            className="h-8 px-4 text-xs font-medium border-warm-300 text-warm-600"
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleSave}
+            className="h-8 px-4 text-xs font-medium bg-warm-800 hover:bg-warm-700 text-warm-50 gap-1.5"
+          >
+            <Send className="h-3 w-3" />
+            Send
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 // ─── Message Bubble ─────────────────────────────────────────────────────────
 
 function MessageBubble({ message }: { message: ConciergeMessage }) {
   const isAgent = message.role === "agent";
 
+  const parsedParts = useMemo(
+    () => (isAgent ? parseAgentMessage(message.content) : null),
+    [isAgent, message.content]
+  );
+
   return (
-    <div
-      className={cn("flex gap-3", !isAgent && "flex-row-reverse")}
-    >
+    <div className={cn("flex gap-3", !isAgent && "flex-row-reverse")}>
       {/* Avatar */}
       <div
         className={cn(
@@ -612,15 +968,27 @@ function MessageBubble({ message }: { message: ConciergeMessage }) {
       {/* Bubble */}
       <div
         className={cn(
-          "rounded-xl px-4 py-3 max-w-[85%]",
+          "rounded-xl px-4 py-3",
           isAgent
-            ? "bg-warm-100/60 text-foreground"
-            : "bg-warm-800 text-warm-50"
+            ? "bg-warm-100/60 text-foreground max-w-[90%]"
+            : "bg-warm-800 text-warm-50 max-w-[85%]"
         )}
       >
-        <div className="text-[13px] leading-relaxed whitespace-pre-wrap">
-          {message.content}
-        </div>
+        {isAgent && parsedParts ? (
+          <div>
+            {parsedParts.map((part, idx) =>
+              part.type === "email_draft" ? (
+                <EmailDraftCard key={idx} draftContent={part.content} />
+              ) : (
+                <AgentMarkdown key={idx} content={part.content} />
+              )
+            )}
+          </div>
+        ) : (
+          <div className="text-[13px] leading-relaxed whitespace-pre-wrap">
+            {message.content}
+          </div>
+        )}
         <span
           className={cn(
             "text-[10px] mt-1.5 block",

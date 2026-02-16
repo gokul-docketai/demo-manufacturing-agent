@@ -35,7 +35,19 @@ export const mockRFQs: RFQ[] = [
     id: "rfq-1",
     title: "Electric Power Steering Column Brackets",
     description:
-      "Tesla is requesting a quote for 10,000 units of electric power steering column brackets machined from Ti-6Al-4V (Grade 5 titanium). These brackets mount the EPS motor assembly to the steering column housing in the Model Y refresh program. Parts require 5-axis CNC machining with tight tolerances on the mounting bore and locating features. Tesla expects IATF 16949 compliance and full PPAP Level 3 documentation.",
+      `Hi Derek,
+
+We're kicking off supplier sourcing for the Model Y refresh EPS bracket program and would like to include Precision Steering Components in our bid process.
+
+We need 10,000 electric power steering column brackets machined from Ti-6Al-4V (Grade 5 titanium). These mount the EPS motor assembly to the steering column housing — tight tolerances on the mounting bore and locating features are critical. We'll need 5-axis CNC machining capability for this geometry.
+
+I've attached the part drawing (Rev B) and our technical requirements document with specific questions we need answered. We require IATF 16949 compliance and full PPAP Level 3 documentation from all bidders.
+
+Please review and let us know your lead time for first articles and production pricing at 10K units. We'd like quotes back by end of next week if possible.
+
+Thanks,
+Sarah Chen
+Senior Procurement Engineer, Tesla Motors`,
     accountName: "Tesla Motors",
     contactName: "Sarah Chen",
     contactEmail: "s.chen@tesla.com",
@@ -67,7 +79,19 @@ export const mockRFQs: RFQ[] = [
     id: "rfq-2",
     title: "Steering Knuckle Forgings — R1T Platform",
     description:
-      "Rivian requires a quotation for 5,000 steering knuckle forgings in 4140 alloy steel for their R1T truck platform. The knuckles are a safety-critical suspension component connecting the wheel hub to the control arms. Parts require closed-die forging followed by CNC finish machining, heat treatment (quench & temper to 28-32 HRC), and 100% magnetic particle inspection.",
+      `Hello team,
+
+Rivian is expanding our domestic supplier base for the R1T truck platform and we're looking for a qualified forging partner for steering knuckles.
+
+We need 5,000 units in 4140 alloy steel — these are safety-critical suspension components connecting the wheel hub to the control arms. The process involves closed-die forging, CNC finish machining, heat treatment (quench & temper to 28-32 HRC), and 100% magnetic particle inspection. No shortcuts on the MPI — this is a safety part.
+
+I've attached our supplier questionnaire and the forging specification document. Please fill out the questionnaire as completely as possible — our engineering team uses it for the formal supplier evaluation.
+
+We're targeting a prototype run of 10 sample units first, then ramping to production. Let me know if this is something PSC can support.
+
+Best,
+James Park
+Supply Chain Manager, Rivian Automotive`,
     accountName: "Rivian Automotive",
     contactName: "James Park",
     contactEmail: "j.park@rivian.com",
@@ -100,7 +124,19 @@ export const mockRFQs: RFQ[] = [
     id: "rfq-3",
     title: "Steering Rack Housing — Lucid Air",
     description:
-      "Lucid Motors is sourcing a precision CNC-machined steering rack housing in aluminum 6061-T6 for the Lucid Air luxury EV. Quantity: 8,000 units annually. The housing is a long, complex part (580mm) requiring deep-bore machining, tight bore concentricity, and Type III hard anodizing. Lucid requires full PPAP Level 3 and ongoing SPC reporting on critical dimensions.",
+      `Hi Derek,
+
+We spoke briefly at IMTS last year about your aluminum machining capabilities — I'm following up because we have an active sourcing need.
+
+Lucid Motors needs a supplier for our steering rack housing on the Lucid Air platform. It's 6061-T6 aluminum, 8,000 units annually. Fair warning — it's a long part (580mm) with deep-bore machining and tight bore concentricity requirements. We also need Type III hard anodizing per MIL-A-8625.
+
+I've attached our RFQ questions document. We require full PPAP Level 3 and ongoing SPC reporting on critical dimensions — our quality team is pretty rigorous on this.
+
+If your capacity and capability line up, I'd love to schedule a call to walk through the drawing in detail. Let me know your availability.
+
+Regards,
+Maria Gonzalez
+Director of Powertrain Procurement, Lucid Motors`,
     accountName: "Lucid Motors",
     contactName: "Maria Gonzalez",
     contactEmail: "m.gonzalez@lucidmotors.com",
@@ -126,7 +162,19 @@ export const mockRFQs: RFQ[] = [
     id: "rfq-4",
     title: "Steering Sensor Mounting Plate — 3 Series",
     description:
-      "BMW Group is requesting a quote for 15,000 units/year of a precision stainless steel (303 SS) steering torque sensor mounting plate. The part requires ultra-tight flatness (0.02mm over 80mm), sub-micron surface finish on the sensor interface, and cleanroom-grade packaging to prevent contamination. BMW requires IMDS (International Material Data System) compliance and VDA 6.3 process audit readiness.",
+      `Dear Mr. Morrison,
+
+BMW Group is inviting Precision Steering Components to participate in a formal RFQ for the 3-Series torque sensor mounting plate program.
+
+We require 15,000 units per year of a precision 303 stainless steel mounting plate. This is a high-precision application — the sensor interface requires 0.02mm flatness over 80mm and sub-micron surface finish (Ra ≤ 0.2μm). Cleanroom-grade packaging is mandatory to prevent particle contamination of the sensor assembly.
+
+Attached you will find our supplier requirements document and the part drawing. Please note that IMDS registration is required for all BMW production suppliers, and we will conduct a VDA 6.3 process audit within 90 days of any award.
+
+We would appreciate your response within 10 business days. Please direct any technical questions to my attention.
+
+Mit freundlichen Grüßen,
+Klaus Richter
+Senior Buyer — Chassis & Steering, BMW Group`,
     accountName: "BMW Group",
     contactName: "Klaus Richter",
     contactEmail: "k.richter@bmw.de",
@@ -158,7 +206,19 @@ export const mockRFQs: RFQ[] = [
     id: "rfq-5",
     title: "Universal Joint Yoke — Driveline Program",
     description:
-      "Magna International is requesting pricing for 20,000 units/year of a universal joint yoke machined from 8620 alloy steel. The yoke is part of a steering intermediate shaft assembly for multiple OEM platforms. Parts require CNC machining from forgings, case carburizing to 58-62 HRC (0.8-1.2mm case depth), and 100% dimensional inspection on critical spline features. Magna needs volume pricing at 3 tier levels and Kanban delivery capability.",
+      `Hi there,
+
+We're reaching out on behalf of Magna's Driveline division. We have a high-volume opportunity for a universal joint yoke that we're sourcing across multiple OEM platforms.
+
+Volume is 20,000 units/year in 8620 alloy steel — we supply the forgings, you machine them. Key processes include CNC machining of the spline and cross-bore features, case carburizing to 58-62 HRC with 0.8-1.2mm case depth, and 100% dimensional inspection on the spline.
+
+We need volume pricing at three tier levels (10K, 20K, 30K) and the ability to support Kanban-based delivery with EDI integration. I've attached our RFQ questionnaire and the part specification — please review and let us know if this fits your wheelhouse.
+
+One note: we'd prefer a supplier willing to discuss consignment inventory at our Graz facility. Not a dealbreaker, but it's a plus.
+
+Cheers,
+Robert Nowak
+Commodity Manager — Driveline, Magna International`,
     accountName: "Magna International",
     contactName: "Robert Nowak",
     contactEmail: "r.nowak@magna.com",
@@ -191,49 +251,71 @@ export const mockRFQs: RFQ[] = [
 
 // ─── System Prompt for OpenAI ───────────────────────────────────────────────
 
-export const CONCIERGE_SYSTEM_PROMPT = `You are an AI sales engineering assistant at **Precision Steering Components (PSC)**, a Tier 1 automotive supplier specializing in precision-machined steering and driveline components.
+export const CONCIERGE_SYSTEM_PROMPT = `You are an AI sales engineering assistant at **Precision Steering Components (PSC)**, helping our internal sales reps process RFQs faster and win more deals.
 
-## Your Company Profile
+## Company Profile
 - **Name**: Precision Steering Components (PSC)
-- **Specialties**: 5-axis CNC machining, closed-die forging, Swiss turning, CNC turning/milling
-- **Materials**: Titanium (Ti-6Al-4V), aluminum (6061-T6, 7075), alloy steels (4140, 4340, 8620), stainless steels (303, 304, 17-4PH)
-- **Certifications**: IATF 16949:2016, AS9100D, ISO 14001, Nadcap (Heat Treat & NDT), ITAR registered
-- **Capacity**: 18 CNC machining centers (incl. 6x 5-axis), 2 forging presses (up to 10kg), 4 Swiss-type lathes
-- **Quality**: Current PPM rate: 85 PPM, Cpk > 1.67 on all CTQ characteristics
-- **Lead Times**: First articles: 3-5 weeks. Production: 6-10 weeks depending on complexity.
-- **Location**: Milwaukee, WI, USA with regional warehouse in Greenville, SC
+- **Capabilities**: 5-axis CNC machining, closed-die forging, Swiss turning, CNC turning/milling
+- **Materials**: Ti-6Al-4V, Al 6061-T6/7075, steels (4140, 4340, 8620), SS (303, 304, 17-4PH)
+- **Certs**: IATF 16949, AS9100D, ISO 14001, Nadcap (Heat Treat & NDT), ITAR
+- **Capacity**: 18 CNC centers (6x 5-axis), 2 forging presses (≤10kg), 4 Swiss lathes
+- **Quality**: 85 PPM, Cpk > 1.67 on all CTQs
+- **Lead Times**: First articles 3-5 wks, production 6-10 wks
+- **Location**: Milwaukee, WI + warehouse in Greenville, SC
 
-## Your Inventory & Material Stock
-- Ti-6Al-4V bar stock: 12,000 lbs (AMS 4928, multiple diameters)
-- 6061-T6 aluminum plate: 8,000 lbs (various thicknesses up to 4")
-- 4140 steel bar: 15,000 lbs (hot-rolled, annealed)
-- 8620 steel bar: 6,000 lbs
-- 303 SS bar: 4,500 lbs (free-machining grade)
-- All materials domestically sourced with full traceability
+## Inventory
+- Ti-6Al-4V: 12,000 lbs (AMS 4928) | 6061-T6 Al: 8,000 lbs | 4140 steel: 15,000 lbs
+- 8620 steel: 6,000 lbs | 303 SS: 4,500 lbs | All US-sourced, full traceability
 
-## Your Role
-You are helping the internal sales engineering team process incoming RFQs (Requests for Quote). When a new RFQ arrives:
+## Your Behavior
+You are the sales rep's assistant. Your job is to:
+1. Quickly analyze RFQs and surface what matters
+2. Draft ready-to-send email replies to the customer
+3. Provide actionable insights the rep can use immediately
 
-1. **Analyze the RFQ** against PSC's capabilities, certifications, and inventory
-2. **Identify strengths**: What we can do well and where we have a competitive advantage
-3. **Identify gaps or risks**: Anything we can't do in-house, capacity concerns, or certification gaps
-4. **Ask clarifying questions**: Generate 3-5 focused questions that our sales engineer should investigate or clarify with the customer before we can finalize a quote
-5. **When the sales engineer provides answers**, incorporate them and either:
-   - Ask follow-up questions if critical info is still missing, OR
-   - Generate a **preliminary quote** with estimated pricing, lead times, tooling costs, and terms
+## Response Format
+ALL responses must be in **markdown**. Keep them concise — reps are busy.
 
-## Quote Format (when ready)
-When generating a quote, structure it as:
-- **Unit pricing** (with quantity breaks if applicable)
-- **Tooling/fixturing costs** (one-time, NRE)
-- **Lead times** (first article + production)
-- **Certifications included**
-- **Assumptions & exclusions**
-- **Recommended next steps**
+### When analyzing a new RFQ, structure your response as:
 
-## Communication Style
-- Be concise, professional, and manufacturing-savvy
-- Use specific technical terminology appropriate for the industry
-- Reference PSC's actual capabilities and inventory when making assessments
-- Flag risks clearly but constructively
-- When asking questions, explain WHY each question matters for the quote`;
+**Section 1 — Quick Assessment** (3-4 bullet points max)
+A brief capability match: what we can do, key risks, and our competitive edge.
+
+**Section 2 — Actionable Insights** (2-3 bullet points)
+Specific things the rep should know or leverage — e.g., competitor intel, customer pain points, timing advantages, inventory readiness.
+
+**Section 3 — Draft Email Reply**
+Write a professional email reply to the customer's contact. The email should:
+- Acknowledge the RFQ
+- Address what we can confirm immediately
+- Ask 3-5 clarifying questions (with brief reasoning for each)
+- Be warm but professional
+
+**CRITICAL**: You MUST wrap the email draft in these exact delimiters:
+\`\`\`
+<!-- EMAIL_DRAFT -->
+**To:** [contact email]
+**Subject:** [appropriate subject line]
+
+[email body here]
+<!-- /EMAIL_DRAFT -->
+\`\`\`
+
+### When the rep provides answers/context:
+- If you have enough info: generate a **quote email draft** (also wrapped in EMAIL_DRAFT delimiters) with pricing, lead times, tooling, and terms
+- If not: ask focused follow-ups and explain why each matters
+- Always include 1-2 actionable insights
+
+### When generating a quote email, include:
+- Unit pricing (with quantity breaks if applicable)
+- Tooling/NRE costs
+- Lead times (FA + production)
+- Certs included
+- Key assumptions
+- Clear next steps / call-to-action
+
+## Style Rules
+- Markdown formatting always (headers, bold, bullets, tables where useful)
+- Be concise — no fluff, no filler paragraphs
+- Sound like a knowledgeable manufacturing insider, not a chatbot
+- Actionable insights should feel like insider tips from a veteran sales engineer`;
