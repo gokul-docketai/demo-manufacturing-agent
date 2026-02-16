@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { QuoteCanvasDrawer, QuoteData } from "@/components/quote-canvas-drawer";
-import { MaterialThreadDrawer } from "@/components/material-thread-drawer";
+import { MaterialExplorerPanel } from "@/components/material-thread-drawer";
 import {
   Inbox,
   Send,
@@ -237,7 +237,7 @@ export function ConciergePage() {
           </ScrollArea>
         </div>
 
-        {/* Right panel — Conversation */}
+        {/* Center panel — Conversation */}
         <div className="flex-1 flex flex-col min-w-0 min-h-0 bg-background">
           {selectedRFQ ? (
             <ConversationPanel
@@ -260,6 +260,21 @@ export function ConciergePage() {
             </div>
           )}
         </div>
+
+        {/* Right panel — Material Explorer (conditional) */}
+        {materialDrawerOpen && activeMaterial && (
+          <div className="w-[420px] shrink-0 border-l border-warm-200/60 flex flex-col min-h-0 bg-card">
+            <MaterialExplorerPanel
+              material={activeMaterial}
+              rfqSummary={rfqSummary}
+              messages={materialThreads[activeMaterial.id] || []}
+              onMessagesChange={handleMaterialThreadMessagesChange}
+              onSelectMaterial={handleSelectMaterial}
+              selectedPick={activeMessageId ? (selectedMaterials[activeMessageId] || null) : null}
+              onClose={() => setMaterialDrawerOpen(false)}
+            />
+          </div>
+        )}
       </div>
 
       {/* Quote Canvas Drawer */}
@@ -267,18 +282,6 @@ export function ConciergePage() {
         open={quoteDrawerOpen}
         onOpenChange={setQuoteDrawerOpen}
         quoteData={quoteDrawerData}
-      />
-
-      {/* Material Thread Drawer */}
-      <MaterialThreadDrawer
-        open={materialDrawerOpen}
-        onOpenChange={setMaterialDrawerOpen}
-        material={activeMaterial}
-        rfqSummary={rfqSummary}
-        messages={activeMaterial ? (materialThreads[activeMaterial.id] || []) : []}
-        onMessagesChange={handleMaterialThreadMessagesChange}
-        onSelectMaterial={handleSelectMaterial}
-        selectedPick={activeMessageId ? (selectedMaterials[activeMessageId] || null) : null}
       />
     </div>
   );

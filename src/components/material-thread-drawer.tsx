@@ -1,16 +1,10 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import {
-  Sheet,
-  SheetContent,
-  SheetTitle,
-} from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import {
   MaterialAlternative,
@@ -29,19 +23,19 @@ import {
   Package,
   AlertTriangle,
   Database,
+  X,
 } from "lucide-react";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
-interface MaterialThreadDrawerProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  material: MaterialAlternative | null;
+interface MaterialExplorerPanelProps {
+  material: MaterialAlternative;
   rfqSummary: string;
   messages: MaterialThreadMessage[];
   onMessagesChange: (msgs: MaterialThreadMessage[]) => void;
   onSelectMaterial: (pick: MaterialPickInfo) => void;
   selectedPick: MaterialPickInfo | null;
+  onClose: () => void;
 }
 
 // ─── ERP Citation Renderer (shared logic) ────────────────────────────────────
@@ -436,16 +430,15 @@ function CostDeltaBadge({ delta }: { delta: string }) {
 
 // ─── Main Component ──────────────────────────────────────────────────────────
 
-export function MaterialThreadDrawer({
-  open,
-  onOpenChange,
+export function MaterialExplorerPanel({
   material,
   rfqSummary,
   messages,
   onMessagesChange,
   onSelectMaterial,
   selectedPick,
-}: MaterialThreadDrawerProps) {
+  onClose,
+}: MaterialExplorerPanelProps) {
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -457,9 +450,8 @@ export function MaterialThreadDrawer({
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isLoading]);
 
-  // Auto-trigger the sub-agent when the drawer opens with a new material
+  // Auto-trigger the sub-agent when the panel mounts with a new material
   useEffect(() => {
-    if (!open || !material) return;
     if (hasInitializedRef.current === material.id) return;
     if (messages.length > 0) {
       hasInitializedRef.current = material.id;
@@ -469,14 +461,12 @@ export function MaterialThreadDrawer({
     hasInitializedRef.current = material.id;
     triggerSubAgent([]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, material?.id]);
+  }, [material.id]);
 
-  // Focus input when drawer opens
+  // Focus input when panel mounts
   useEffect(() => {
-    if (open) {
-      setTimeout(() => inputRef.current?.focus(), 300);
-    }
-  }, [open]);
+    setTimeout(() => inputRef.current?.focus(), 300);
+  }, []);
 
   const triggerSubAgent = async (
     conversationMessages: MaterialThreadMessage[]
@@ -561,119 +551,113 @@ export function MaterialThreadDrawer({
     await triggerSubAgent(updatedMessages);
   };
 
-  if (!material) return null;
-
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent
-        side="right"
-        className="w-full sm:max-w-[640px] p-0 flex flex-col"
-        showCloseButton={false}
-      >
-        <SheetTitle className="sr-only">
-          Explore {material.alternativeGrade}
-        </SheetTitle>
-
-        {/* ── Material Header ──────────────────────────────────────────── */}
-        <div className="shrink-0 border-b border-orange-200/60 bg-gradient-to-b from-orange-50/80 to-card">
-          <div className="px-5 py-4">
-            <div className="flex items-start gap-3">
-              <div className="h-9 w-9 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center shrink-0">
-                <FlaskConical className="h-4.5 w-4.5" />
+    <div className="flex flex-col h-full">
+      {/* ── Material Header ──────────────────────────────────────────── */}
+      <div className="shrink-0 border-b border-orange-200/60 bg-gradient-to-b from-orange-50/80 to-card">
+        <div className="px-4 py-3">
+          <div className="flex items-start gap-3">
+            <div className="h-8 w-8 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center shrink-0">
+              <FlaskConical className="h-4 w-4" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-0.5">
+                <span className="text-[10px] font-bold text-orange-600 uppercase tracking-wider">
+                  Material Explorer
+                </span>
+                {selectedPick && (
+                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 text-[9px] font-semibold border border-green-200">
+                    <CheckCircle className="h-2.5 w-2.5" />
+                    {selectedPick.grade}
+                  </span>
+                )}
               </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-0.5">
-                  <span className="text-[10px] font-bold text-orange-600 uppercase tracking-wider">
-                    Material Explorer
-                  </span>
-                  {selectedPick && (
-                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 text-[9px] font-semibold border border-green-200">
-                      <CheckCircle className="h-2.5 w-2.5" />
-                      {selectedPick.grade}
-                    </span>
-                  )}
-                </div>
-                <h3 className="text-sm font-bold text-foreground leading-tight">
-                  {material.alternativeGrade}
-                </h3>
-                <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-                  <span className="text-[11px] text-muted-foreground flex items-center gap-1">
-                    <ArrowRight className="h-3 w-3" />
-                    replaces {material.primaryMaterial}
-                  </span>
-                  <CostDeltaBadge delta={material.costDelta} />
-                </div>
+              <h3 className="text-[13px] font-bold text-foreground leading-tight">
+                {material.alternativeGrade}
+              </h3>
+              <div className="flex items-center gap-2 mt-1 flex-wrap">
+                <span className="text-[10px] text-muted-foreground flex items-center gap-1">
+                  <ArrowRight className="h-2.5 w-2.5" />
+                  replaces {material.primaryMaterial}
+                </span>
+                <CostDeltaBadge delta={material.costDelta} />
               </div>
             </div>
-
-            {/* Material quick-facts bar */}
-            <div className="mt-3 flex items-center gap-3 text-[11px]">
-              <span className="flex items-center gap-1 text-foreground/70">
-                <Package className="h-3 w-3 text-warm-400" />
-                <span className="font-medium">{material.availableStock}</span>
-              </span>
-              <span className="text-warm-300">|</span>
-              <span className="text-foreground/70">{material.compatibility}</span>
-              {material.requiresApproval && (
-                <>
-                  <span className="text-warm-300">|</span>
-                  <span className="flex items-center gap-1 text-amber-600">
-                    <AlertTriangle className="h-3 w-3" />
-                    Approval needed
-                  </span>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* ── Chat Area ────────────────────────────────────────────────── */}
-        <div className="flex-1 min-h-0 overflow-y-auto px-4 py-3">
-          <div className="space-y-3">
-            {messages.map((msg) =>
-              msg.isLoading ? (
-                <ThreadTypingIndicator key={msg.id} />
-              ) : (
-                <ThreadMessageBubble
-                  key={msg.id}
-                  message={msg}
-                  onSelectMaterial={onSelectMaterial}
-                  selectedPick={selectedPick}
-                />
-              )
-            )}
-            {isLoading && messages.every((m) => !m.isLoading) && (
-              <ThreadTypingIndicator />
-            )}
-            <div ref={messagesEndRef} />
-          </div>
-        </div>
-
-        {/* ── Input Footer ──────────────────────────────────────────── */}
-        <div className="shrink-0 border-t border-warm-200/60 bg-card/80 backdrop-blur-sm">
-          <div className="px-4 py-3 flex gap-2">
-            <Input
-              ref={inputRef}
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={(e) =>
-                e.key === "Enter" && !e.shiftKey && handleSend()
-              }
-              placeholder="Ask about materials..."
-              disabled={isLoading}
-              className="h-9 text-[12px] bg-warm-50 border-warm-200 placeholder:text-warm-400 focus-visible:ring-orange-300"
-            />
-            <Button
-              size="sm"
-              onClick={handleSend}
-              disabled={!inputValue.trim() || isLoading}
-              className="h-9 w-9 p-0 bg-orange-600 hover:bg-orange-500 text-white"
+            <button
+              onClick={onClose}
+              className="h-7 w-7 rounded-md flex items-center justify-center text-warm-400 hover:text-foreground hover:bg-warm-100 transition-colors shrink-0"
             >
-              <Send className="h-3.5 w-3.5" />
-            </Button>
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+
+          {/* Material quick-facts bar */}
+          <div className="mt-2 flex items-center gap-3 text-[10px]">
+            <span className="flex items-center gap-1 text-foreground/70">
+              <Package className="h-2.5 w-2.5 text-warm-400" />
+              <span className="font-medium">{material.availableStock}</span>
+            </span>
+            <span className="text-warm-300">|</span>
+            <span className="text-foreground/70">{material.compatibility}</span>
+            {material.requiresApproval && (
+              <>
+                <span className="text-warm-300">|</span>
+                <span className="flex items-center gap-1 text-amber-600">
+                  <AlertTriangle className="h-2.5 w-2.5" />
+                  Approval needed
+                </span>
+              </>
+            )}
           </div>
         </div>
-      </SheetContent>
-    </Sheet>
+      </div>
+
+      {/* ── Chat Area ────────────────────────────────────────────────── */}
+      <div className="flex-1 min-h-0 overflow-y-auto px-3 py-3">
+        <div className="space-y-3">
+          {messages.map((msg) =>
+            msg.isLoading ? (
+              <ThreadTypingIndicator key={msg.id} />
+            ) : (
+              <ThreadMessageBubble
+                key={msg.id}
+                message={msg}
+                onSelectMaterial={onSelectMaterial}
+                selectedPick={selectedPick}
+              />
+            )
+          )}
+          {isLoading && messages.every((m) => !m.isLoading) && (
+            <ThreadTypingIndicator />
+          )}
+          <div ref={messagesEndRef} />
+        </div>
+      </div>
+
+      {/* ── Input Footer ──────────────────────────────────────────── */}
+      <div className="shrink-0 border-t border-warm-200/60 bg-card/80 backdrop-blur-sm">
+        <div className="px-3 py-2.5 flex gap-2">
+          <Input
+            ref={inputRef}
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={(e) =>
+              e.key === "Enter" && !e.shiftKey && handleSend()
+            }
+            placeholder="Ask about materials..."
+            disabled={isLoading}
+            className="h-9 text-[12px] bg-warm-50 border-warm-200 placeholder:text-warm-400 focus-visible:ring-orange-300"
+          />
+          <Button
+            size="sm"
+            onClick={handleSend}
+            disabled={!inputValue.trim() || isLoading}
+            className="h-9 w-9 p-0 bg-orange-600 hover:bg-orange-500 text-white"
+          >
+            <Send className="h-3.5 w-3.5" />
+          </Button>
+        </div>
+      </div>
+    </div>
   );
 }
