@@ -10,9 +10,11 @@ import {
   stageConfig,
   stageColors,
 } from "@/lib/mock-data";
-import { NavSidebar } from "@/components/nav-sidebar";
+import { NavSidebar, Page } from "@/components/nav-sidebar";
 import { StageNavigator } from "@/components/stage-navigator";
 import { AISidebar } from "@/components/ai-sidebar";
+import { AccountsPage } from "@/components/accounts-page";
+import { DealsPage } from "@/components/deals-page";
 import { CoworkMode } from "@/components/cowork-mode";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -37,6 +39,7 @@ type AppMode = "action" | "detail" | "cowork";
 
 export function Workspace() {
   const [mode, setMode] = useState<AppMode>("action");
+  const [activePage, setActivePage] = useState<Page>("home");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeStage, setActiveStage] = useState<Stage | null>(null);
   const [selectedDealId, setSelectedDealId] = useState<string | null>(null);
@@ -99,11 +102,17 @@ export function Workspace() {
     setSelectedDealId(null);
   }, []);
 
+  const handleNavigate = useCallback((page: Page) => {
+    setActivePage(page);
+    setMode("action");
+    setSelectedDealId(null);
+  }, []);
+
   // Cowork mode — full screen
   if (mode === "cowork" && selectedDeal) {
     return (
       <>
-        <NavSidebar />
+        <NavSidebar activePage={activePage} onNavigate={handleNavigate} />
         <div className="ml-12">
           <CoworkMode deal={selectedDeal} onBack={handleBack} onApprove={handleApprove} />
         </div>
@@ -115,7 +124,7 @@ export function Workspace() {
   if (mode === "detail" && selectedDeal) {
     return (
       <>
-        <NavSidebar />
+        <NavSidebar activePage={activePage} onNavigate={handleNavigate} />
         <div className="ml-12">
           <CoworkMode
             deal={selectedDeal}
@@ -130,10 +139,34 @@ export function Workspace() {
     );
   }
 
+  // Accounts page
+  if (activePage === "accounts") {
+    return (
+      <div className="min-h-screen bg-background">
+        <NavSidebar activePage={activePage} onNavigate={handleNavigate} />
+        <div className="ml-12">
+          <AccountsPage />
+        </div>
+      </div>
+    );
+  }
+
+  // Deals page
+  if (activePage === "deals") {
+    return (
+      <div className="min-h-screen bg-background">
+        <NavSidebar activePage={activePage} onNavigate={handleNavigate} />
+        <div className="ml-12">
+          <DealsPage />
+        </div>
+      </div>
+    );
+  }
+
   // Action mode — main dashboard
   return (
     <div className="min-h-screen bg-background">
-      <NavSidebar />
+      <NavSidebar activePage={activePage} onNavigate={handleNavigate} />
       <AISidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen(!sidebarOpen)} />
 
       <div
@@ -218,7 +251,7 @@ export function Workspace() {
             </div>
             <div className="flex-1 rounded-xl border border-warm-200/60 overflow-hidden bg-card">
               <div className="divide-y divide-warm-200/40">
-                {mockAccounts.map((acc) => (
+                {mockAccounts.slice(0, 4).map((acc) => (
                   <div key={acc.id} className="px-4 py-3 hover:bg-warm-50/50 cursor-pointer transition-colors group">
                     <div className="flex items-center justify-between mb-1">
                       <div className="flex items-center gap-2">

@@ -1,17 +1,28 @@
 "use client";
 
 import { useState } from "react";
-import { Home, Settings, User, Zap } from "lucide-react";
+import { Home, Building2, Handshake, Settings, User, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const topItems = [{ icon: Home, label: "Home", active: true }];
+export type Page = "home" | "accounts" | "deals";
 
-const bottomItems = [
-  { icon: Settings, label: "Settings", active: false },
-  { icon: User, label: "Profile", active: false },
+const topItems: { icon: typeof Home; label: string; page: Page }[] = [
+  { icon: Home, label: "Home", page: "home" },
+  { icon: Building2, label: "Accounts", page: "accounts" },
+  { icon: Handshake, label: "Deals", page: "deals" },
 ];
 
-export function NavSidebar() {
+const bottomItems = [
+  { icon: Settings, label: "Settings" },
+  { icon: User, label: "Profile" },
+];
+
+interface NavSidebarProps {
+  activePage?: Page;
+  onNavigate?: (page: Page) => void;
+}
+
+export function NavSidebar({ activePage = "home", onNavigate }: NavSidebarProps) {
   const [expanded, setExpanded] = useState(false);
 
   return (
@@ -43,9 +54,10 @@ export function NavSidebar() {
         {topItems.map((item) => (
           <button
             key={item.label}
+            onClick={() => onNavigate?.(item.page)}
             className={cn(
               "flex items-center gap-2.5 w-full px-2 py-2 rounded-lg transition-colors",
-              item.active
+              activePage === item.page
                 ? "bg-warm-800 text-warm-100"
                 : "text-warm-400 hover:text-warm-200 hover:bg-warm-800/50"
             )}
