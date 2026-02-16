@@ -7,6 +7,9 @@ import {
   RFQ,
   RFQSource,
   ConciergeMessage,
+  MaterialAlternative,
+  MaterialThreadMessage,
+  MaterialPickInfo,
   mockRFQs,
 } from "@/lib/concierge-data";
 import { Button } from "@/components/ui/button";
@@ -22,6 +25,7 @@ import {
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { QuoteCanvasDrawer, QuoteData } from "@/components/quote-canvas-drawer";
+import { MaterialThreadDrawer } from "@/components/material-thread-drawer";
 import {
   Inbox,
   Send,
@@ -50,6 +54,14 @@ import {
   Phone,
   Globe,
   PenLine,
+  FlaskConical,
+  TrendingUp,
+  TrendingDown,
+  Minus,
+  Package,
+  AlertTriangle,
+  ArrowRight,
+  MessageCircle,
 } from "lucide-react";
 
 // ─── Main Concierge Page ────────────────────────────────────────────────────
@@ -64,6 +76,13 @@ export function ConciergePage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [quoteDrawerOpen, setQuoteDrawerOpen] = useState(false);
   const [quoteDrawerData, setQuoteDrawerData] = useState<QuoteData | null>(null);
+
+  // Material thread state
+  const [materialDrawerOpen, setMaterialDrawerOpen] = useState(false);
+  const [activeMaterial, setActiveMaterial] = useState<MaterialAlternative | null>(null);
+  const [activeMessageId, setActiveMessageId] = useState<string | null>(null);
+  const [selectedMaterials, setSelectedMaterials] = useState<Record<string, MaterialPickInfo>>({});
+  const [materialThreads, setMaterialThreads] = useState<Record<string, MaterialThreadMessage[]>>({});
 
   const selectedRFQ = mockRFQs.find((r) => r.id === selectedRFQId) || null;
 
@@ -95,6 +114,57 @@ export function ConciergePage() {
     setQuoteDrawerData(data);
     setQuoteDrawerOpen(true);
   }, []);
+
+  const handleExploreMaterial = useCallback(
+    (material: MaterialAlternative, messageId: string) => {
+      setActiveMaterial(material);
+      setActiveMessageId(messageId);
+      setMaterialDrawerOpen(true);
+    },
+    []
+  );
+
+  const handleSelectMaterial = useCallback(
+    (pick: MaterialPickInfo) => {
+      if (!activeMessageId || !selectedRFQId) return;
+
+      setSelectedMaterials((prev) => ({
+        ...prev,
+        [activeMessageId]: pick,
+      }));
+
+      // Inject a confirmation message into the main conversation
+      const primaryName = activeMaterial?.primaryMaterial || "the original material";
+      const confirmMsg: ConciergeMessage = {
+        id: `material-confirm-${Date.now()}`,
+        role: "user",
+        content: `I've selected **${pick.grade}** as the alternative for ${primaryName}. Cost impact: ${pick.costDelta}. Stock: ${pick.availableStock}.`,
+        timestamp: new Date().toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+      };
+      setMessages(selectedRFQId, (prev) => [...prev, confirmMsg]);
+    },
+    [activeMessageId, selectedRFQId, activeMaterial, setMessages]
+  );
+
+  const handleMaterialThreadMessagesChange = useCallback(
+    (msgs: MaterialThreadMessage[]) => {
+      if (!activeMaterial) return;
+      setMaterialThreads((prev) => ({
+        ...prev,
+        [activeMaterial.id]: msgs,
+      }));
+    },
+    [activeMaterial]
+  );
+
+  // Build a brief RFQ summary for the material sub-agent
+  const rfqSummary = useMemo(() => {
+    if (!selectedRFQ) return "";
+    return `RFQ: ${selectedRFQ.title}\nAccount: ${selectedRFQ.accountName}\nContact: ${selectedRFQ.contactName}\nValue: ${selectedRFQ.dealValue}\nDescription: ${selectedRFQ.description.slice(0, 500)}`;
+  }, [selectedRFQ]);
 
   return (
     <div className="h-screen flex flex-col overflow-hidden">
@@ -175,6 +245,8 @@ export function ConciergePage() {
               messages={getMessages(selectedRFQ.id)}
               setMessages={(msgs) => setMessages(selectedRFQ.id, msgs)}
               onOpenQuote={handleOpenQuote}
+              onExploreMaterial={handleExploreMaterial}
+              selectedMaterials={selectedMaterials}
             />
           ) : (
             <div className="flex-1 flex items-center justify-center text-muted-foreground">
@@ -195,6 +267,18 @@ export function ConciergePage() {
         open={quoteDrawerOpen}
         onOpenChange={setQuoteDrawerOpen}
         quoteData={quoteDrawerData}
+      />
+
+      {/* Material Thread Drawer */}
+      <MaterialThreadDrawer
+        open={materialDrawerOpen}
+        onOpenChange={setMaterialDrawerOpen}
+        material={activeMaterial}
+        rfqSummary={rfqSummary}
+        messages={activeMaterial ? (materialThreads[activeMaterial.id] || []) : []}
+        onMessagesChange={handleMaterialThreadMessagesChange}
+        onSelectMaterial={handleSelectMaterial}
+        selectedPick={activeMessageId ? (selectedMaterials[activeMessageId] || null) : null}
       />
     </div>
   );
@@ -310,11 +394,15 @@ function ConversationPanel({
   messages,
   setMessages,
   onOpenQuote,
+  onExploreMaterial,
+  selectedMaterials,
 }: {
   rfq: RFQ;
   messages: ConciergeMessage[];
   setMessages: (msgs: ConciergeMessage[] | ((prev: ConciergeMessage[]) => ConciergeMessage[])) => void;
   onOpenQuote: (data: QuoteData) => void;
+  onExploreMaterial: (material: MaterialAlternative, messageId: string) => void;
+  selectedMaterials: Record<string, MaterialPickInfo>;
 }) {
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -533,7 +621,13 @@ function ConversationPanel({
             msg.isLoading ? (
               <TypingIndicator key={msg.id} />
             ) : (
-              <MessageBubble key={msg.id} message={msg} onOpenQuote={onOpenQuote} />
+              <MessageBubble
+                key={msg.id}
+                message={msg}
+                onOpenQuote={onOpenQuote}
+                onExploreMaterial={onExploreMaterial}
+                selectedMaterialPick={selectedMaterials[msg.id] || null}
+              />
             )
           )}
 
@@ -875,13 +969,13 @@ function RFQCard({ rfq }: { rfq: RFQ }) {
 // ─── Email / Quote Draft Parser ──────────────────────────────────────────────
 
 interface ParsedContent {
-  type: "markdown" | "email_draft" | "quote_draft";
+  type: "markdown" | "email_draft" | "quote_draft" | "material_alternatives";
   content: string;
 }
 
 function parseAgentMessage(content: string): ParsedContent[] {
   const parts: ParsedContent[] = [];
-  const blockRegex = /<!-- (EMAIL_DRAFT|QUOTE_DRAFT) -->([\s\S]*?)<!-- \/\1 -->/g;
+  const blockRegex = /<!-- (EMAIL_DRAFT|QUOTE_DRAFT|MATERIAL_ALTERNATIVES) -->([\s\S]*?)<!-- \/\1 -->/g;
   let lastIndex = 0;
   let match;
 
@@ -890,7 +984,12 @@ function parseAgentMessage(content: string): ParsedContent[] {
       const before = content.slice(lastIndex, match.index).trim();
       if (before) parts.push({ type: "markdown", content: before });
     }
-    const blockType = match[1] === "QUOTE_DRAFT" ? "quote_draft" : "email_draft";
+    const blockType =
+      match[1] === "QUOTE_DRAFT"
+        ? "quote_draft"
+        : match[1] === "MATERIAL_ALTERNATIVES"
+          ? "material_alternatives"
+          : "email_draft";
     parts.push({ type: blockType, content: match[2].trim() });
     lastIndex = match.index + match[0].length;
   }
@@ -1522,14 +1621,154 @@ function QuotePreviewCard({
   );
 }
 
+// ─── Material Alternatives Card ──────────────────────────────────────────────
+
+function MaterialAlternativeCostBadge({ delta }: { delta: string }) {
+  const isPositive = delta.startsWith("+");
+  const isNegative = delta.startsWith("-");
+  const isSame = delta.toLowerCase() === "same";
+
+  const Icon = isPositive ? TrendingUp : isNegative ? TrendingDown : Minus;
+  const colorClass = isPositive
+    ? "bg-amber-100 text-amber-700 border-amber-200"
+    : isNegative
+      ? "bg-green-100 text-green-700 border-green-200"
+      : "bg-warm-100 text-warm-600 border-warm-200";
+
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md border text-[9px] font-semibold",
+        colorClass
+      )}
+    >
+      <Icon className="h-2.5 w-2.5" />
+      {isSame ? "Same" : delta}
+    </span>
+  );
+}
+
+function MaterialAlternativesCard({
+  jsonContent,
+  messageId,
+  selectedMaterialPick,
+  onExploreMaterial,
+}: {
+  jsonContent: string;
+  messageId: string;
+  selectedMaterialPick: MaterialPickInfo | null;
+  onExploreMaterial: (material: MaterialAlternative, messageId: string) => void;
+}) {
+  const alternatives = useMemo<MaterialAlternative[]>(() => {
+    try {
+      const parsed = JSON.parse(jsonContent);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }, [jsonContent]);
+
+  if (alternatives.length === 0) {
+    return (
+      <div className="rounded-lg border border-red-200/60 bg-red-50/30 px-3 py-2 mt-2 mb-1 text-[12px] text-red-600">
+        Failed to parse material alternatives data.
+      </div>
+    );
+  }
+
+  const hasSelection = selectedMaterialPick !== null;
+
+  return (
+    <div className="rounded-lg border border-orange-200/60 bg-orange-50/20 overflow-hidden mt-2 mb-1">
+      {/* Header */}
+      <div className="px-3 py-2 bg-orange-50/60 border-b border-orange-200/40 flex items-center gap-2">
+        <FlaskConical className="h-3.5 w-3.5 text-orange-600" />
+        <span className="text-[11px] font-semibold text-orange-700 uppercase tracking-wider">
+          Material Alternatives
+        </span>
+        {hasSelection && (
+          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 text-[9px] font-semibold border border-green-200 ml-1">
+            <CheckCircle className="h-2.5 w-2.5" />
+            Selected: {selectedMaterialPick.grade}
+          </span>
+        )}
+        <span className="text-[10px] text-orange-500 ml-auto">
+          {alternatives.length} option{alternatives.length !== 1 ? "s" : ""}
+        </span>
+      </div>
+
+      {/* Alternatives list */}
+      <div className="divide-y divide-orange-200/30">
+        {alternatives.map((alt) => {
+          return (
+            <div
+              key={alt.id}
+              className="px-3 py-2.5 transition-colors"
+            >
+              <div className="flex items-start gap-2.5">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-[13px] font-semibold text-foreground">
+                      {alt.alternativeGrade}
+                    </span>
+                    <MaterialAlternativeCostBadge delta={alt.costDelta} />
+                  </div>
+                  <div className="flex items-center gap-2 text-[11px] text-muted-foreground mb-1">
+                    <span className="flex items-center gap-1">
+                      <ArrowRight className="h-2.5 w-2.5" />
+                      replaces {alt.primaryMaterial}
+                    </span>
+                    <span className="text-warm-300">|</span>
+                    <span className="flex items-center gap-1">
+                      <Package className="h-2.5 w-2.5" />
+                      {alt.availableStock}
+                    </span>
+                    {alt.requiresApproval && (
+                      <>
+                        <span className="text-warm-300">|</span>
+                        <span className="flex items-center gap-1 text-amber-600">
+                          <AlertTriangle className="h-2.5 w-2.5" />
+                          Approval needed
+                        </span>
+                      </>
+                    )}
+                  </div>
+                  <p className="text-[11px] text-foreground/60 leading-relaxed">
+                    {alt.compatibility}
+                    {alt.notes ? ` — ${alt.notes}` : ""}
+                  </p>
+                </div>
+
+                <Button
+                  size="sm"
+                  variant="default"
+                  onClick={() => onExploreMaterial(alt, messageId)}
+                  className="h-7 px-3 text-[10px] font-medium gap-1.5 shrink-0 bg-orange-600 hover:bg-orange-500 text-white"
+                >
+                  <MessageCircle className="h-3 w-3" />
+                  Explore
+                </Button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // ─── Message Bubble ─────────────────────────────────────────────────────────
 
 function MessageBubble({
   message,
   onOpenQuote,
+  onExploreMaterial,
+  selectedMaterialPick,
 }: {
   message: ConciergeMessage;
   onOpenQuote: (data: QuoteData) => void;
+  onExploreMaterial: (material: MaterialAlternative, messageId: string) => void;
+  selectedMaterialPick: MaterialPickInfo | null;
 }) {
   const isAgent = message.role === "agent";
 
@@ -1576,6 +1815,14 @@ function MessageBubble({
                 />
               ) : part.type === "email_draft" ? (
                 <EmailDraftCard key={idx} draftContent={part.content} />
+              ) : part.type === "material_alternatives" ? (
+                <MaterialAlternativesCard
+                  key={idx}
+                  jsonContent={part.content}
+                  messageId={message.id}
+                  selectedMaterialPick={selectedMaterialPick}
+                  onExploreMaterial={onExploreMaterial}
+                />
               ) : (
                 <AgentMarkdown key={idx} content={part.content} />
               )
