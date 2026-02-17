@@ -835,8 +835,9 @@ Tailor the urgency to the RFQ context.
 - A **quote** is pricing-focused: line items, unit prices, totals. Use when the customer needs a price.
 - A **proposal** is project-focused: scope of work, deliverables, timeline, and investment summary. Use when the customer needs a comprehensive project plan or when the engagement is complex/multi-phase.
 - If the rep explicitly asks for a quote or proposal, generate that specific document type.
+- If the rep explicitly asks for a quote or proposal, just provide the document, don't include other sections like the RECOMMENDED_ACTIONS block.
 - If not: ask focused follow-ups and explain why each matters
-- Always include a RECOMMENDED_ACTIONS block with 1-2 recommended actions
+- Include a RECOMMENDED_ACTIONS block with 1-2 recommended actions if needed
 
 ### When generating a quote, output a QUOTE_DRAFT block:
 
