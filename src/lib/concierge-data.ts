@@ -623,6 +623,387 @@ Delivery: Kanban pull, weekly shipment, 2-week safety stock at Magna Graz`,
       },
     ],
   },
+  {
+    id: "rfq-6",
+    type: "rfq",
+    title: "Suspension Control Arm Bushing Sleeves — F-150",
+    description:
+      `Hi PSC team,
+
+Ford Motor Company is sourcing precision bushing sleeves for the F-150 suspension control arm program. We need 25,000 units annually in 4340 alloy steel.
+
+These sleeves press-fit into the rubber bushing assembly and must maintain tight concentricity between inner and outer diameters. The parts require induction hardening to 55-60 HRC on the bearing surfaces with a soft core for impact resistance.
+
+Please quote based on the attached drawing and spec sheet. We need PPAP Level 3 and capability to support our Dearborn assembly plant with weekly Kanban releases.
+
+Looking forward to your response,
+Lisa Tran
+Commodity Buyer — Chassis, Ford Motor Company`,
+    accountName: "Ford Motor Company",
+    contactName: "Lisa Tran",
+    contactEmail: "l.tran@ford.com",
+    dealTitle: "Ford F-150 Bushing Sleeve Program",
+    dealValue: "$680K",
+    status: "new",
+    source: "email",
+    receivedAt: "1 hour ago",
+    attachments: [
+      {
+        name: "Bushing_Sleeve_Spec.pdf",
+        type: "specs",
+        content: `PART IDENTIFICATION
+Part Number: FMC-BSL-4340-F150  |  Rev: 1
+Description: Suspension Control Arm Bushing Sleeve
+Application: Front lower control arm bushing assembly
+
+MATERIAL REQUIREMENTS
+Base material: AISI 4340 per ASTM A29
+Condition: Normalized, pre-machined hardness 28-34 HRC
+
+CRITICAL DIMENSIONS
+| Feature | Dimension | Tolerance |
+|---------|-----------|-----------|
+| Outer diameter | Ø38.000mm | ±0.012mm |
+| Inner bore | Ø24.000mm | H7 (+0.021/+0.000) |
+| Length | 52.00mm | ±0.10mm |
+| Concentricity (OD to ID) | — | 0.008mm |
+| Surface finish (bore) | Ra 0.4μm | Honed |
+
+HEAT TREATMENT
+Induction hardening: 55-60 HRC on OD bearing surface
+Core hardness: 30-36 HRC
+Case depth: 1.5-2.5mm effective`,
+      },
+    ],
+  },
+  {
+    id: "enq-7",
+    type: "general",
+    title: "Capacity Inquiry — Aerospace Bracket Family",
+    description:
+      `Derek,
+
+We're exploring a potential partnership for a family of 12 aerospace bracket variants in Ti-6Al-4V and 7075-T6 aluminum. Annual volumes range from 500 to 3,000 per variant.
+
+Before we send formal drawings, we'd like to understand your 5-axis capacity availability for the next 18 months and whether you can support AS9100D + Nadcap requirements for this type of work.
+
+Can we schedule a call next week to discuss?
+
+Best regards,
+Tom Bradley
+VP Supply Chain, Northrop Grumman`,
+    accountName: "Northrop Grumman",
+    contactName: "Tom Bradley",
+    contactEmail: "t.bradley@ngc.com",
+    dealTitle: "NGC Aerospace Bracket Family",
+    dealValue: "$3.5M",
+    status: "new",
+    source: "email",
+    receivedAt: "30 minutes ago",
+    attachments: [],
+  },
+  {
+    id: "rfq-8",
+    type: "rfq",
+    title: "Pinion Shaft — Heavy-Duty Axle Program",
+    description:
+      `Hello,
+
+Dana Incorporated is sourcing a pinion shaft for our heavy-duty commercial vehicle axle line. We need 12,000 units per year in 8620 alloy steel with case carburizing to 60-64 HRC.
+
+The shaft has a precision ground spline on one end and a hypoid gear mounting interface on the other. We supply the forgings — your scope is finish machining, heat treatment, and grinding.
+
+Attached is our forging print and machining specification. Please respond within two weeks.
+
+Thanks,
+Angela Moretti
+Procurement Lead — Drivetrain, Dana Incorporated`,
+    accountName: "Dana Incorporated",
+    contactName: "Angela Moretti",
+    contactEmail: "a.moretti@dana.com",
+    dealTitle: "Dana HD Axle Pinion Shaft",
+    dealValue: "$1.1M",
+    status: "new",
+    source: "web-form",
+    receivedAt: "4 hours ago",
+    attachments: [
+      {
+        name: "Pinion_Shaft_Machining_Spec.pdf",
+        type: "specs",
+        content: `PART IDENTIFICATION
+Part Number: DNA-PS-8620-HD  |  Rev: A
+Description: Pinion Shaft — Heavy-Duty Commercial Axle
+Annual Volume: 12,000 units
+
+MATERIAL
+Material: AISI 8620 (customer-supplied forging)
+Forging weight: 3.8 kg | Finished weight: 2.9 kg
+
+CRITICAL FEATURES
+| Feature | Dimension | Tolerance |
+|---------|-----------|-----------|
+| Spline (18T involute) | Module 2.0, DIN 5480 | Class 6 fit |
+| Gear mounting journal | Ø45.000mm | h6 (-0.000/-0.016mm) |
+| Bearing journals (2x) | Ø35.000mm | h5 (-0.000/-0.011mm) |
+| Overall length | 310.0mm | ±0.15mm |
+| Runout (spline to journals) | — | 0.010mm TIR |
+
+HEAT TREATMENT
+Gas carburize: 60-64 HRC surface, 32-40 HRC core
+Case depth: 1.0-1.5mm effective at 550 HV`,
+      },
+    ],
+  },
+  {
+    id: "rfq-9",
+    type: "rfq",
+    title: "EV Motor Housing End Cap — ID.4 Platform",
+    description:
+      `Dear Precision Steering Components,
+
+Volkswagen Group is requesting a quotation for the electric motor housing end cap for the ID.4 platform. This is a 6061-T6 aluminum precision machined component — 18,000 units per year.
+
+The part features a complex bolt pattern, O-ring groove, and precision bearing bore that must interface with the motor rotor assembly. Type II anodize with Teflon impregnation is required per our spec.
+
+We require IATF 16949 certification, IMDS registration, and full PPAP Level 3 documentation. Please respond within 15 business days.
+
+Kind regards,
+Heinrich Bauer
+Strategic Purchasing — E-Mobility, Volkswagen AG`,
+    accountName: "Volkswagen AG",
+    contactName: "Heinrich Bauer",
+    contactEmail: "h.bauer@volkswagen.de",
+    dealTitle: "VW ID.4 Motor Housing End Cap",
+    dealValue: "$2.4M",
+    status: "new",
+    source: "email",
+    receivedAt: "6 hours ago",
+    attachments: [
+      {
+        name: "VW_RFQ_Requirements.pdf",
+        type: "questions",
+        content: `1. What is your experience machining aluminum motor housings for EV applications?
+2. Can you hold ±0.015mm on the bearing bore (Ø110mm H7)?
+3. Do you perform Type II anodize with Teflon impregnation in-house?
+4. What is your annual capacity for this part size (Ø180mm x 65mm)?
+5. Are you IMDS registered and willing to submit material data sheets?
+6. Can you support delivery to our Chattanooga, TN plant?
+7. What is your SPC capability (Cpk target ≥ 1.67)?
+8. Do you have experience with VDA 6.3 process audits?`,
+      },
+    ],
+  },
+  {
+    id: "enq-10",
+    type: "general",
+    title: "Quote Revision — Updated Volumes for Brake Caliper Bracket",
+    description:
+      `Hi Derek,
+
+Following up on our previous quote PSC-Q-2025-0891 for the brake caliper mounting bracket. Our production forecast has increased — we now need pricing at 30,000 units/year instead of the original 15,000.
+
+Can you revise the quote with the updated volumes? Material remains 17-4PH SS per AMS 5643. Everything else stays the same.
+
+We'd also like to understand if you can support the higher volume without extending lead times.
+
+Thanks,
+Kevin Park
+Buyer, General Motors`,
+    accountName: "General Motors",
+    contactName: "Kevin Park",
+    contactEmail: "k.park@gm.com",
+    dealTitle: "GM Brake Caliper Bracket — Volume Increase",
+    dealValue: "$1.5M",
+    status: "in-progress",
+    source: "email",
+    receivedAt: "1 day ago",
+    attachments: [],
+  },
+  {
+    id: "rfq-11",
+    type: "rfq",
+    title: "Titanium Landing Gear Pin — 787 Program",
+    description:
+      `PSC Team,
+
+Boeing Commercial Airplanes is issuing an RFQ for the main landing gear retract actuator pin for the 787 Dreamliner. This is a safety-critical Ti-6Al-4V component requiring full AS9100D traceability and Nadcap-certified heat treatment.
+
+Volume is 2,000 units/year. The pin requires 5-axis turning, precision grinding, and FPI per ASTM E1417. We need FAIR (First Article Inspection Report) per AS9102.
+
+Please review the attached drawing and submit your quotation within 20 business days.
+
+Best,
+Rachel Kim
+Supplier Quality Engineer, Boeing Commercial Airplanes`,
+    accountName: "Boeing",
+    contactName: "Rachel Kim",
+    contactEmail: "r.kim@boeing.com",
+    dealTitle: "Boeing 787 Landing Gear Pin",
+    dealValue: "$4.2M",
+    status: "new",
+    source: "email",
+    receivedAt: "8 hours ago",
+    attachments: [
+      {
+        name: "Landing_Gear_Pin_Drawing.pdf",
+        type: "drawing",
+        content: `TITLE BLOCK
+Drawing No: BCA-787-LGP-2026-042  |  Rev: D  |  Sheet: 1 of 2
+Title: Main Landing Gear Retract Actuator Pin — 787
+Drawn by: S. Nakamura  |  Checked: R. Kim  |  Approved: D. Foster
+Date: 2026-01-28  |  Scale: 1:1  |  Units: mm
+
+MATERIAL SPECIFICATION
+Material: Ti-6Al-4V per AMS 4928
+Condition: STA (Solution Treated & Aged)
+UTS: ≥ 1,100 MPa  |  Yield: ≥ 1,000 MPa
+Fracture toughness: KIc ≥ 66 MPa√m
+
+OVERALL DIMENSIONS
+Length: 285.00mm  |  Max OD: Ø50.80mm
+Net weight: 1.45 kg ± 0.03 kg
+
+CRITICAL FEATURES
+1. Main Journal
+   - Ø50.800mm h6 (-0.000/-0.016mm)
+   - Cylindricity: 0.005mm
+   - Surface finish: Ra 0.2μm (superfinished)
+
+2. Retract Bore
+   - Ø18.000mm H7 (+0.018/+0.000)
+   - Perpendicularity to pin axis: 0.008mm
+   - Surface finish: Ra 0.4μm
+
+NOTES
+1. All dimensions per ASME Y14.5-2018.
+2. FPI per ASTM E1417, accept per ASTM E433 Level 1.
+3. Heat treat: STA per AMS 2801 Class 1.
+4. FAIR per AS9102 required.`,
+      },
+    ],
+  },
+  {
+    id: "enq-12",
+    type: "general",
+    title: "Follow-Up: Prototype Status for Valve Body Assembly",
+    description:
+      `Derek,
+
+Just checking in on the status of the Honda valve body prototype run (PO HN-2026-089). We were expecting first articles by end of this week — are we still on track?
+
+Honda's engineering team has a design review scheduled for Feb 28 and they need our samples in hand by Feb 25.
+
+Please confirm the current status and expected ship date.
+
+Thanks,
+Amy Watanabe
+Account Manager, Honda R&D Americas`,
+    accountName: "Honda",
+    contactName: "Amy Watanabe",
+    contactEmail: "a.watanabe@honda.com",
+    dealTitle: "Honda Valve Body Prototype",
+    dealValue: "$320K",
+    status: "in-progress",
+    source: "call",
+    receivedAt: "3 hours ago",
+    attachments: [],
+  },
+  {
+    id: "rfq-13",
+    type: "rfq",
+    title: "Stainless Steel Hydraulic Manifold — Agricultural Equipment",
+    description:
+      `Hello,
+
+John Deere is looking for a precision machining partner for a 304 SS hydraulic manifold used in our combine harvester platform. Annual requirement is 8,000 units.
+
+The manifold has 14 cross-drilled passages, multiple O-ring groove features, and requires 100% pressure testing at 350 bar. We need IATF 16949 or equivalent QMS certification.
+
+Please see attached spec for full details and submit pricing within 10 business days.
+
+Regards,
+Mark Sullivan
+Supply Chain Manager, John Deere`,
+    accountName: "John Deere",
+    contactName: "Mark Sullivan",
+    contactEmail: "m.sullivan@deere.com",
+    dealTitle: "JD Hydraulic Manifold Program",
+    dealValue: "$760K",
+    status: "new",
+    source: "web-form",
+    receivedAt: "12 hours ago",
+    attachments: [
+      {
+        name: "Hydraulic_Manifold_Spec.pdf",
+        type: "specs",
+        content: `PART IDENTIFICATION
+Part Number: JD-HM-304SS-2026  |  Rev: B
+Description: Hydraulic Control Manifold — Combine Platform
+
+MATERIAL: AISI 304 SS per ASTM A276
+Envelope: 120mm x 85mm x 65mm  |  Weight: 2.8 kg
+
+KEY FEATURES
+- 14 cross-drilled hydraulic passages (Ø4mm to Ø12mm)
+- 8x O-ring grooves per AS568 standard
+- 6x SAE -8 ORB ports, 2x SAE -12 ORB ports
+- 100% hydrostatic test at 350 bar, 60 sec hold
+- Surface finish: Ra 0.8μm on all sealing surfaces`,
+      },
+    ],
+  },
+  {
+    id: "enq-14",
+    type: "general",
+    title: "Annual Price Renegotiation — Steering Column Shaft",
+    description:
+      `Hi Derek,
+
+It's that time of year — we need to discuss the 2026-2027 pricing for the steering column intermediate shaft (current PO series ZF-SC-2025-xxx).
+
+Our volumes are trending up about 12% vs. last year's forecast, and with raw material indices softening, we expect some cost reduction on the steel components.
+
+Can we set up a meeting next week to review? I'd like to have revised pricing locked in by March 15.
+
+Best,
+Stefan Mueller
+Category Manager — Steering, ZF Friedrichshafen`,
+    accountName: "ZF Friedrichshafen",
+    contactName: "Stefan Mueller",
+    contactEmail: "s.mueller@zf.com",
+    dealTitle: "ZF Steering Shaft Annual Pricing",
+    dealValue: "$1.9M",
+    status: "in-progress",
+    source: "email",
+    receivedAt: "2 days ago",
+    attachments: [],
+  },
+  {
+    id: "rfq-15",
+    type: "rfq",
+    title: "Precision Bearing Race — Wind Turbine Yaw System",
+    description:
+      `PSC,
+
+Vestas Wind Systems is sourcing a precision bearing race for the yaw drive system on our V162 platform. Material is 4140 steel, heat treated to 58-62 HRC. Volume is 3,000 units/year.
+
+Critical requirement is the raceway surface finish — we need Ra ≤ 0.1μm via superfinishing. The part also requires 100% eddy current inspection for surface defects.
+
+This is a long-term program (5+ year) with potential to expand to the V236 offshore platform. Please quote and indicate your interest.
+
+Best regards,
+Soren Andersen
+Procurement Manager, Vestas Wind Systems`,
+    accountName: "Vestas Wind Systems",
+    contactName: "Soren Andersen",
+    contactEmail: "s.andersen@vestas.com",
+    dealTitle: "Vestas Yaw Bearing Race Program",
+    dealValue: "$2.8M",
+    status: "new",
+    source: "email",
+    receivedAt: "18 hours ago",
+    attachments: [],
+  },
 ];
 
 // ─── System Prompt for OpenAI ───────────────────────────────────────────────

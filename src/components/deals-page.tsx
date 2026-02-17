@@ -25,21 +25,16 @@ interface CRMColumn {
 
 const defaultColumns: CRMColumn[] = [
   { key: "name", label: "Deal Name" },
+  { key: "accountName", label: "Account" },
+  { key: "stage", label: "Stage" },
   { key: "ai_companyRelevance", label: "Company Relevance", isAI: true },
   { key: "ai_complianceImpact", label: "Compliance Impact", isAI: true },
   { key: "ai_upsellCrossSell", label: "Upsell / Cross-sell", isAI: true },
-  { key: "accountName", label: "Account" },
   { key: "contactName", label: "Contact" },
-  { key: "stage", label: "Stage" },
   { key: "value", label: "Value" },
   { key: "probability", label: "Probability" },
   { key: "closeDate", label: "Close Date" },
-  { key: "source", label: "Source" },
-  { key: "product", label: "Product" },
-  { key: "type", label: "Type" },
-  { key: "lastActivity", label: "Last Activity" },
   { key: "nextStep", label: "Next Step" },
-  { key: "createdDate", label: "Created" },
 ];
 
 const stageColorMap: Record<string, { bg: string; text: string; dot: string }> = {
@@ -325,7 +320,7 @@ export function DealsPage({ onAccountClick }: DealsPageProps) {
                       className={cn(
                         "px-3 py-2.5 text-left text-[10px] font-semibold uppercase tracking-wider whitespace-nowrap",
                         col.isAI
-                          ? "text-purple-600 bg-purple-50/60"
+                          ? "text-warm-500 bg-purple-50/60"
                           : "text-warm-500"
                       )}
                     >
@@ -421,7 +416,7 @@ export function DealsPage({ onAccountClick }: DealsPageProps) {
                         return (
                           <td
                             key={col.key}
-                            className="px-3 py-3.5 bg-purple-50/40 text-purple-700 font-medium min-w-[220px] max-w-[300px]"
+                            className="px-3 py-3.5 bg-purple-50/40 text-foreground font-medium min-w-[220px] max-w-[300px]"
                           >
                             {val}
                           </td>
@@ -435,7 +430,11 @@ export function DealsPage({ onAccountClick }: DealsPageProps) {
                             className="px-3 py-3.5 whitespace-nowrap"
                           >
                             <div className="font-medium text-foreground leading-tight">{deal.name}</div>
-                            <div className="text-[10px] text-warm-500 mt-0.5">Owner: {deal.dealOwner}</div>
+                            <div className="flex items-center gap-1.5 text-[10px] text-warm-500 mt-0.5">
+                              <span>{deal.dealOwner}</span>
+                              <span className="text-warm-300">|</span>
+                              <span className="text-warm-400">Last Activity: {deal.lastActivity}</span>
+                            </div>
                           </td>
                         );
                       }

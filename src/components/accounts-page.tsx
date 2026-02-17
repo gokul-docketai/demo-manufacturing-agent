@@ -35,7 +35,6 @@ const defaultColumns: CRMColumn[] = [
   { key: "dealCount", label: "Deals" },
   { key: "totalValue", label: "Pipeline Value" },
   { key: "health", label: "Health" },
-  { key: "stage", label: "Stage" },
   { key: "nextAction", label: "Next Step" },
 ];
 
@@ -304,7 +303,7 @@ export function AccountsPage({ selectedAccountId, onAccountSelect }: AccountsPag
                       className={cn(
                         "px-3 py-2.5 text-left text-[10px] font-semibold uppercase tracking-wider whitespace-nowrap",
                         col.isAI
-                          ? "text-purple-600 bg-purple-50/60"
+                          ? "text-warm-500 bg-purple-50/60"
                           : "text-warm-500"
                       )}
                     >
@@ -403,7 +402,7 @@ export function AccountsPage({ selectedAccountId, onAccountSelect }: AccountsPag
                         return (
                           <td
                             key={col.key}
-                            className="px-3 py-3.5 bg-purple-50/40 text-purple-700 font-medium min-w-[220px] max-w-[300px]"
+                            className="px-3 py-3.5 bg-purple-50/40 text-foreground font-medium min-w-[220px] max-w-[300px]"
                           >
                             {val}
                           </td>

@@ -205,7 +205,7 @@ function SpreadsheetRenderer({
                     className={cn(
                       "border-b border-r border-warm-200/60 px-3 py-2 text-foreground",
                       data.highlightColumn === ci && "bg-warm-50/60 font-semibold",
-                      data.aiColumns?.includes(ci) && "bg-purple-50/30 text-purple-700 italic text-[11px]",
+                      data.aiColumns?.includes(ci) && "bg-purple-50/30 italic text-[11px]",
                       typeof cell === "number" && "text-right font-mono",
                       editable && "cursor-text hover:bg-warm-50"
                     )}
