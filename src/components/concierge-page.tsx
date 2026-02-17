@@ -5,6 +5,8 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import {
   Enquiry,
+  EnquiryType,
+  EnquiryAttachment,
   EnquirySource,
   ConciergeMessage,
   MaterialAlternative,
@@ -17,8 +19,11 @@ import {
 } from "@/lib/concierge-data";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Dialog,
   DialogContent,
@@ -65,11 +70,15 @@ import {
   ArrowRight,
   MessageCircle,
   Zap,
+  Plus,
+  Upload,
+  Trash2,
 } from "lucide-react";
 
 // ─── Main Concierge Page ────────────────────────────────────────────────────
 
 export function ConciergePage() {
+  const [enquiries, setEnquiries] = useState<Enquiry[]>(mockEnquiries);
   const [selectedEnquiryId, setSelectedEnquiryId] = useState<string | null>(
     mockEnquiries[0]?.id || null
   );
@@ -77,6 +86,7 @@ export function ConciergePage() {
     Record<string, ConciergeMessage[]>
   >({});
   const [searchQuery, setSearchQuery] = useState("");
+  const [addEnquiryOpen, setAddEnquiryOpen] = useState(false);
   const [quoteDrawerOpen, setQuoteDrawerOpen] = useState(false);
   const [quoteDrawerData, setQuoteDrawerData] = useState<QuoteData | null>(null);
 
@@ -94,9 +104,9 @@ export function ConciergePage() {
   const [completedActions, setCompletedActions] = useState<Record<string, ActionResultInfo>>({});
   const [actionThreads, setActionThreads] = useState<Record<string, ActionThreadMessage[]>>({});
 
-  const selectedEnquiry = mockEnquiries.find((r) => r.id === selectedEnquiryId) || null;
+  const selectedEnquiry = enquiries.find((r) => r.id === selectedEnquiryId) || null;
 
-  const filteredEnquiries = mockEnquiries.filter(
+  const filteredEnquiries = enquiries.filter(
     (enquiry) =>
       enquiry.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       enquiry.accountName.toLowerCase().includes(searchQuery.toLowerCase())
@@ -242,13 +252,13 @@ export function ConciergePage() {
               variant="secondary"
               className="text-[10px] px-2 py-0.5 font-semibold bg-warm-100 text-warm-600 border-warm-200"
             >
-              {mockEnquiries.length} Enquiries
+              {enquiries.length} Enquiries
             </Badge>
             <Badge
               variant="secondary"
               className="text-[10px] px-2 py-0.5 font-semibold bg-amber-50 text-amber-700 border-amber-200"
             >
-              {mockEnquiries.filter((r) => r.status === "new").length} new
+              {enquiries.filter((r) => r.status === "new").length} new
             </Badge>
           </div>
         </div>
@@ -258,16 +268,26 @@ export function ConciergePage() {
       <div className="flex flex-1 min-h-0 overflow-hidden">
         {/* Left sidebar — Enquiry list */}
         <div className="w-[320px] shrink-0 border-r border-warm-200/60 flex flex-col min-h-0 bg-card">
-          {/* Search */}
+          {/* Search + Add */}
           <div className="p-3 border-b border-warm-200/40">
-            <div className="relative">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-warm-400" />
-              <Input
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search enquiries..."
-                className="h-8 pl-8 text-xs bg-warm-50 border-warm-200 placeholder:text-warm-400 focus-visible:ring-warm-300"
-              />
+            <div className="flex items-center gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-warm-400" />
+                <Input
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search enquiries..."
+                  className="h-8 pl-8 text-xs bg-warm-50 border-warm-200 placeholder:text-warm-400 focus-visible:ring-warm-300"
+                />
+              </div>
+              <Button
+                size="icon"
+                variant="outline"
+                className="h-8 w-8 shrink-0 border-warm-200 hover:bg-warm-100"
+                onClick={() => setAddEnquiryOpen(true)}
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
             </div>
           </div>
 
@@ -355,7 +375,252 @@ export function ConciergePage() {
         onOpenChange={setQuoteDrawerOpen}
         quoteData={quoteDrawerData}
       />
+
+      {/* Add Enquiry Modal */}
+      <AddEnquiryModal
+        open={addEnquiryOpen}
+        onClose={() => setAddEnquiryOpen(false)}
+        onAdd={(newEnquiry) => {
+          setEnquiries((prev) => [newEnquiry, ...prev]);
+          setSelectedEnquiryId(newEnquiry.id);
+          setAddEnquiryOpen(false);
+        }}
+      />
     </div>
+  );
+}
+
+// ─── Add Enquiry Modal ──────────────────────────────────────────────────────
+
+function AddEnquiryModal({
+  open,
+  onClose,
+  onAdd,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onAdd: (enquiry: Enquiry) => void;
+}) {
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [enquiryType, setEnquiryType] = useState<EnquiryType>("rfq");
+  const [attachments, setAttachments] = useState<EnquiryAttachment[]>([]);
+  const [isReadingFiles, setIsReadingFiles] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const resetForm = () => {
+    setTitle("");
+    setDescription("");
+    setEnquiryType("rfq");
+    setAttachments([]);
+    setIsReadingFiles(false);
+  };
+
+  const handleClose = () => {
+    resetForm();
+    onClose();
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setIsReadingFiles(true);
+    const newAttachments: EnquiryAttachment[] = [];
+
+    for (const file of Array.from(files)) {
+      try {
+        const content = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = () => reject(reader.error);
+          reader.readAsText(file);
+        });
+
+        const attachmentType: EnquiryAttachment["type"] = file.name
+          .toLowerCase()
+          .match(/\.(dwg|dxf|pdf|png|jpg|jpeg)$/)
+          ? "drawing"
+          : file.name.toLowerCase().match(/\.(csv|xls|xlsx)$/)
+            ? "specs"
+            : "questions";
+
+        newAttachments.push({
+          name: file.name,
+          type: attachmentType,
+          content,
+        });
+      } catch {
+        console.error(`Failed to read file: ${file.name}`);
+      }
+    }
+
+    setAttachments((prev) => [...prev, ...newAttachments]);
+    setIsReadingFiles(false);
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const removeAttachment = (index: number) => {
+    setAttachments((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleSubmit = () => {
+    if (!title.trim() || !description.trim()) return;
+
+    const newEnquiry: Enquiry = {
+      id: `manual-${Date.now()}`,
+      type: enquiryType,
+      title: title.trim(),
+      description: description.trim(),
+      accountName: "",
+      contactName: "",
+      contactEmail: "",
+      dealTitle: "",
+      dealValue: "",
+      status: "new",
+      source: "manual",
+      receivedAt: new Date().toISOString(),
+      attachments,
+    };
+
+    resetForm();
+    onAdd(newEnquiry);
+  };
+
+  const isValid = title.trim().length > 0 && description.trim().length > 0;
+
+  return (
+    <Dialog open={open} onOpenChange={(v) => !v && handleClose()}>
+      <DialogContent className="max-w-lg max-h-[85vh] flex flex-col">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2 text-base">
+            <Plus className="h-4 w-4 text-warm-600" />
+            Add New Enquiry
+          </DialogTitle>
+        </DialogHeader>
+
+        <div className="flex-1 min-h-0 overflow-y-auto space-y-4 py-2">
+          {/* Title */}
+          <div className="space-y-1.5">
+            <Label htmlFor="enquiry-title" className="text-xs font-medium">
+              Title <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              id="enquiry-title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="e.g. CNC Machined Bracket for EV Motor Assembly"
+              className="h-9 text-sm"
+            />
+          </div>
+
+          {/* Description */}
+          <div className="space-y-1.5">
+            <Label htmlFor="enquiry-description" className="text-xs font-medium">
+              Description <span className="text-red-500">*</span>
+            </Label>
+            <Textarea
+              id="enquiry-description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Describe the enquiry details, requirements, specifications..."
+              className="min-h-[120px] text-sm resize-none"
+            />
+          </div>
+
+          {/* Type */}
+          <div className="space-y-1.5">
+            <Label className="text-xs font-medium">Type</Label>
+            <RadioGroup
+              value={enquiryType}
+              onValueChange={(v) => setEnquiryType(v as EnquiryType)}
+              className="flex gap-4"
+            >
+              <div className="flex items-center gap-2">
+                <RadioGroupItem value="rfq" id="type-rfq" />
+                <Label htmlFor="type-rfq" className="text-sm font-normal cursor-pointer">
+                  RFQ
+                </Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <RadioGroupItem value="general" id="type-general" />
+                <Label htmlFor="type-general" className="text-sm font-normal cursor-pointer">
+                  General Enquiry
+                </Label>
+              </div>
+            </RadioGroup>
+          </div>
+
+          {/* File Upload */}
+          <div className="space-y-1.5">
+            <Label className="text-xs font-medium">Attachments</Label>
+            <div
+              className="border-2 border-dashed border-warm-200 rounded-lg p-4 text-center cursor-pointer hover:border-warm-400 hover:bg-warm-50/50 transition-colors"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <Upload className="h-5 w-5 mx-auto text-warm-400 mb-1.5" />
+              <p className="text-xs text-warm-500">
+                {isReadingFiles ? "Reading files..." : "Click to upload files"}
+              </p>
+              <p className="text-[10px] text-warm-400 mt-0.5">
+                Specs, drawings, documents, etc.
+              </p>
+            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              className="hidden"
+              onChange={handleFileChange}
+            />
+
+            {/* Attached files list */}
+            {attachments.length > 0 && (
+              <div className="space-y-1.5 mt-2">
+                {attachments.map((att, idx) => (
+                  <div
+                    key={idx}
+                    className="flex items-center gap-2 px-2.5 py-1.5 rounded-md bg-warm-50 border border-warm-200/60 text-xs"
+                  >
+                    <FileText className="h-3.5 w-3.5 text-warm-500 shrink-0" />
+                    <span className="flex-1 truncate text-warm-700">{att.name}</span>
+                    <Badge variant="secondary" className="text-[9px] px-1.5 py-0 shrink-0">
+                      {att.type}
+                    </Badge>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeAttachment(idx);
+                      }}
+                      className="text-warm-400 hover:text-red-500 transition-colors shrink-0"
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <DialogFooter className="gap-2 pt-2">
+          <Button variant="outline" size="sm" onClick={handleClose}>
+            Cancel
+          </Button>
+          <Button
+            size="sm"
+            onClick={handleSubmit}
+            disabled={!isValid || isReadingFiles}
+            className="bg-warm-800 hover:bg-warm-900 text-white"
+          >
+            Add Enquiry
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -383,6 +648,30 @@ const sourceConfig: Record<EnquirySource, { icon: typeof Mail; label: string; cl
     className: "bg-teal-50 text-teal-600 border-teal-200",
   },
 };
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+function formatReceivedAt(value: string): string {
+  const date = new Date(value);
+  if (isNaN(date.getTime())) return value;
+
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+
+  if (diffMins < 1) return "Just now";
+  if (diffMins < 60) return `${diffMins} min${diffMins === 1 ? "" : "s"} ago`;
+  if (diffHours < 24) return `${diffHours} hour${diffHours === 1 ? "" : "s"} ago`;
+  if (diffDays < 7) return `${diffDays} day${diffDays === 1 ? "" : "s"} ago`;
+
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: now.getFullYear() !== date.getFullYear() ? "numeric" : undefined,
+  });
+}
 
 // ─── Enquiry List Item ───────────────────────────────────────────────────────
 
@@ -447,14 +736,14 @@ function EnquiryListItem({
       </div>
       <div className="flex items-center gap-2 text-[11px] text-muted-foreground mt-1">
         <Building2 className="h-2.5 w-2.5 shrink-0" />
-        <span className="truncate">{enquiry.accountName}</span>
+        <span className="truncate">{enquiry.accountName || "-"}</span>
         <span className="text-warm-300">|</span>
         <DollarSign className="h-2.5 w-2.5 shrink-0" />
-        <span>{enquiry.dealValue}</span>
+        <span>{enquiry.dealValue || "-"}</span>
       </div>
       <div className="flex items-center gap-2 text-[10px] text-warm-400 mt-1">
         <Clock className="h-2.5 w-2.5 shrink-0" />
-        <span>{enquiry.receivedAt}</span>
+        <span>{formatReceivedAt(enquiry.receivedAt)}</span>
         <span className="text-warm-300">|</span>
         <span className={cn("inline-flex items-center gap-1 px-1.5 py-0 rounded-full border text-[9px] font-semibold", source.className)}>
           <SourceIcon className="h-2.5 w-2.5" />
@@ -536,6 +825,7 @@ function ConversationPanel({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           enquiryId: enquiry.id,
+          enquiry,
           messages: messages.filter((m) => !m.isLoading),
         }),
       });
@@ -610,6 +900,7 @@ function ConversationPanel({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           enquiryId: enquiry.id,
+          enquiry,
           messages: updatedMessages.filter((m) => !m.isLoading),
         }),
       });
@@ -659,8 +950,8 @@ function ConversationPanel({
               {enquiry.title}
             </h2>
             <p className="text-[11px] text-muted-foreground mt-0.5">
-              {enquiry.accountName} &middot; {enquiry.contactName} &middot;{" "}
-              {enquiry.dealValue}
+              {enquiry.accountName || "-"} &middot; {enquiry.contactName || "-"} &middot;{" "}
+              {enquiry.dealValue || "-"}
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -984,7 +1275,7 @@ function EnquiryCard({ enquiry }: { enquiry: Enquiry }) {
           </Badge>
         )}
         <span className="text-[10px] text-warm-400 ml-auto">
-          {enquiry.receivedAt}
+          {formatReceivedAt(enquiry.receivedAt)}
         </span>
       </div>
 
@@ -993,18 +1284,27 @@ function EnquiryCard({ enquiry }: { enquiry: Enquiry }) {
         <h3 className="text-base font-semibold text-foreground mb-1">
           {enquiry.title}
         </h3>
-        <div className="flex items-center gap-3 text-[11px] text-muted-foreground mb-3">
+        <div className="flex items-center flex-wrap gap-x-3 gap-y-1 text-[11px] text-muted-foreground mb-3">
           <span className="flex items-center gap-1">
             <Building2 className="h-3 w-3" />
-            {enquiry.accountName}
+            {enquiry.accountName || "-"}
           </span>
           <span className="text-warm-300">|</span>
-          <span>{enquiry.contactName}</span>
+          <span>{enquiry.contactName || "-"}</span>
           <span className="text-warm-300">|</span>
           <span className="flex items-center gap-1">
             <DollarSign className="h-3 w-3" />
-            {enquiry.dealValue}
+            {enquiry.dealValue || "-"}
           </span>
+          {enquiry.dealTitle && (
+            <>
+              <span className="text-warm-300">|</span>
+              <span className="flex items-center gap-1">
+                <FileText className="h-3 w-3" />
+                {enquiry.dealTitle}
+              </span>
+            </>
+          )}
         </div>
 
         <p className="text-[13px] text-foreground/80 leading-relaxed whitespace-pre-wrap mb-4">

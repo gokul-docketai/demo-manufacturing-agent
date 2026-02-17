@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
-import { CONCIERGE_SYSTEM_PROMPT, mockEnquiries } from "@/lib/concierge-data";
+import { CONCIERGE_SYSTEM_PROMPT, mockEnquiries, Enquiry } from "@/lib/concierge-data";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -8,7 +8,7 @@ const openai = new OpenAI({
 
 export async function POST(request: NextRequest) {
   try {
-    const { enquiryId, messages } = await request.json();
+    const { enquiryId, enquiry: inlineEnquiry, messages } = await request.json();
 
     if (!enquiryId || !messages) {
       return NextResponse.json(
@@ -17,7 +17,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const enquiry = mockEnquiries.find((r) => r.id === enquiryId);
+    // Look up from mock data first, fall back to inline enquiry object
+    const enquiry: Enquiry | undefined =
+      mockEnquiries.find((r) => r.id === enquiryId) || inlineEnquiry;
     if (!enquiry) {
       return NextResponse.json({ error: "Enquiry not found" }, { status: 404 });
     }
@@ -72,7 +74,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-function buildEnquiryContext(enquiry: (typeof mockEnquiries)[number]): string {
+function buildEnquiryContext(enquiry: Enquiry): string {
   let context = `## RFQ: ${enquiry.title}
 **Account**: ${enquiry.accountName}
 **Contact**: ${enquiry.contactName} (${enquiry.contactEmail})
