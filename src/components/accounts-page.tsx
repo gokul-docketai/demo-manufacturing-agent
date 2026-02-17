@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { mockAccounts, Account } from "@/lib/mock-data";
 import { AccountDetailDrawer } from "@/components/account-detail-drawer";
+import { Page } from "@/components/nav-sidebar";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import {
@@ -195,7 +196,7 @@ function HealthDot({ health }: { health: Account["health"] }) {
 interface AccountsPageProps {
   selectedAccountId?: string | null;
   onAccountSelect?: (accountId: string | null) => void;
-  onNavigate?: (page: string) => void;
+  onNavigate?: (page: Page) => void;
 }
 
 const TOTAL_PAGES = 34;
