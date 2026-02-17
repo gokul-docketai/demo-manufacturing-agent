@@ -205,6 +205,32 @@ REVISION HISTORY
     ],
   },
   {
+    id: "enq-7",
+    type: "general",
+    title: "Capacity Inquiry — Aerospace Bracket Family",
+    description:
+      `Derek,
+
+We're exploring a potential partnership for a family of 12 aerospace bracket variants in Ti-6Al-4V and 7075-T6 aluminum. Annual volumes range from 500 to 3,000 per variant.
+
+Before we send formal drawings, we'd like to understand your 5-axis capacity availability for the next 18 months and whether you can support AS9100D + Nadcap requirements for this type of work.
+
+Can we schedule a call next week to discuss?
+
+Best regards,
+Tom Bradley
+VP Supply Chain, Northrop Grumman`,
+    accountName: "Northrop Grumman",
+    contactName: "Tom Bradley",
+    contactEmail: "t.bradley@ngc.com",
+    dealTitle: "NGC Aerospace Bracket Family",
+    dealValue: "$3.5M",
+    status: "new",
+    source: "email",
+    receivedAt: "30 minutes ago",
+    attachments: [],
+  },
+  {
     id: "rfq-2",
     type: "rfq",
     title: "Steering Knuckle Forgings — R1T Platform",
@@ -306,6 +332,32 @@ SURFACE FINISH
 | General machined | Ra 3.2μm | Standard |`,
       },
     ],
+  },
+  {
+    id: "enq-12",
+    type: "general",
+    title: "Follow-Up: Prototype Status for Valve Body Assembly",
+    description:
+      `Derek,
+
+Just checking in on the status of the Honda valve body prototype run (PO HN-2026-089). We were expecting first articles by end of this week — are we still on track?
+
+Honda's engineering team has a design review scheduled for Feb 28 and they need our samples in hand by Feb 25.
+
+Please confirm the current status and expected ship date.
+
+Thanks,
+Amy Watanabe
+Account Manager, Honda R&D Americas`,
+    accountName: "Honda",
+    contactName: "Amy Watanabe",
+    contactEmail: "a.watanabe@honda.com",
+    dealTitle: "Honda Valve Body Prototype",
+    dealValue: "$320K",
+    status: "in-progress",
+    source: "call",
+    receivedAt: "3 hours ago",
+    attachments: [],
   },
   {
     id: "rfq-3",
@@ -624,6 +676,32 @@ Delivery: Kanban pull, weekly shipment, 2-week safety stock at Magna Graz`,
     ],
   },
   {
+    id: "enq-10",
+    type: "general",
+    title: "Quote Revision — Updated Volumes for Brake Caliper Bracket",
+    description:
+      `Hi Derek,
+
+Following up on our previous quote PSC-Q-2025-0891 for the brake caliper mounting bracket. Our production forecast has increased — we now need pricing at 30,000 units/year instead of the original 15,000.
+
+Can you revise the quote with the updated volumes? Material remains 17-4PH SS per AMS 5643. Everything else stays the same.
+
+We'd also like to understand if you can support the higher volume without extending lead times.
+
+Thanks,
+Kevin Park
+Buyer, General Motors`,
+    accountName: "General Motors",
+    contactName: "Kevin Park",
+    contactEmail: "k.park@gm.com",
+    dealTitle: "GM Brake Caliper Bracket — Volume Increase",
+    dealValue: "$1.5M",
+    status: "in-progress",
+    source: "email",
+    receivedAt: "1 day ago",
+    attachments: [],
+  },
+  {
     id: "rfq-6",
     type: "rfq",
     title: "Suspension Control Arm Bushing Sleeves — F-150",
@@ -675,32 +753,6 @@ Core hardness: 30-36 HRC
 Case depth: 1.5-2.5mm effective`,
       },
     ],
-  },
-  {
-    id: "enq-7",
-    type: "general",
-    title: "Capacity Inquiry — Aerospace Bracket Family",
-    description:
-      `Derek,
-
-We're exploring a potential partnership for a family of 12 aerospace bracket variants in Ti-6Al-4V and 7075-T6 aluminum. Annual volumes range from 500 to 3,000 per variant.
-
-Before we send formal drawings, we'd like to understand your 5-axis capacity availability for the next 18 months and whether you can support AS9100D + Nadcap requirements for this type of work.
-
-Can we schedule a call next week to discuss?
-
-Best regards,
-Tom Bradley
-VP Supply Chain, Northrop Grumman`,
-    accountName: "Northrop Grumman",
-    contactName: "Tom Bradley",
-    contactEmail: "t.bradley@ngc.com",
-    dealTitle: "NGC Aerospace Bracket Family",
-    dealValue: "$3.5M",
-    status: "new",
-    source: "email",
-    receivedAt: "30 minutes ago",
-    attachments: [],
   },
   {
     id: "rfq-8",
@@ -794,32 +846,6 @@ Strategic Purchasing — E-Mobility, Volkswagen AG`,
     ],
   },
   {
-    id: "enq-10",
-    type: "general",
-    title: "Quote Revision — Updated Volumes for Brake Caliper Bracket",
-    description:
-      `Hi Derek,
-
-Following up on our previous quote PSC-Q-2025-0891 for the brake caliper mounting bracket. Our production forecast has increased — we now need pricing at 30,000 units/year instead of the original 15,000.
-
-Can you revise the quote with the updated volumes? Material remains 17-4PH SS per AMS 5643. Everything else stays the same.
-
-We'd also like to understand if you can support the higher volume without extending lead times.
-
-Thanks,
-Kevin Park
-Buyer, General Motors`,
-    accountName: "General Motors",
-    contactName: "Kevin Park",
-    contactEmail: "k.park@gm.com",
-    dealTitle: "GM Brake Caliper Bracket — Volume Increase",
-    dealValue: "$1.5M",
-    status: "in-progress",
-    source: "email",
-    receivedAt: "1 day ago",
-    attachments: [],
-  },
-  {
     id: "rfq-11",
     type: "rfq",
     title: "Titanium Landing Gear Pin — 787 Program",
@@ -883,74 +909,36 @@ NOTES
     ],
   },
   {
-    id: "enq-12",
+    id: "enq-13",
     type: "general",
-    title: "Follow-Up: Prototype Status for Valve Body Assembly",
+    title: "Supplier Qualification Audit — Hydraulic Components",
     description:
-      `Derek,
+      `Hello Derek,
 
-Just checking in on the status of the Honda valve body prototype run (PO HN-2026-089). We were expecting first articles by end of this week — are we still on track?
+John Deere's supplier quality team is planning a series of on-site audits for our approved vendor list expansion in 2026. We're specifically looking at shops with deep-hole drilling and cross-port machining capabilities for hydraulic manifold blocks.
 
-Honda's engineering team has a design review scheduled for Feb 28 and they need our samples in hand by Feb 25.
+Before we schedule a formal audit, we'd like to understand:
+- Your current QMS certifications (IATF 16949, ISO 9001, etc.)
+- Whether you have dedicated hydrostatic test capability (we require 100% testing at 350 bar)
+- Your controlled document system and how you manage engineering changes
+- Whether you'd be open to hosting a 2-day VDA 6.3-style process audit in March or April
 
-Please confirm the current status and expected ship date.
+This isn't tied to a specific RFQ yet — we want to get PSC into our approved supplier database first. If the audit goes well, we have several manifold programs in the pipeline for the second half of the year.
 
-Thanks,
-Amy Watanabe
-Account Manager, Honda R&D Americas`,
-    accountName: "Honda",
-    contactName: "Amy Watanabe",
-    contactEmail: "a.watanabe@honda.com",
-    dealTitle: "Honda Valve Body Prototype",
-    dealValue: "$320K",
-    status: "in-progress",
-    source: "call",
-    receivedAt: "3 hours ago",
-    attachments: [],
-  },
-  {
-    id: "rfq-13",
-    type: "rfq",
-    title: "Stainless Steel Hydraulic Manifold — Agricultural Equipment",
-    description:
-      `Hello,
+Let me know your availability and I'll coordinate with our audit team.
 
-John Deere is looking for a precision machining partner for a 304 SS hydraulic manifold used in our combine harvester platform. Annual requirement is 8,000 units.
-
-The manifold has 14 cross-drilled passages, multiple O-ring groove features, and requires 100% pressure testing at 350 bar. We need IATF 16949 or equivalent QMS certification.
-
-Please see attached spec for full details and submit pricing within 10 business days.
-
-Regards,
+Best,
 Mark Sullivan
 Supply Chain Manager, John Deere`,
     accountName: "John Deere",
     contactName: "Mark Sullivan",
     contactEmail: "m.sullivan@deere.com",
-    dealTitle: "JD Hydraulic Manifold Program",
+    dealTitle: "JD Supplier Qualification — Hydraulics",
     dealValue: "$760K",
     status: "new",
     source: "web-form",
     receivedAt: "12 hours ago",
-    attachments: [
-      {
-        name: "Hydraulic_Manifold_Spec.pdf",
-        type: "specs",
-        content: `PART IDENTIFICATION
-Part Number: JD-HM-304SS-2026  |  Rev: B
-Description: Hydraulic Control Manifold — Combine Platform
-
-MATERIAL: AISI 304 SS per ASTM A276
-Envelope: 120mm x 85mm x 65mm  |  Weight: 2.8 kg
-
-KEY FEATURES
-- 14 cross-drilled hydraulic passages (Ø4mm to Ø12mm)
-- 8x O-ring grooves per AS568 standard
-- 6x SAE -8 ORB ports, 2x SAE -12 ORB ports
-- 100% hydrostatic test at 350 bar, 60 sec hold
-- Surface finish: Ra 0.8μm on all sealing surfaces`,
-      },
-    ],
+    attachments: [],
   },
   {
     id: "enq-14",
@@ -979,17 +967,22 @@ Category Manager — Steering, ZF Friedrichshafen`,
     attachments: [],
   },
   {
-    id: "rfq-15",
-    type: "rfq",
-    title: "Precision Bearing Race — Wind Turbine Yaw System",
+    id: "enq-15",
+    type: "general",
+    title: "Long-Term Partnership Inquiry — Wind Energy Components",
     description:
-      `PSC,
+      `Derek,
 
-Vestas Wind Systems is sourcing a precision bearing race for the yaw drive system on our V162 platform. Material is 4140 steel, heat treated to 58-62 HRC. Volume is 3,000 units/year.
+Vestas Wind Systems is building a North American supply chain strategy for precision-machined components across our V162 and upcoming V236 offshore turbine platforms. We're evaluating 3-4 potential partners for a multi-year framework agreement.
 
-Critical requirement is the raceway surface finish — we need Ra ≤ 0.1μm via superfinishing. The part also requires 100% eddy current inspection for surface defects.
+We're not at the RFQ stage yet — first we need to understand whether PSC has the technical depth and capacity to be a long-term partner. Specifically:
 
-This is a long-term program (5+ year) with potential to expand to the V236 offshore platform. Please quote and indicate your interest.
+1. Do you have superfinishing capability (Ra ≤ 0.1μm) for hardened steel raceways?
+2. What is your 5-axis CNC capacity outlook for the next 18-24 months?
+3. Can you support a ramp from 3,000 to 10,000+ units/year over a 5-year program?
+4. Are you open to a framework agreement with annual pricing reviews tied to steel indices?
+
+If there's mutual interest, I'd like to schedule a virtual facility tour and technical deep-dive in the next few weeks. We're targeting partner selection by end of Q2.
 
 Best regards,
 Soren Andersen
@@ -997,7 +990,7 @@ Procurement Manager, Vestas Wind Systems`,
     accountName: "Vestas Wind Systems",
     contactName: "Soren Andersen",
     contactEmail: "s.andersen@vestas.com",
-    dealTitle: "Vestas Yaw Bearing Race Program",
+    dealTitle: "Vestas Long-Term Partnership — Wind Energy",
     dealValue: "$2.8M",
     status: "new",
     source: "email",
