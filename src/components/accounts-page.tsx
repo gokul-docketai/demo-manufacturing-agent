@@ -9,6 +9,7 @@ import {
   Building2,
   Plus,
   Sparkles,
+  WandSparkles,
   Send,
   X,
   ChevronLeft,
@@ -25,21 +26,17 @@ interface CRMColumn {
 
 const defaultColumns: CRMColumn[] = [
   { key: "name", label: "Account Name" },
+  { key: "ai_sellOpportunities", label: "Sell Opportunities", isAI: true },
+  { key: "ai_upsellCrossSell", label: "Upsell / Cross-sell", isAI: true },
+  { key: "ai_similarEnquiries", label: "Similar Enquiries", isAI: true },
   { key: "industry", label: "Industry" },
   { key: "primaryContact", label: "Primary Contact" },
-  { key: "email", label: "Email" },
-  { key: "phone", label: "Phone" },
-  { key: "accountOwner", label: "Owner" },
   { key: "annualRevenue", label: "Annual Revenue" },
-  { key: "employees", label: "Employees" },
   { key: "dealCount", label: "Deals" },
   { key: "totalValue", label: "Pipeline Value" },
   { key: "health", label: "Health" },
   { key: "stage", label: "Stage" },
-  { key: "region", label: "Region" },
-  { key: "lastTouch", label: "Last Activity" },
   { key: "nextAction", label: "Next Step" },
-  { key: "createdDate", label: "Created" },
 ];
 
 const aiColumnResponses: Record<string, (acc: Account) => string> = {
@@ -75,6 +72,105 @@ function generateAIValues(prompt: string, accounts: Account[]): string[] {
   return accounts.map((_, i) => chosen[i % chosen.length]);
 }
 
+const builtInAiData: Record<string, string[]> = {
+  ai_sellOpportunities: [
+    "They source Ti brackets externally — our 5-axis line is a perfect fit",
+    "Currently using a competitor for sensor housings with QA delays",
+    "Expanding EV line next quarter — need stamped battery enclosures",
+    "New plant build starting — high demand for wear-resistant plates",
+    "Lost their turbine shroud supplier — actively seeking a replacement",
+    "Ordering manifolds from 3 vendors — we can consolidate supply",
+    "Switching from machined to die-cast enclosures to cut costs",
+    "Prototype phase for performance intake — low volume, high margin",
+    "FDA audit drove need for validated SS reactor vessel supplier",
+    "Current wear liners failing early — our manganese grade lasts 2x",
+    "Building new robotic arm — need precision joint components",
+    "Awarded 200MW wind farm — bracket volumes doubling this year",
+    "New fab line requires ultra-clean wafer fixtures we specialize in",
+    "ITAR program kicked off — they need a certified housing supplier",
+    "Testing new hydraulic system — valve bodies are a key bottleneck",
+    "Turbine overhaul program needs custom blade fixturing urgently",
+    "Developing next-gen composite wing — tooling RFQ coming in Q2",
+    "Running progressive die brackets at capacity — need overflow partner",
+    "Tighter lens housing tolerances pushed out of current supplier's range",
+    "Annual forging contract up for renewal — we can undercut by 12%",
+    "New radar platform needs EMI enclosures with MIL-STD compliance",
+    "Expanding fleet with new vessel class — propeller shaft volumes up 3x",
+    "Redesigned instrument chassis needs tighter tolerances than before",
+    "Precision planter launch requires gearbox housings at scale",
+    "Multi-year landing gear program — they're qualifying new suppliers",
+    "Transitioning to over-molded inserts — their current vendor can't do it",
+    "EV charging expansion driving 40% more bus bar demand this year",
+    "New weld fixture project with 8-week deadline — we can fast-track",
+    "Bogie frame redesign for next-gen trains — casting RFQ imminent",
+    "Cleanroom wafer handler upgrade — need tighter flatness specs",
+  ],
+  ai_upsellCrossSell: [
+    "Pitch our new additive Ti-6Al-4V service for complex bracket geometries",
+    "Introduce PEEK injection molding — they currently machine from stock",
+    "Offer powder-coat finishing in-house to eliminate their secondary vendor",
+    "Propose laser-cut AR500 panels — faster turnaround than plasma",
+    "Show additive prototyping capability for rapid design iterations",
+    "Bundle turn-mill services with manifolds to reduce their lead time",
+    "Upsell anodized aluminum covers as value-add to current enclosures",
+    "Cross-sell carbon fiber composite options for weight reduction",
+    "Offer electropolishing as a finishing service for their SS assemblies",
+    "Propose plasma-cut liner plates as add-on to machined wear parts",
+    "Introduce precision grinding for shaft components they buy elsewhere",
+    "Cross-sell galvanized steel mounting hardware with bracket orders",
+    "Upsell ultra-clean passivation service for their semiconductor parts",
+    "Bundle nickel-plated connector housings with their defense orders",
+    "Offer chrome-plated spool valves as upgrade to standard finish",
+    "Pitch Inconel investment castings for high-temp turbine components",
+    "Introduce autoclave-rated mold tooling for their composite program",
+    "Cross-sell zinc-plated stampings for corrosion-prone applications",
+    "Upsell diamond-turned optics — higher margin, fewer competitors",
+    "Offer heat-treated ring blanks to vertically integrate their supply",
+    "Propose conformal-coated PCB enclosures for outdoor radar units",
+    "Pitch cathodic protection anodes — they currently import from overseas",
+    "Bundle hard-anodized enclosures with their instrument chassis orders",
+    "Cross-sell PTO shaft assemblies — they source from 2 separate vendors",
+    "Introduce nitrided actuator rods — 3x longer service life",
+    "Offer multi-shot molded seals alongside their insert molding orders",
+    "Upsell silver-plated contacts for higher conductivity applications",
+    "Propose robotic weld cell integration with their fixture assemblies",
+    "Cross-sell machined wheel hubs — natural extension of bogie work",
+    "Pitch ceramic wafer chucks — higher precision than their current metal ones",
+  ],
+  ai_similarEnquiries: [
+    "RFQ-2026-0847 from Pacific Aero for similar Ti brackets — won at $312/ea",
+    "RFQ-2025-1134 from BioSynth for PEEK housings — pending technical review",
+    "RFQ-2025-0982 from Heartland Ag for stamped chassis — quoted last month",
+    "No similar enquiries found in the last 12 months",
+    "RFQ-2026-0091 from Northrop for aero shrouds — same alloy specs",
+    "RFQ-2024-1188 from Cascade Fluid for manifold blocks — closed won at $175K",
+    "RFQ-2025-0773 from Eclipse Semi for die-cast heat sinks — lost on lead time",
+    "No similar enquiries found in the last 12 months",
+    "RFQ-2025-0654 from MedCore for SS vessel components — in negotiation",
+    "RFQ-2024-1042 from TerraCore for wear plates — repeat order likely in Q2",
+    "RFQ-2025-1201 from NovaTech for precision arm joints — spec review ongoing",
+    "RFQ-2024-0891 from Apex Turbine for turbine mounts — won at $960K",
+    "No similar enquiries found in the last 12 months",
+    "RFQ-2025-0467 from Sentinel for defense housings — ITAR-cleared, quoting",
+    "No similar enquiries found in the last 12 months",
+    "RFQ-2025-0312 from Cobalt Aero for turbine fixtures — in final negotiation",
+    "No similar enquiries found in the last 12 months",
+    "RFQ-2025-0889 from AutoPrime for progressive die brackets — won at $195K",
+    "RFQ-2025-1067 from Vanguard for optics housings — lost on surface finish",
+    "RFQ-2024-0756 from Atlas Heavy for forged flanges — repeat order placed",
+    "RFQ-2025-0534 from Ironclad for EMI enclosures — MIL-STD qualified",
+    "No similar enquiries found in the last 12 months",
+    "RFQ-2025-0923 from ClearPath for instrument chassis — awaiting feedback",
+    "RFQ-2024-1155 from Wolverine for gearbox housings — closed won at $340K",
+    "RFQ-2024-0621 from Northrop for landing gear parts — multi-year LTA signed",
+    "No similar enquiries found in the last 12 months",
+    "RFQ-2025-0745 from Sierra Power for bus bar machining — quoting phase",
+    "No similar enquiries found in the last 12 months",
+    "RFQ-2025-0398 from Orion Rail for bogie castings — negotiating volume pricing",
+    "RFQ-2025-1089 from Stellar Micro for wafer fixtures — lost on cleanroom cert",
+  ],
+};
+
 function getCellValue(acc: Account, key: string): string | number {
   const val = (acc as unknown as Record<string, unknown>)[key];
   if (val === undefined || val === null) return "";
@@ -106,7 +202,7 @@ const TOTAL_PAGES = 34;
 
 export function AccountsPage({ selectedAccountId, onAccountSelect }: AccountsPageProps) {
   const [columns, setColumns] = useState<CRMColumn[]>(defaultColumns);
-  const [aiData, setAiData] = useState<Record<string, string[]>>({});
+  const [aiData, setAiData] = useState<Record<string, string[]>>(builtInAiData);
   const [popoverOpen, setPopoverOpen] = useState(false);
   const [prompt, setPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
@@ -214,7 +310,7 @@ export function AccountsPage({ selectedAccountId, onAccountSelect }: AccountsPag
                     >
                       <div className="flex items-center gap-1">
                         {col.isAI && (
-                          <Sparkles className="h-2.5 w-2.5 text-purple-500" />
+                          <WandSparkles className="h-2.5 w-2.5 text-purple-500" />
                         )}
                         {col.label}
                       </div>
@@ -235,7 +331,7 @@ export function AccountsPage({ selectedAccountId, onAccountSelect }: AccountsPag
                         {popoverOpen ? (
                           <X className="h-3 w-3" />
                         ) : (
-                          <Plus className="h-3 w-3" />
+                          <WandSparkles className="h-3 w-3" />
                         )}
                       </button>
 
@@ -307,7 +403,7 @@ export function AccountsPage({ selectedAccountId, onAccountSelect }: AccountsPag
                         return (
                           <td
                             key={col.key}
-                            className="px-3 py-2.5 bg-purple-50/40 text-purple-700 font-medium whitespace-nowrap"
+                            className="px-3 py-3.5 bg-purple-50/40 text-purple-700 font-medium min-w-[220px] max-w-[300px]"
                           >
                             {val}
                           </td>
@@ -316,7 +412,7 @@ export function AccountsPage({ selectedAccountId, onAccountSelect }: AccountsPag
 
                       if (col.key === "health") {
                         return (
-                          <td key={col.key} className="px-3 py-2.5 whitespace-nowrap">
+                          <td key={col.key} className="px-3 py-3.5 whitespace-nowrap">
                             <HealthDot health={acc.health} />
                           </td>
                         );
@@ -326,20 +422,10 @@ export function AccountsPage({ selectedAccountId, onAccountSelect }: AccountsPag
                         return (
                           <td
                             key={col.key}
-                            className="px-3 py-2.5 font-medium text-foreground whitespace-nowrap"
+                            className="px-3 py-3.5 whitespace-nowrap"
                           >
-                            {acc.name}
-                          </td>
-                        );
-                      }
-
-                      if (col.key === "employees") {
-                        return (
-                          <td
-                            key={col.key}
-                            className="px-3 py-2.5 text-warm-600 whitespace-nowrap"
-                          >
-                            {acc.employees.toLocaleString()}
+                            <div className="font-medium text-foreground leading-tight">{acc.name}</div>
+                            <div className="text-[10px] text-warm-500 mt-0.5">Owner: {acc.accountOwner}</div>
                           </td>
                         );
                       }
@@ -348,7 +434,7 @@ export function AccountsPage({ selectedAccountId, onAccountSelect }: AccountsPag
                         return (
                           <td
                             key={col.key}
-                            className="px-3 py-2.5 font-medium text-foreground whitespace-nowrap"
+                            className="px-3 py-3.5 font-medium text-foreground whitespace-nowrap"
                           >
                             {getCellValue(acc, col.key)}
                           </td>
@@ -358,14 +444,14 @@ export function AccountsPage({ selectedAccountId, onAccountSelect }: AccountsPag
                       return (
                         <td
                           key={col.key}
-                          className="px-3 py-2.5 text-warm-600 whitespace-nowrap"
+                          className="px-3 py-3.5 text-warm-600 whitespace-nowrap"
                         >
                           {String(getCellValue(acc, col.key))}
                         </td>
                       );
                     })}
                     {/* Empty cell for add-column column */}
-                    <td className="px-2 py-2.5 w-10" />
+                    <td className="px-2 py-3.5 w-10" />
                   </tr>
                 ))}
               </tbody>

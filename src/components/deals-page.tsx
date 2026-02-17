@@ -26,7 +26,6 @@ const defaultColumns: CRMColumn[] = [
   { key: "name", label: "Deal Name" },
   { key: "accountName", label: "Account" },
   { key: "contactName", label: "Contact" },
-  { key: "dealOwner", label: "Owner" },
   { key: "stage", label: "Stage" },
   { key: "value", label: "Value" },
   { key: "probability", label: "Probability" },
@@ -304,7 +303,7 @@ export function DealsPage({ onAccountClick }: DealsPageProps) {
                         return (
                           <td
                             key={col.key}
-                            className="px-3 py-2.5 bg-purple-50/40 text-purple-700 font-medium whitespace-nowrap"
+                            className="px-3 py-3.5 bg-purple-50/40 text-purple-700 font-medium whitespace-nowrap"
                           >
                             {val}
                           </td>
@@ -315,16 +314,17 @@ export function DealsPage({ onAccountClick }: DealsPageProps) {
                         return (
                           <td
                             key={col.key}
-                            className="px-3 py-2.5 font-medium text-foreground whitespace-nowrap"
+                            className="px-3 py-3.5 whitespace-nowrap"
                           >
-                            {deal.name}
+                            <div className="font-medium text-foreground leading-tight">{deal.name}</div>
+                            <div className="text-[10px] text-warm-500 mt-0.5">Owner: {deal.dealOwner}</div>
                           </td>
                         );
                       }
 
                       if (col.key === "accountName") {
                         return (
-                          <td key={col.key} className="px-3 py-2.5 whitespace-nowrap">
+                          <td key={col.key} className="px-3 py-3.5 whitespace-nowrap">
                             <AccountTag
                               name={deal.accountName}
                               onClick={onAccountClick ? () => onAccountClick(deal.accountId) : undefined}
@@ -335,7 +335,7 @@ export function DealsPage({ onAccountClick }: DealsPageProps) {
 
                       if (col.key === "stage") {
                         return (
-                          <td key={col.key} className="px-3 py-2.5 whitespace-nowrap">
+                          <td key={col.key} className="px-3 py-3.5 whitespace-nowrap">
                             <StageBadge stage={deal.stage} />
                           </td>
                         );
@@ -343,7 +343,7 @@ export function DealsPage({ onAccountClick }: DealsPageProps) {
 
                       if (col.key === "probability") {
                         return (
-                          <td key={col.key} className="px-3 py-2.5 whitespace-nowrap">
+                          <td key={col.key} className="px-3 py-3.5 whitespace-nowrap">
                             <ProbabilityCell value={deal.probability} />
                           </td>
                         );
@@ -353,7 +353,7 @@ export function DealsPage({ onAccountClick }: DealsPageProps) {
                         return (
                           <td
                             key={col.key}
-                            className="px-3 py-2.5 font-medium text-foreground whitespace-nowrap"
+                            className="px-3 py-3.5 font-medium text-foreground whitespace-nowrap"
                           >
                             {deal.value}
                           </td>
@@ -363,14 +363,14 @@ export function DealsPage({ onAccountClick }: DealsPageProps) {
                       return (
                         <td
                           key={col.key}
-                          className="px-3 py-2.5 text-warm-600 whitespace-nowrap"
+                          className="px-3 py-3.5 text-warm-600 whitespace-nowrap"
                         >
                           {String(getCellValue(deal, col.key))}
                         </td>
                       );
                     })}
                     {/* Empty cell for add-column column */}
-                    <td className="px-2 py-2.5 w-10" />
+                    <td className="px-2 py-3.5 w-10" />
                   </tr>
                 ))}
               </tbody>
