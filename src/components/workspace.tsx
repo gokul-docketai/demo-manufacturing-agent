@@ -18,6 +18,7 @@ import { AccountsPage } from "@/components/accounts-page";
 import { DealsPage } from "@/components/deals-page";
 import { ConciergePage } from "@/components/concierge-page";
 import { CoworkMode } from "@/components/cowork-mode";
+import { SettingsPage } from "@/components/settings-page";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import {
@@ -46,7 +47,7 @@ export function Workspace() {
   const [mode, setMode] = useState<AppMode>("action");
   const [activePage, setActivePage] = useState<Page>(() => {
     const p = searchParams.get("page");
-    if (p === "accounts" || p === "deals" || p === "concierge" || p === "home") return p;
+    if (p === "accounts" || p === "deals" || p === "concierge" || p === "home" || p === "settings") return p;
     return "home";
   });
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -205,6 +206,18 @@ export function Workspace() {
         <NavSidebar activePage={activePage} onNavigate={handleNavigate} />
         <div className="ml-12">
           <ConciergePage />
+        </div>
+      </div>
+    );
+  }
+
+  // Settings page
+  if (activePage === "settings") {
+    return (
+      <div className="min-h-screen bg-background">
+        <NavSidebar activePage={activePage} onNavigate={handleNavigate} />
+        <div className="ml-12">
+          <SettingsPage />
         </div>
       </div>
     );

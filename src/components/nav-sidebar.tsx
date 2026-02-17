@@ -4,17 +4,17 @@ import { useState } from "react";
 import { Home, Building2, Handshake, Settings, User, Zap, Inbox } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export type Page = "home" | "accounts" | "deals" | "concierge";
+export type Page = "home" | "accounts" | "deals" | "concierge" | "settings";
 
 const topItems: { icon: typeof Home; label: string; page: Page }[] = [
   { icon: Home, label: "Home", page: "home" },
+  { icon: Building2, label: "Accounts", page: "accounts" },
   { icon: Inbox, label: "Concierge", page: "concierge" },
   { icon: Handshake, label: "Deals", page: "deals" },
-  { icon: Building2, label: "Accounts", page: "accounts" },
+  { icon: Settings, label: "Settings", page: "settings" },
 ];
 
-const bottomItems = [
-  { icon: Settings, label: "Settings" },
+const bottomItems: { icon: typeof Home; label: string; page?: Page }[] = [
   { icon: User, label: "Profile" },
 ];
 
@@ -81,7 +81,13 @@ export function NavSidebar({ activePage = "home", onNavigate }: NavSidebarProps)
         {bottomItems.map((item) => (
           <button
             key={item.label}
-            className="flex items-center gap-2.5 w-full px-2 py-2 rounded-lg text-warm-400 hover:text-warm-200 hover:bg-warm-800/50 transition-colors"
+            onClick={() => item.page && onNavigate?.(item.page)}
+            className={cn(
+              "flex items-center gap-2.5 w-full px-2 py-2 rounded-lg transition-colors",
+              item.page && activePage === item.page
+                ? "bg-warm-800 text-warm-100"
+                : "text-warm-400 hover:text-warm-200 hover:bg-warm-800/50"
+            )}
           >
             <item.icon className="h-4 w-4 shrink-0" />
             <span
