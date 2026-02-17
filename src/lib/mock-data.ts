@@ -2934,3 +2934,795 @@ export const mockAccountERP: Record<string, AccountERPProfile> = {
     ],
   },
 };
+
+// ─── Deal Detail Interfaces ──────────────────────────────────────────────
+
+export type IntentSignalType =
+  | "website_visit"
+  | "content_download"
+  | "email_engagement"
+  | "search_activity"
+  | "competitor_activity"
+  | "budget_signal"
+  | "technology_evaluation";
+
+export type IntentStrength = "high" | "medium" | "low";
+
+export interface IntentSignal {
+  id: string;
+  type: IntentSignalType;
+  strength: IntentStrength;
+  title: string;
+  description: string;
+  timestamp: string;
+  source: string;
+}
+
+export interface TechnicalRequirement {
+  partNumber: string;
+  partName: string;
+  material: string;
+  process: string;
+  dimensions: string;
+  tolerances: string;
+  surfaceFinish: string;
+  heatTreatment: string;
+  coatings: string;
+  ndtRequired: string;
+  dfmNotes: string[];
+  drawings: { name: string; revision: string }[];
+  materialAvailable: boolean;
+  materialStock: string;
+}
+
+export interface DealStakeholder {
+  id: string;
+  name: string;
+  title: string;
+  influence: "Decision Maker" | "Champion" | "Technical Evaluator" | "Procurement" | "End User";
+  engagement: "hot" | "warm" | "cold";
+  engagementScore: number;
+  email: string;
+  phone: string;
+  lastInteraction: string;
+  notes: string;
+}
+
+export interface CompetitorIntel {
+  id: string;
+  name: string;
+  threatLevel: "high" | "medium" | "low";
+  strengths: string[];
+  weaknesses: string[];
+  estimatedPrice: string;
+  incumbent: boolean;
+}
+
+export interface WinLossFactor {
+  factor: string;
+  importance: "critical" | "important" | "nice-to-have";
+  ourPosition: "strong" | "neutral" | "weak";
+  notes: string;
+}
+
+export interface QuoteLineItem {
+  partNumber: string;
+  description: string;
+  qty: number;
+  unitPrice: string;
+  extendedPrice: string;
+}
+
+export interface DealQuote {
+  quoteNumber: string;
+  quoteDate: string;
+  validUntil: string;
+  lineItems: QuoteLineItem[];
+  toolingCost: string;
+  nreCost: string;
+  totalValue: string;
+  estimatedMarginPct: number;
+  costBreakdown: { category: string; pct: number }[];
+  paymentTerms: string;
+  pricingBenchmark: string;
+}
+
+export interface DealDetailProfile {
+  dealId: string;
+  aiSummary: string;
+  intentScore: number;
+  intentSignals: IntentSignal[];
+  technicalRequirements: TechnicalRequirement[];
+  stakeholders: DealStakeholder[];
+  activities: ActivityEvent[];
+  competitors: CompetitorIntel[];
+  winLossFactors: WinLossFactor[];
+  ourDifferentiators: string[];
+  riskFlags: string[];
+  quote: DealQuote | null;
+  missingStakeholders: string[];
+  daysInStage: number;
+  stageEnteredDate: string;
+}
+
+export const mockDealDetails: Record<string, DealDetailProfile> = {
+  "dtl-1": {
+    dealId: "dtl-1",
+    aiSummary: "High-confidence deal with strong technical fit. Ti-6Al-4V brackets align with our core 5-axis capability. Customer has existing relationship via 18 prior orders. Key risk is close-date pressure — Northrop needs PO committed before Q1 fiscal close. Recommend prioritizing RFQ response turnaround.",
+    intentScore: 88,
+    intentSignals: [
+      { id: "is-101", type: "website_visit", strength: "high", title: "Capabilities page visited 6 times", description: "Northrop engineering team visited 5-Axis CNC and Ti-6Al-4V material pages 6 times in the last 2 weeks.", timestamp: "2 hours ago", source: "Website Analytics" },
+      { id: "is-102", type: "email_engagement", strength: "high", title: "RFQ response email opened 4x", description: "Col. Whitfield opened the RFQ response email 4 times and forwarded to 2 internal contacts.", timestamp: "Yesterday", source: "Email Tracking" },
+      { id: "is-103", type: "budget_signal", strength: "high", title: "Q1 fiscal year-end procurement push", description: "Northrop typically accelerates PO commitments in Feb to utilize remaining Q1 budget allocation.", timestamp: "1 week ago", source: "CRM Intelligence" },
+      { id: "is-104", type: "content_download", strength: "medium", title: "AS9100D cert downloaded", description: "Laura Chen downloaded our AS9100D and Nadcap certifications from the supplier portal.", timestamp: "3 days ago", source: "Portal Activity" },
+      { id: "is-105", type: "search_activity", strength: "medium", title: "Searching for titanium CNC shops", description: "Account associated with search queries: 'titanium CNC machining supplier AS9100', 'Ti-6Al-4V bracket manufacturer'.", timestamp: "5 days ago", source: "Bombora Intent" },
+      { id: "is-106", type: "technology_evaluation", strength: "medium", title: "Evaluating 5-axis suppliers", description: "Northrop procurement is actively benchmarking 5-axis CNC suppliers for a new approved vendor list.", timestamp: "1 week ago", source: "Industry Intel" },
+    ],
+    technicalRequirements: [
+      {
+        partNumber: "ND-7741-A",
+        partName: "Ti-6Al-4V Mounting Bracket (Left)",
+        material: "Ti-6Al-4V (Grade 5)",
+        process: "5-Axis CNC Machining",
+        dimensions: "12.5\" x 4.2\" x 2.8\"",
+        tolerances: "+/- 0.001\" on mating surfaces, +/- 0.005\" general",
+        surfaceFinish: "Ra 32 on mating faces, Ra 125 general",
+        heatTreatment: "Solution treat + age per AMS 4928",
+        coatings: "Cadmium plating per AMS-QQ-P-416",
+        ndtRequired: "FPI per ASTM E1417, UT per ASTM E2375",
+        dfmNotes: [
+          "Deep pocket feature on left face requires extended reach tooling — confirm 5-axis access angle.",
+          "Wall thickness at mounting lug is 0.08\" — risk of distortion during machining. Consider stress-relief cycle.",
+          "GD&T datum scheme references three non-coplanar surfaces — may need custom fixturing.",
+        ],
+        drawings: [
+          { name: "ND-7741-A_Rev_C.pdf", revision: "Rev C" },
+          { name: "ND-7741-A_GDT_Detail.pdf", revision: "Rev C" },
+        ],
+        materialAvailable: true,
+        materialStock: "Ti-6Al-4V: 2,400 lbs on hand (Lot TI-2025-0892)",
+      },
+      {
+        partNumber: "ND-7741-B",
+        partName: "Ti-6Al-4V Mounting Bracket (Right)",
+        material: "Ti-6Al-4V (Grade 5)",
+        process: "5-Axis CNC Machining",
+        dimensions: "12.5\" x 4.2\" x 2.8\" (mirror)",
+        tolerances: "+/- 0.001\" on mating surfaces, +/- 0.005\" general",
+        surfaceFinish: "Ra 32 on mating faces, Ra 125 general",
+        heatTreatment: "Solution treat + age per AMS 4928",
+        coatings: "Cadmium plating per AMS-QQ-P-416",
+        ndtRequired: "FPI per ASTM E1417, UT per ASTM E2375",
+        dfmNotes: [
+          "Mirror of ND-7741-A — same fixturing concerns apply.",
+          "Consider combined setup with A variant to reduce cycle time.",
+        ],
+        drawings: [
+          { name: "ND-7741-B_Rev_C.pdf", revision: "Rev C" },
+        ],
+        materialAvailable: true,
+        materialStock: "Ti-6Al-4V: 2,400 lbs on hand (Lot TI-2025-0892)",
+      },
+    ],
+    stakeholders: [
+      { id: "ds-101", name: "Col. James Whitfield", title: "VP of Supply Chain", influence: "Decision Maker", engagement: "hot", engagementScore: 92, email: "j.whitfield@northropdyn.com", phone: "(310) 555-0142", lastInteraction: "1 hour ago", notes: "Final decision authority. Pushing for Q1 close." },
+      { id: "ds-102", name: "Laura Chen", title: "Senior Procurement Manager", influence: "Champion", engagement: "hot", engagementScore: 88, email: "l.chen@northropdyn.com", phone: "(310) 555-0198", lastInteraction: "Yesterday", notes: "Internal champion. Downloaded certs and shared with quality team." },
+      { id: "ds-103", name: "Dr. Raj Patel", title: "Lead Stress Engineer", influence: "Technical Evaluator", engagement: "warm", engagementScore: 65, email: "r.patel@northropdyn.com", phone: "(310) 555-0211", lastInteraction: "3 days ago", notes: "Reviewing GD&T on bracket design. Raised wall thickness concern." },
+      { id: "ds-104", name: "Susan Park", title: "Quality Assurance Director", influence: "Technical Evaluator", engagement: "cold", engagementScore: 30, email: "s.park@northropdyn.com", phone: "(310) 555-0227", lastInteraction: "2 weeks ago", notes: "Has not responded to Nadcap cert request. May need follow-up." },
+    ],
+    activities: [
+      { id: "da-101", date: "Feb 17, 2026", type: "email", title: "RFQ Response Sent", description: "Submitted formal RFQ response with pricing, lead times, and capability summary for Ti-6Al-4V brackets.", contact: "Col. James Whitfield" },
+      { id: "da-102", date: "Feb 14, 2026", type: "meeting", title: "Technical Review Call", description: "60-min review of GD&T requirements with Northrop engineering. Discussed fixturing approach and wall thickness risk.", contact: "Dr. Raj Patel" },
+      { id: "da-103", date: "Feb 10, 2026", type: "email", title: "Cert Package Sent", description: "Sent AS9100D, Nadcap, and ITAR compliance certificates to procurement team.", contact: "Laura Chen" },
+      { id: "da-104", date: "Feb 5, 2026", type: "call", title: "Pricing Discussion", description: "Discussed preliminary pricing. Customer indicated budget ceiling is $380/unit. Current quote is $350/unit.", contact: "Laura Chen" },
+      { id: "da-105", date: "Jan 28, 2026", type: "site_visit", title: "Plant Tour", description: "Northrop procurement and engineering team visited facility. Toured 5-axis cell and quality lab.", contact: "Col. James Whitfield" },
+      { id: "da-106", date: "Jan 15, 2026", type: "po_received", title: "RFQ Received", description: "Received initial RFQ package from Northrop for 2,400 Ti-6Al-4V mounting brackets.", contact: "Laura Chen" },
+    ],
+    competitors: [
+      { id: "ci-101", name: "Apex Aerostructures", threatLevel: "high", strengths: ["Incumbent on previous bracket program", "Lower labor rates (Mexico facility)"], weaknesses: ["No Nadcap Heat Treat cert", "Longer lead times (12 weeks vs our 8)"], estimatedPrice: "$320K", incumbent: true },
+      { id: "ci-102", name: "PrecisionCraft Inc.", threatLevel: "medium", strengths: ["Competitive pricing", "Fast quoting turnaround"], weaknesses: ["No ITAR registration", "Limited 5-axis capacity"], estimatedPrice: "$790K", incumbent: false },
+    ],
+    winLossFactors: [
+      { factor: "AS9100D + Nadcap Certification", importance: "critical", ourPosition: "strong", notes: "Mandatory for Northrop. We have both; Apex does not have Nadcap HT." },
+      { factor: "Lead Time", importance: "critical", ourPosition: "strong", notes: "8-week lead time vs. competitor's 12. Northrop needs delivery by Apr 30." },
+      { factor: "Price", importance: "important", ourPosition: "neutral", notes: "Our $840K is within budget but Apex may undercut on labor. $350/unit is competitive." },
+      { factor: "ITAR Compliance", importance: "critical", ourPosition: "strong", notes: "Full ITAR registration. PrecisionCraft is not registered." },
+      { factor: "Technical Capability (5-Axis)", importance: "important", ourPosition: "strong", notes: "Demonstrated capability in plant tour. Deep pocket feature requires proven 5-axis access." },
+    ],
+    ourDifferentiators: [
+      "Only bidder with both AS9100D and Nadcap Heat Treat certifications",
+      "8-week lead time — 4 weeks faster than nearest competitor",
+      "Existing relationship: 18 prior orders, $3.2M lifetime value",
+      "On-site Ti-6Al-4V stock eliminates 3-week material lead time",
+      "Full ITAR compliance — PrecisionCraft cannot bid",
+    ],
+    riskFlags: [
+      "Q1 fiscal close pressure — if PO slips past Feb 28, deal may push to Q2",
+      "Quality Director (Susan Park) is disengaged — could delay vendor approval",
+      "Wall thickness DFM concern not yet fully resolved with engineering",
+    ],
+    quote: {
+      quoteNumber: "QT-2026-0147",
+      quoteDate: "Feb 12, 2026",
+      validUntil: "Mar 14, 2026",
+      lineItems: [
+        { partNumber: "ND-7741-A", description: "Ti-6Al-4V Mounting Bracket (Left)", qty: 1200, unitPrice: "$350", extendedPrice: "$420,000" },
+        { partNumber: "ND-7741-B", description: "Ti-6Al-4V Mounting Bracket (Right)", qty: 1200, unitPrice: "$350", extendedPrice: "$420,000" },
+      ],
+      toolingCost: "$0 (existing fixtures)",
+      nreCost: "$0",
+      totalValue: "$840,000",
+      estimatedMarginPct: 34,
+      costBreakdown: [
+        { category: "Material", pct: 38 },
+        { category: "Labor", pct: 28 },
+        { category: "Overhead", pct: 22 },
+        { category: "Margin", pct: 12 },
+      ],
+      paymentTerms: "Net 45, milestone billing (50% at production start, 50% on delivery)",
+      pricingBenchmark: "Historical Ti-6Al-4V brackets: $280-$420/unit. Current $350/unit is mid-range.",
+    },
+    missingStakeholders: [],
+    daysInStage: 18,
+    stageEnteredDate: "Jan 30, 2026",
+  },
+
+  "dtl-2": {
+    dealId: "dtl-2",
+    aiSummary: "Mid-stage deal with strong technical interest but unresolved DFM issues. PEEK sensor housing requires specialized injection mold tooling. Wall thickness concerns could delay proposal if not addressed quickly. MedCore is evaluating two other suppliers. High upsell potential — if tooling deal lands, production run could be $2M+.",
+    intentScore: 72,
+    intentSignals: [
+      { id: "is-201", type: "website_visit", strength: "high", title: "Injection molding page visited 8 times", description: "MedCore engineering visited injection molding capabilities and PEEK material pages repeatedly.", timestamp: "30 min ago", source: "Website Analytics" },
+      { id: "is-202", type: "content_download", strength: "high", title: "PEEK processing whitepaper downloaded", description: "Dr. Sharma downloaded our PEEK injection molding whitepaper and ISO 13485 overview.", timestamp: "2 days ago", source: "Portal Activity" },
+      { id: "is-203", type: "email_engagement", strength: "medium", title: "DFM report opened multiple times", description: "DFM analysis email opened 3 times by Dr. Sharma, forwarded to internal engineering team.", timestamp: "Yesterday", source: "Email Tracking" },
+      { id: "is-204", type: "competitor_activity", strength: "high", title: "RFQ sent to two other mold shops", description: "Intelligence suggests MedCore sent parallel RFQs to Precision Plastics Inc. and MedMold Solutions.", timestamp: "1 week ago", source: "Industry Intel" },
+      { id: "is-205", type: "technology_evaluation", strength: "medium", title: "Evaluating PEEK vs. Ultem", description: "MedCore R&D is comparing PEEK vs. Ultem for biocompatibility. Our PEEK expertise is a differentiator.", timestamp: "4 days ago", source: "CRM Intelligence" },
+    ],
+    technicalRequirements: [
+      {
+        partNumber: "MC-SH-2200",
+        partName: "PEEK Sensor Housing",
+        material: "PEEK (Victrex 450G)",
+        process: "Injection Molding",
+        dimensions: "3.2\" x 1.8\" x 0.9\"",
+        tolerances: "+/- 0.002\" on sensor bore, +/- 0.010\" general",
+        surfaceFinish: "SPI A-2 on sealing surfaces, SPI B-1 general",
+        heatTreatment: "Post-mold anneal per PEEK processing guide",
+        coatings: "None — biocompatible as-molded",
+        ndtRequired: "Visual + dimensional CMM 100% inspection",
+        dfmNotes: [
+          "Wall thickness varies from 0.030\" to 0.120\" — risk of sink marks and warpage.",
+          "Sensor bore requires +/- 0.002\" — may need post-mold machining.",
+          "PEEK requires mold temperatures >350F — ensure hot runner system is rated.",
+          "Draft angle on housing ribs is only 0.5 degrees — recommend 1.5 minimum for PEEK.",
+        ],
+        drawings: [
+          { name: "MC-SH-2200_Rev_A.pdf", revision: "Rev A" },
+          { name: "MC-SH-2200_Mold_Layout.pdf", revision: "Rev A" },
+        ],
+        materialAvailable: false,
+        materialStock: "PEEK 450G: 0 lbs on hand — 6-week lead from Victrex",
+      },
+    ],
+    stakeholders: [
+      { id: "ds-201", name: "Dr. Priya Sharma", title: "Director of R&D", influence: "Decision Maker", engagement: "hot", engagementScore: 85, email: "p.sharma@medcore.com", phone: "(617) 555-0234", lastInteraction: "30 min ago", notes: "Driving the sensor housing program. Very hands-on with technical requirements." },
+      { id: "ds-202", name: "Kevin O'Brien", title: "VP of Manufacturing", influence: "Champion", engagement: "warm", engagementScore: 60, email: "k.obrien@medcore.com", phone: "(617) 555-0241", lastInteraction: "4 days ago", notes: "Supportive but concerned about tooling lead time. Needs commitment by Mar 1." },
+      { id: "ds-203", name: "Rachel Kim", title: "Procurement Specialist", influence: "Procurement", engagement: "warm", engagementScore: 55, email: "r.kim@medcore.com", phone: "(617) 555-0256", lastInteraction: "1 week ago", notes: "Collecting competitive quotes. Price-sensitive." },
+    ],
+    activities: [
+      { id: "da-201", date: "Feb 17, 2026", type: "email", title: "DFM Report Follow-up", description: "Sent updated DFM analysis addressing wall thickness concerns with proposed design modifications.", contact: "Dr. Priya Sharma" },
+      { id: "da-202", date: "Feb 14, 2026", type: "meeting", title: "DFM Review Meeting", description: "Reviewed initial DFM findings. PEEK wall thickness variation flagged as primary risk.", contact: "Dr. Priya Sharma" },
+      { id: "da-203", date: "Feb 10, 2026", type: "email", title: "PEEK Material Spec Shared", description: "Shared Victrex 450G material data sheet and our PEEK processing capabilities.", contact: "Kevin O'Brien" },
+      { id: "da-204", date: "Feb 1, 2026", type: "call", title: "Initial Scope Call", description: "Discussed housing requirements, quantities (10K/year), and timeline expectations.", contact: "Dr. Priya Sharma" },
+      { id: "da-205", date: "Jan 10, 2026", type: "po_received", title: "RFQ Received", description: "Received RFQ for PEEK sensor housing injection mold tooling.", contact: "Rachel Kim" },
+    ],
+    competitors: [
+      { id: "ci-201", name: "Precision Plastics Inc.", threatLevel: "high", strengths: ["Lower tooling quote (~$140K)", "Faster quoted lead time"], weaknesses: ["No PEEK experience — primarily runs commodity resins", "No ISO 13485 for medical"], estimatedPrice: "$480K", incumbent: false },
+      { id: "ci-202", name: "MedMold Solutions", threatLevel: "medium", strengths: ["Medical device specialization", "ISO 13485 certified"], weaknesses: ["Higher pricing", "Limited capacity — 8-week quoted lead time"], estimatedPrice: "$620K", incumbent: false },
+    ],
+    winLossFactors: [
+      { factor: "PEEK Processing Expertise", importance: "critical", ourPosition: "strong", notes: "We've run 12 PEEK programs. Precision Plastics has zero PEEK experience." },
+      { factor: "Price", importance: "important", ourPosition: "neutral", notes: "Mid-range at $560K. Precision Plastics is ~15% lower but lacks capability." },
+      { factor: "Tooling Lead Time", importance: "important", ourPosition: "neutral", notes: "10-week tooling. MedMold quoted 8 weeks. Kevin needs tools by mid-May." },
+      { factor: "ISO 13485 Certification", importance: "critical", ourPosition: "weak", notes: "We do NOT have ISO 13485. MedMold does. Could be a blocker for medical device production." },
+      { factor: "DFM Expertise", importance: "important", ourPosition: "strong", notes: "Our DFM analysis flagged 4 issues competitors likely missed. Builds trust." },
+    ],
+    ourDifferentiators: [
+      "12 prior PEEK programs vs. zero for Precision Plastics",
+      "Proactive DFM analysis identified 4 design risks before quoting",
+      "On-staff materials scientist for PEEK crystallinity optimization",
+      "In-house hot runner design reduces tooling iterations",
+    ],
+    riskFlags: [
+      "No ISO 13485 certification — MedCore may require this for production approval",
+      "PEEK material lead time is 6 weeks — delays tooling start",
+      "Precision Plastics has undercut on price — MedCore procurement is price-sensitive",
+      "DFM wall thickness issue unresolved — could stall proposal if design changes needed",
+    ],
+    quote: {
+      quoteNumber: "QT-2026-0163",
+      quoteDate: "Feb 15, 2026",
+      validUntil: "Mar 15, 2026",
+      lineItems: [
+        { partNumber: "MC-SH-2200-MOLD", description: "2-cavity injection mold — PEEK sensor housing", qty: 1, unitPrice: "$180,000", extendedPrice: "$180,000" },
+        { partNumber: "MC-SH-2200-SAMPLES", description: "First article samples (50 units)", qty: 50, unitPrice: "$45", extendedPrice: "$2,250" },
+      ],
+      toolingCost: "$180,000",
+      nreCost: "$12,000 (mold design + DFM)",
+      totalValue: "$560,000",
+      estimatedMarginPct: 28,
+      costBreakdown: [
+        { category: "Mold Steel & Components", pct: 35 },
+        { category: "Labor (Mold Build)", pct: 30 },
+        { category: "Engineering & Design", pct: 15 },
+        { category: "Overhead", pct: 8 },
+        { category: "Margin", pct: 12 },
+      ],
+      paymentTerms: "Net 30, milestone billing (30% at mold start, 40% at steel safe, 30% at PPAP approval)",
+      pricingBenchmark: "2-cavity PEEK molds typically range $150K-$220K. Our $180K is competitive for complexity level.",
+    },
+    missingStakeholders: ["No executive sponsor identified — VP Engineering has not been engaged yet"],
+    daysInStage: 22,
+    stageEnteredDate: "Jan 26, 2026",
+  },
+
+  "dtl-3": {
+    dealId: "dtl-3",
+    aiSummary: "Renewal deal with long-standing customer. AutoPrime has been purchasing sheet metal enclosures for 2 years under annual blanket PO. Current negotiation centers on pricing — customer is pushing for 5% reduction. Strong relationship but competitive pressure from a local fabricator. Recommend locking in 3-year term with volume commitment for price protection.",
+    intentScore: 81,
+    intentSignals: [
+      { id: "is-301", type: "budget_signal", strength: "high", title: "Annual procurement cycle underway", description: "AutoPrime's fiscal year starts April 1. Annual blanket POs must be signed by Mar 15 for budget inclusion.", timestamp: "1 day ago", source: "CRM Intelligence" },
+      { id: "is-302", type: "email_engagement", strength: "high", title: "Blanket PO terms email reviewed by 3 people", description: "Mike Tanaka forwarded pricing proposal to CFO and VP Operations.", timestamp: "3 hours ago", source: "Email Tracking" },
+      { id: "is-303", type: "competitor_activity", strength: "medium", title: "Local fabricator quoting similar work", description: "AutoPrime may have solicited quotes from Midwest Metal Works for competitive benchmarking.", timestamp: "4 days ago", source: "Industry Intel" },
+      { id: "is-304", type: "website_visit", strength: "low", title: "Sheet metal capabilities page visited", description: "Single visit to sheet metal fabrication page — likely routine reference.", timestamp: "1 week ago", source: "Website Analytics" },
+    ],
+    technicalRequirements: [
+      {
+        partNumber: "AP-ENC-4400",
+        partName: "Sheet Metal Control Enclosure",
+        material: "16-gauge 304 Stainless Steel",
+        process: "Sheet Metal Fabrication (Laser Cut, Bend, Weld)",
+        dimensions: "24\" x 18\" x 12\"",
+        tolerances: "+/- 0.015\" on bend lines, +/- 0.030\" overall",
+        surfaceFinish: "#4 Brushed on exterior, mill finish interior",
+        heatTreatment: "None",
+        coatings: "Passivation per ASTM A967",
+        ndtRequired: "Visual weld inspection only",
+        dfmNotes: [
+          "Standard enclosure design — well-established in production.",
+          "Consider nesting optimization to reduce sheet waste on 4x8 blanks.",
+        ],
+        drawings: [
+          { name: "AP-ENC-4400_Rev_F.pdf", revision: "Rev F" },
+        ],
+        materialAvailable: true,
+        materialStock: "304 SS 16ga: 8,200 lbs on hand",
+      },
+    ],
+    stakeholders: [
+      { id: "ds-301", name: "Mike Tanaka", title: "Director of Procurement", influence: "Decision Maker", engagement: "hot", engagementScore: 90, email: "m.tanaka@autoprime.com", phone: "(313) 555-0387", lastInteraction: "3 hours ago", notes: "Long-standing relationship. Pushing for 5% price reduction." },
+      { id: "ds-302", name: "Jennifer Liu", title: "VP of Operations", influence: "Champion", engagement: "warm", engagementScore: 70, email: "j.liu@autoprime.com", phone: "(313) 555-0394", lastInteraction: "1 week ago", notes: "Values our on-time delivery track record. Could override price objection." },
+      { id: "ds-303", name: "Tom Richards", title: "CFO", influence: "Decision Maker", engagement: "cold", engagementScore: 25, email: "t.richards@autoprime.com", phone: "(313) 555-0401", lastInteraction: "3 weeks ago", notes: "Cost-focused. Has not been directly engaged yet." },
+    ],
+    activities: [
+      { id: "da-301", date: "Feb 17, 2026", type: "email", title: "Updated Pricing Proposal Sent", description: "Sent revised pricing with 3% reduction in exchange for 3-year term commitment.", contact: "Mike Tanaka" },
+      { id: "da-302", date: "Feb 14, 2026", type: "call", title: "Pricing Negotiation Call", description: "Mike requested 5% reduction. We countered with 3% for multi-year commitment. He's reviewing internally.", contact: "Mike Tanaka" },
+      { id: "da-303", date: "Feb 7, 2026", type: "email", title: "Blanket PO Renewal Package Sent", description: "Sent renewal package with updated pricing, delivery schedule, and quality metrics summary.", contact: "Mike Tanaka" },
+      { id: "da-304", date: "Jan 20, 2026", type: "meeting", title: "Quarterly Business Review", description: "QBR with AutoPrime. Highlighted 99.2% on-time delivery and zero NCRs in 2025.", contact: "Jennifer Liu" },
+    ],
+    competitors: [
+      { id: "ci-301", name: "Midwest Metal Works", threatLevel: "medium", strengths: ["Local to AutoPrime (lower freight)", "Lower overhead — smaller shop"], weaknesses: ["No track record with AutoPrime", "Limited capacity for blanket PO volumes", "No passivation in-house"], estimatedPrice: "$720K", incumbent: false },
+    ],
+    winLossFactors: [
+      { factor: "On-Time Delivery Track Record", importance: "critical", ourPosition: "strong", notes: "99.2% OTD over 2 years. AutoPrime's production line depends on our schedule." },
+      { factor: "Price", importance: "important", ourPosition: "neutral", notes: "Current pricing is fair but customer wants 5% reduction. We offered 3%." },
+      { factor: "Switching Cost", importance: "important", ourPosition: "strong", notes: "New vendor qualification would take 3-4 months. AutoPrime can't afford the gap." },
+      { factor: "Capacity & Scalability", importance: "important", ourPosition: "strong", notes: "We handle 500 units/month reliably. Midwest would struggle above 300." },
+    ],
+    ourDifferentiators: [
+      "2-year track record with 99.2% on-time delivery and zero NCRs",
+      "Dedicated production cell already set up for AutoPrime enclosures",
+      "In-house passivation eliminates outsourcing delays",
+      "Kanban inventory program keeps 2-week buffer stock",
+    ],
+    riskFlags: [
+      "CFO is disengaged and cost-focused — could push for cheaper alternative",
+      "Customer requesting 5% reduction — offering 3% with multi-year term",
+      "Must be signed by Mar 15 for AutoPrime's FY budget inclusion",
+    ],
+    quote: {
+      quoteNumber: "QT-2026-0152",
+      quoteDate: "Feb 7, 2026",
+      validUntil: "Mar 7, 2026",
+      lineItems: [
+        { partNumber: "AP-ENC-4400", description: "304 SS Control Enclosure (annual blanket)", qty: 6000, unitPrice: "$130", extendedPrice: "$780,000" },
+      ],
+      toolingCost: "$0 (existing tooling)",
+      nreCost: "$0",
+      totalValue: "$780,000",
+      estimatedMarginPct: 31,
+      costBreakdown: [
+        { category: "Material", pct: 32 },
+        { category: "Labor", pct: 30 },
+        { category: "Overhead", pct: 20 },
+        { category: "Freight", pct: 5 },
+        { category: "Margin", pct: 13 },
+      ],
+      paymentTerms: "Net 30, monthly invoicing against blanket PO releases",
+      pricingBenchmark: "304 SS enclosures at this volume: $110-$155/unit. Our $130 is competitive.",
+    },
+    missingStakeholders: ["CFO (Tom Richards) needs direct engagement before close"],
+    daysInStage: 12,
+    stageEnteredDate: "Feb 5, 2026",
+  },
+
+  "dtl-4": {
+    dealId: "dtl-4",
+    aiSummary: "Strategic MSA deal with Northrop covering 3-year supply of multi-category components. High value ($2.4M) but complex — legal is reviewing IP ownership clauses. This deal would establish us as a preferred supplier tier. Requires executive engagement and legal coordination.",
+    intentScore: 76,
+    intentSignals: [
+      { id: "is-401", type: "budget_signal", strength: "high", title: "Multi-year procurement initiative", description: "Northrop is consolidating supplier base. MSA positions us for preferred supplier status across multiple programs.", timestamp: "2 days ago", source: "CRM Intelligence" },
+      { id: "is-402", type: "email_engagement", strength: "medium", title: "Legal redline returned quickly", description: "Northrop legal returned MSA redline within 3 business days — indicates priority.", timestamp: "3 days ago", source: "Email Tracking" },
+      { id: "is-403", type: "content_download", strength: "medium", title: "Full capability deck downloaded", description: "Laura Chen downloaded 42-page capability deck including all certifications and process overviews.", timestamp: "1 week ago", source: "Portal Activity" },
+      { id: "is-404", type: "technology_evaluation", strength: "medium", title: "Multi-process vendor consolidation", description: "Northrop is evaluating suppliers who can handle CNC, fabrication, and assembly under one MSA.", timestamp: "2 weeks ago", source: "Industry Intel" },
+    ],
+    technicalRequirements: [
+      {
+        partNumber: "MSA-MULTI",
+        partName: "Multi-Category Supply Agreement",
+        material: "Various (Ti-6Al-4V, Inconel 718, 4140 Steel, 6061-T6 Aluminum)",
+        process: "5-Axis CNC, 3-Axis CNC, Wire EDM, Sheet Metal",
+        dimensions: "Various per program release",
+        tolerances: "Per individual PO release",
+        surfaceFinish: "Per individual PO release",
+        heatTreatment: "Per material specification",
+        coatings: "Per program requirements",
+        ndtRequired: "Per program requirements (FPI, UT, MPI)",
+        dfmNotes: [
+          "MSA covers framework terms — individual POs will have specific technical requirements.",
+          "Ensure capacity planning accounts for multi-program releases.",
+        ],
+        drawings: [
+          { name: "MSA_Scope_Matrix.pdf", revision: "Draft v2" },
+        ],
+        materialAvailable: true,
+        materialStock: "Multiple materials in stock — see ERP inventory snapshot",
+      },
+    ],
+    stakeholders: [
+      { id: "ds-401", name: "Laura Chen", title: "Senior Procurement Manager", influence: "Champion", engagement: "hot", engagementScore: 90, email: "l.chen@northropdyn.com", phone: "(310) 555-0198", lastInteraction: "45 min ago", notes: "Driving MSA internally. Wants to finalize before Q2 programs kick off." },
+      { id: "ds-402", name: "Col. James Whitfield", title: "VP of Supply Chain", influence: "Decision Maker", engagement: "warm", engagementScore: 70, email: "j.whitfield@northropdyn.com", phone: "(310) 555-0142", lastInteraction: "3 days ago", notes: "Supportive but focused on bracket deal (dtl-1). MSA is secondary priority." },
+      { id: "ds-403", name: "Margaret Hayes", title: "General Counsel", influence: "Decision Maker", engagement: "warm", engagementScore: 55, email: "m.hayes@northropdyn.com", phone: "(310) 555-0305", lastInteraction: "3 days ago", notes: "Reviewing IP ownership clause. Wants right to background IP." },
+    ],
+    activities: [
+      { id: "da-401", date: "Feb 16, 2026", type: "email", title: "IP Clause Counter-Proposal Sent", description: "Sent counter-proposal on IP ownership — proposing shared rights for jointly developed processes.", contact: "Margaret Hayes" },
+      { id: "da-402", date: "Feb 13, 2026", type: "meeting", title: "MSA Terms Review", description: "Joint review of MSA commercial terms. Pricing tiers, volume commitments, and delivery SLAs agreed.", contact: "Laura Chen" },
+      { id: "da-403", date: "Feb 5, 2026", type: "nda_signed", title: "NDA Executed", description: "Mutual NDA executed covering technical data exchange under the MSA.", contact: "Margaret Hayes" },
+      { id: "da-404", date: "Jan 15, 2026", type: "email", title: "MSA Draft Submitted", description: "Submitted initial MSA draft to Northrop procurement for review.", contact: "Laura Chen" },
+    ],
+    competitors: [
+      { id: "ci-401", name: "Apex Aerostructures", threatLevel: "medium", strengths: ["Existing MSA with Northrop (limited scope)", "Competitive on labor rates"], weaknesses: ["Limited process range — CNC only", "No Nadcap certs"], estimatedPrice: "N/A", incumbent: true },
+    ],
+    winLossFactors: [
+      { factor: "Multi-Process Capability", importance: "critical", ourPosition: "strong", notes: "We cover CNC, EDM, fabrication, and assembly. Apex is CNC only." },
+      { factor: "IP Ownership Terms", importance: "critical", ourPosition: "neutral", notes: "Northrop wants full background IP rights. We need to protect proprietary processes." },
+      { factor: "Certifications Coverage", importance: "critical", ourPosition: "strong", notes: "Full cert stack (AS9100D, Nadcap, ITAR) covers all Northrop program requirements." },
+      { factor: "Volume Commitment", importance: "important", ourPosition: "strong", notes: "3-year MSA provides revenue visibility. Willing to offer volume-based price tiers." },
+    ],
+    ourDifferentiators: [
+      "Broadest process coverage of any bidder — CNC, EDM, fabrication, assembly",
+      "Proven track record with Northrop across 18 prior orders",
+      "Full certification stack eliminates multi-vendor compliance burden",
+    ],
+    riskFlags: [
+      "IP ownership clause is a potential deal-breaker — legal review ongoing",
+      "MSA is secondary to bracket deal (dtl-1) in Northrop's priority stack",
+      "If IP terms can't be resolved, deal could stall indefinitely",
+    ],
+    quote: null,
+    missingStakeholders: ["VP Engineering not yet involved — would strengthen technical justification"],
+    daysInStage: 14,
+    stageEnteredDate: "Feb 3, 2026",
+  },
+
+  "dtl-5": {
+    dealId: "dtl-5",
+    aiSummary: "Early-stage prototype opportunity from trade show lead. Redline Motorsport is a small but growing performance automotive company. Low probability (20%) but could open door to recurring production work. Key challenge: no established relationship and buyer is price-sensitive for prototype volumes.",
+    intentScore: 35,
+    intentSignals: [
+      { id: "is-501", type: "website_visit", strength: "low", title: "Single visit to CNC machining page", description: "Tony Marchetti visited CNC machining capabilities page once after trade show.", timestamp: "5 days ago", source: "Website Analytics" },
+      { id: "is-502", type: "content_download", strength: "low", title: "Capability deck downloaded at trade show", description: "Downloaded general capability deck from trade show QR code.", timestamp: "Feb 5, 2026", source: "Event Platform" },
+      { id: "is-503", type: "search_activity", strength: "medium", title: "Searching for billet intake manifold CNC", description: "Account associated with searches for 'CNC billet intake manifold prototype' and 'aluminum billet machining shop'.", timestamp: "1 week ago", source: "Bombora Intent" },
+    ],
+    technicalRequirements: [
+      {
+        partNumber: "RM-IM-001",
+        partName: "CNC Billet Intake Manifold",
+        material: "6061-T6 Aluminum",
+        process: "5-Axis CNC Machining",
+        dimensions: "18\" x 8\" x 6\"",
+        tolerances: "+/- 0.005\" on runner bores, +/- 0.015\" general",
+        surfaceFinish: "Ra 63 on runners, anodized exterior",
+        heatTreatment: "T6 temper (pre-machined billet)",
+        coatings: "Type III hard anodize on exterior surfaces",
+        ndtRequired: "None — prototype level",
+        dfmNotes: [
+          "Complex internal runner geometry requires 5-axis access from multiple orientations.",
+          "Prototype quantity (5 units) — suggest soft jaws instead of hard fixturing to save cost.",
+          "Runner-to-plenum transition radii should be minimum R0.125 for tool access.",
+        ],
+        drawings: [
+          { name: "RM-IM-001_Concept.pdf", revision: "Concept" },
+        ],
+        materialAvailable: true,
+        materialStock: "6061-T6: 12,800 lbs on hand",
+      },
+    ],
+    stakeholders: [
+      { id: "ds-501", name: "Tony Marchetti", title: "Owner / Lead Engineer", influence: "Decision Maker", engagement: "warm", engagementScore: 45, email: "t.marchetti@redlinemotor.com", phone: "(704) 555-0189", lastInteraction: "5 days ago", notes: "Met at IMTS trade show. Enthusiastic about capabilities but hasn't followed up." },
+    ],
+    activities: [
+      { id: "da-501", date: "Feb 12, 2026", type: "email", title: "Follow-Up After Trade Show", description: "Sent follow-up email with capability deck and prototype pricing guide.", contact: "Tony Marchetti" },
+      { id: "da-502", date: "Feb 5, 2026", type: "meeting", title: "Trade Show Meeting", description: "Met at IMTS booth. Discussed billet intake manifold project. He wants 5 prototypes.", contact: "Tony Marchetti" },
+    ],
+    competitors: [
+      { id: "ci-501", name: "Local Machine Shop (Unknown)", threatLevel: "medium", strengths: ["Likely lower price for prototype work", "Local to customer"], weaknesses: ["Probably no 5-axis capability", "No anodizing in-house"], estimatedPrice: "Unknown", incumbent: false },
+    ],
+    winLossFactors: [
+      { factor: "5-Axis CNC Capability", importance: "critical", ourPosition: "strong", notes: "Complex runner geometry requires true 5-axis. Most local shops can't do this." },
+      { factor: "Price (Prototype Volume)", importance: "important", ourPosition: "weak", notes: "Our overhead is high for 5-unit runs. Need to be creative on pricing." },
+      { factor: "Speed to Quote", importance: "important", ourPosition: "neutral", notes: "Haven't sent quote yet. Need to move fast while interest is warm." },
+    ],
+    ourDifferentiators: [
+      "True 5-axis capability for complex internal runner geometry",
+      "In-house Type III hard anodize eliminates outsourcing",
+      "6061-T6 material in stock — no lead time for material",
+    ],
+    riskFlags: [
+      "No response to follow-up email — interest may be cooling",
+      "Prototype volumes make this a low-margin job",
+      "No established relationship — price sensitivity likely high",
+    ],
+    quote: null,
+    missingStakeholders: ["Unknown if there are other decision makers at Redline"],
+    daysInStage: 12,
+    stageEnteredDate: "Feb 5, 2026",
+  },
+
+  "dtl-6": {
+    dealId: "dtl-6",
+    aiSummary: "Existing customer deal for hydraulic manifold BOM costing. Summit Precision has been a reliable customer. The deal hinges on completing the BOM analysis and submitting a competitive quote. Moderate complexity — 8 line items with mixed materials. Good margin opportunity if we can bundle with their annual surface grinding work.",
+    intentScore: 68,
+    intentSignals: [
+      { id: "is-601", type: "email_engagement", strength: "high", title: "BOM spreadsheet opened 5 times", description: "Dave Kowalski has opened the BOM costing spreadsheet email 5 times, shared with 2 colleagues.", timestamp: "Yesterday", source: "Email Tracking" },
+      { id: "is-602", type: "budget_signal", strength: "medium", title: "Q2 capital budget approved", description: "Summit's Q2 capex budget includes tooling for new hydraulic product line.", timestamp: "1 week ago", source: "CRM Intelligence" },
+      { id: "is-603", type: "website_visit", strength: "medium", title: "CNC machining page visited 3 times", description: "Multiple visits to CNC machining capabilities — likely comparing against current vendor.", timestamp: "3 days ago", source: "Website Analytics" },
+    ],
+    technicalRequirements: [
+      {
+        partNumber: "SP-HM-3300",
+        partName: "Hydraulic Manifold Block",
+        material: "4140 Steel (Pre-hardened, 28-32 HRC)",
+        process: "CNC Machining (3-Axis + Gundrilling)",
+        dimensions: "8\" x 6\" x 4\"",
+        tolerances: "+/- 0.001\" on port bores, +/- 0.005\" general",
+        surfaceFinish: "Ra 16 on sealing faces, Ra 63 general",
+        heatTreatment: "Pre-hardened 28-32 HRC (incoming material spec)",
+        coatings: "Black oxide per MIL-DTL-13924",
+        ndtRequired: "100% pressure test at 1.5x operating pressure",
+        dfmNotes: [
+          "Cross-drilled passages require careful chip management during gundrilling.",
+          "Port thread depths are critical — recommend thread gaging 100%.",
+          "Consider combined setup to minimize handling of heavy block.",
+        ],
+        drawings: [
+          { name: "SP-HM-3300_Rev_B.pdf", revision: "Rev B" },
+          { name: "SP-HM-3300_Port_Map.pdf", revision: "Rev B" },
+        ],
+        materialAvailable: true,
+        materialStock: "4140 Pre-hard: 3,600 lbs on hand",
+      },
+    ],
+    stakeholders: [
+      { id: "ds-601", name: "Dave Kowalski", title: "Engineering Manager", influence: "Champion", engagement: "hot", engagementScore: 80, email: "d.kowalski@summitprecision.com", phone: "(414) 555-0672", lastInteraction: "Yesterday", notes: "Driving the project. Wants BOM finalized ASAP for Q2 budget allocation." },
+      { id: "ds-602", name: "Patricia Morgan", title: "Procurement Director", influence: "Decision Maker", engagement: "warm", engagementScore: 55, email: "p.morgan@summitprecision.com", phone: "(414) 555-0685", lastInteraction: "1 week ago", notes: "Will make final vendor decision. Relationship-oriented." },
+    ],
+    activities: [
+      { id: "da-601", date: "Feb 16, 2026", type: "email", title: "BOM Review Follow-Up", description: "Sent updated BOM with pricing for 6 of 8 line items. Awaiting final specs on 2 remaining parts.", contact: "Dave Kowalski" },
+      { id: "da-602", date: "Feb 10, 2026", type: "call", title: "BOM Scope Call", description: "Reviewed 8-item BOM. Clarified materials and tolerances for manifold block and fittings.", contact: "Dave Kowalski" },
+      { id: "da-603", date: "Jan 22, 2026", type: "email", title: "Initial BOM Received", description: "Received hydraulic manifold BOM package with drawings and material specs.", contact: "Dave Kowalski" },
+    ],
+    competitors: [
+      { id: "ci-601", name: "Valley Hydraulics", threatLevel: "low", strengths: ["Hydraulics specialist", "Bundled assembly services"], weaknesses: ["Higher pricing tier", "Long lead times (14 weeks)"], estimatedPrice: "$360K", incumbent: false },
+    ],
+    winLossFactors: [
+      { factor: "BOM Costing Accuracy", importance: "critical", ourPosition: "strong", notes: "Our detailed line-by-line costing builds confidence. Competitors often lump-sum." },
+      { factor: "Existing Relationship", importance: "important", ourPosition: "strong", notes: "3 years of surface grinding work. Known quality and reliability." },
+      { factor: "Lead Time", importance: "important", ourPosition: "strong", notes: "8-week delivery vs. Valley's 14 weeks." },
+    ],
+    ourDifferentiators: [
+      "Detailed line-by-line BOM costing builds buyer confidence",
+      "3-year existing relationship with proven quality track record",
+      "In-house gundrilling capability eliminates outsourcing delay",
+      "4140 pre-hard material in stock — no procurement delay",
+    ],
+    riskFlags: [
+      "2 of 8 BOM items still missing final specs — delays quote completion",
+      "Procurement Director not yet fully engaged in vendor decision",
+    ],
+    quote: null,
+    missingStakeholders: ["VP of Manufacturing not yet in the loop — could accelerate decision"],
+    daysInStage: 25,
+    stageEnteredDate: "Jan 23, 2026",
+  },
+
+  "dtl-7": {
+    dealId: "dtl-7",
+    aiSummary: "Qualification-stage deal for aluminum heat sink die casting. Complex DFM review underway — Vanguard's original design has several castability issues. If we can resolve DFM and land the tooling, annual production volume could exceed $3M. Key blocker: Vanguard is used to plastic injection molding tolerances and needs education on die casting capabilities.",
+    intentScore: 58,
+    intentSignals: [
+      { id: "is-701", type: "website_visit", strength: "high", title: "Die casting page visited 12 times", description: "Lisa Tran and 2 other Vanguard IPs have visited die casting capabilities page extensively.", timestamp: "Today", source: "Website Analytics" },
+      { id: "is-702", type: "content_download", strength: "high", title: "Die casting DFM guide downloaded", description: "Lisa Tran downloaded our 'Die Casting DFM Best Practices' guide and A380 material datasheet.", timestamp: "2 days ago", source: "Portal Activity" },
+      { id: "is-703", type: "email_engagement", strength: "medium", title: "DFM presentation shared internally", description: "DFM presentation email was forwarded to 4 internal Vanguard addresses.", timestamp: "3 days ago", source: "Email Tracking" },
+      { id: "is-704", type: "search_activity", strength: "medium", title: "Searching for aluminum die casting", description: "Account associated with searches: 'aluminum die cast heat sink supplier', 'A380 vs A383 alloy heat sink'.", timestamp: "5 days ago", source: "Bombora Intent" },
+      { id: "is-705", type: "technology_evaluation", strength: "high", title: "Transitioning from extrusion to die casting", description: "Vanguard is actively evaluating die casting as a replacement for their current extruded heat sink design.", timestamp: "1 week ago", source: "CRM Intelligence" },
+    ],
+    technicalRequirements: [
+      {
+        partNumber: "VE-HS-7700",
+        partName: "Aluminum Heat Sink — Die Cast",
+        material: "A380 Aluminum Alloy",
+        process: "High-Pressure Die Casting",
+        dimensions: "6.5\" x 4.0\" x 1.2\"",
+        tolerances: "+/- 0.005\" on mounting features, +/- 0.015\" general",
+        surfaceFinish: "As-cast with machined mounting pads",
+        heatTreatment: "T5 artificial aging",
+        coatings: "Chromate conversion per MIL-DTL-5541",
+        ndtRequired: "X-ray sampling per ASTM E505 (Level 2)",
+        dfmNotes: [
+          "Fin aspect ratio exceeds 8:1 — will not fill reliably in die casting. Recommend max 6:1.",
+          "Draft angles on fins are 0 degrees — need minimum 1.5 degrees for die casting.",
+          "Undercut on mounting boss requires a side-pull — adds $15K to tooling.",
+          "Wall thickness transitions are too abrupt — recommend gradual transitions to prevent porosity.",
+          "Tolerance of +/- 0.005\" on mounting features will require post-cast CNC machining.",
+        ],
+        drawings: [
+          { name: "VE-HS-7700_Rev_A.pdf", revision: "Rev A" },
+          { name: "VE-HS-7700_Thermal_Analysis.pdf", revision: "Rev A" },
+        ],
+        materialAvailable: true,
+        materialStock: "A380 ingot: 22,000 lbs on hand",
+      },
+    ],
+    stakeholders: [
+      { id: "ds-701", name: "Lisa Tran", title: "Mechanical Design Lead", influence: "Technical Evaluator", engagement: "hot", engagementScore: 88, email: "l.tran@vanguardelec.com", phone: "(408) 555-0771", lastInteraction: "Today", notes: "Owns the heat sink redesign. Very receptive to DFM feedback." },
+      { id: "ds-702", name: "Hiroshi Yamada", title: "VP of Engineering", influence: "Decision Maker", engagement: "warm", engagementScore: 50, email: "h.yamada@vanguardelec.com", phone: "(408) 555-0788", lastInteraction: "2 weeks ago", notes: "Final say on tooling investment. Needs cost-benefit analysis vs. extrusion." },
+      { id: "ds-703", name: "Amy Chen", title: "Supply Chain Manager", influence: "Procurement", engagement: "cold", engagementScore: 20, email: "a.chen@vanguardelec.com", phone: "(408) 555-0795", lastInteraction: "3 weeks ago", notes: "Not yet engaged. Will handle PO once engineering approves." },
+    ],
+    activities: [
+      { id: "da-701", date: "Feb 17, 2026", type: "email", title: "Updated DFM Report Sent", description: "Sent comprehensive DFM report with 5 design change recommendations for castability.", contact: "Lisa Tran" },
+      { id: "da-702", date: "Feb 12, 2026", type: "meeting", title: "DFM Review Session", description: "2-hour DFM review with Lisa. Walked through fin geometry, draft angles, and porosity risk.", contact: "Lisa Tran" },
+      { id: "da-703", date: "Jan 28, 2026", type: "call", title: "Initial Technical Discussion", description: "Introductory call about die casting heat sink. Lisa wants to replace extruded design.", contact: "Lisa Tran" },
+      { id: "da-704", date: "Jan 15, 2026", type: "email", title: "Capabilities Overview Sent", description: "Sent die casting capabilities overview and A380 material data.", contact: "Lisa Tran" },
+    ],
+    competitors: [
+      { id: "ci-701", name: "Pacific Die Casting", threatLevel: "high", strengths: ["Large die casting shop with 20+ machines", "Lower overhead costs", "Faster tooling lead time"], weaknesses: ["No in-house CNC for post-cast machining", "No engineering/DFM support"], estimatedPrice: "$700K", incumbent: false },
+      { id: "ci-702", name: "Keep Current Extrusion", threatLevel: "medium", strengths: ["No tooling investment needed", "Known process and supplier"], weaknesses: ["Heavier weight", "Lower thermal performance", "Higher per-unit cost at volume"], estimatedPrice: "N/A", incumbent: true },
+    ],
+    winLossFactors: [
+      { factor: "DFM Engineering Support", importance: "critical", ourPosition: "strong", notes: "We provide full DFM — competitors don't. This builds trust and reduces risk." },
+      { factor: "Tooling Investment Justification", importance: "critical", ourPosition: "neutral", notes: "VP needs ROI analysis. At 50K units/year, break-even is ~6 months." },
+      { factor: "In-House Post-Cast Machining", importance: "important", ourPosition: "strong", notes: "We CNC machine mounting pads in-house. Pacific outsources this." },
+      { factor: "Price per Unit (Production)", importance: "important", ourPosition: "neutral", notes: "Die cast unit cost ~$4.50 vs. $8.20 for extrusion. 45% savings at volume." },
+    ],
+    ourDifferentiators: [
+      "Full DFM engineering support — 5 actionable design recommendations provided",
+      "In-house CNC post-machining eliminates outsourcing for mounting features",
+      "A380 ingot material in stock — 22,000 lbs ready",
+      "X-ray inspection capability in-house per ASTM E505",
+    ],
+    riskFlags: [
+      "VP Engineering not yet convinced on die casting ROI vs. staying with extrusion",
+      "5 DFM issues need design changes before tooling can proceed",
+      "Supply Chain Manager not engaged — could slow PO processing",
+      "Pacific Die Casting may undercut on tooling price",
+    ],
+    quote: null,
+    missingStakeholders: ["CFO not yet involved — tooling investment of ~$180K needs executive approval"],
+    daysInStage: 35,
+    stageEnteredDate: "Jan 13, 2026",
+  },
+
+  "dtl-8": {
+    dealId: "dtl-8",
+    aiSummary: "Solid proposal-stage deal with existing customer Horizon Energy. Wind turbine bracket production run builds on previous prototyping relationship. Good fit for our heavy fabrication cell. Key negotiation point is delivery schedule — Horizon needs staggered deliveries to match turbine assembly line rate.",
+    intentScore: 74,
+    intentSignals: [
+      { id: "is-801", type: "budget_signal", strength: "high", title: "Production budget approved for wind program", description: "Horizon's wind turbine program received full production funding. PO expected by end of Q1.", timestamp: "2 days ago", source: "CRM Intelligence" },
+      { id: "is-802", type: "email_engagement", strength: "high", title: "Proposal opened 6 times", description: "Mark Sullivan and 3 colleagues reviewed the production quote proposal extensively.", timestamp: "Yesterday", source: "Email Tracking" },
+      { id: "is-803", type: "website_visit", strength: "medium", title: "Heavy fabrication page visited", description: "Horizon team visited heavy fabrication and welding capabilities pages.", timestamp: "3 days ago", source: "Website Analytics" },
+      { id: "is-804", type: "content_download", strength: "medium", title: "Welding certifications downloaded", description: "Mark Sullivan downloaded AWS D1.1 and D1.8 welding procedure qualifications.", timestamp: "4 days ago", source: "Portal Activity" },
+    ],
+    technicalRequirements: [
+      {
+        partNumber: "HE-WTB-5500",
+        partName: "Wind Turbine Nacelle Bracket",
+        material: "A572 Grade 50 Steel",
+        process: "Heavy Fabrication (Plasma Cut, Weld, Machine)",
+        dimensions: "48\" x 36\" x 24\"",
+        tolerances: "+/- 0.030\" on bolt patterns, +/- 0.060\" general",
+        surfaceFinish: "Mill scale removed, Ra 250 general",
+        heatTreatment: "Stress relief per AWS D1.1",
+        coatings: "Hot-dip galvanize per ASTM A123",
+        ndtRequired: "UT on all CJP welds per AWS D1.8",
+        dfmNotes: [
+          "Multi-pass CJP welds require preheat to 250F per WPS.",
+          "Bolt pattern machining should be done after stress relief to maintain tolerances.",
+          "Parts weigh ~800 lbs — need crane handling plan for welding and machining.",
+        ],
+        drawings: [
+          { name: "HE-WTB-5500_Rev_D.pdf", revision: "Rev D" },
+          { name: "HE-WTB-5500_Weld_Map.pdf", revision: "Rev D" },
+        ],
+        materialAvailable: true,
+        materialStock: "A572-50 plate: 45,000 lbs on hand",
+      },
+    ],
+    stakeholders: [
+      { id: "ds-801", name: "Mark Sullivan", title: "Program Manager", influence: "Champion", engagement: "hot", engagementScore: 85, email: "m.sullivan@horizonenergy.com", phone: "(515) 555-0443", lastInteraction: "Yesterday", notes: "Program lead. Needs production commitment for turbine assembly schedule." },
+      { id: "ds-802", name: "Karen Walsh", title: "VP of Supply Chain", influence: "Decision Maker", engagement: "warm", engagementScore: 60, email: "k.walsh@horizonenergy.com", phone: "(515) 555-0456", lastInteraction: "1 week ago", notes: "Final approval on supplier selection. Values delivery reliability." },
+      { id: "ds-803", name: "Tom Brennan", title: "Welding Engineer", influence: "Technical Evaluator", engagement: "warm", engagementScore: 65, email: "t.brennan@horizonenergy.com", phone: "(515) 555-0469", lastInteraction: "5 days ago", notes: "Reviewed our WPS and PQRs. Satisfied with welding qualifications." },
+    ],
+    activities: [
+      { id: "da-801", date: "Feb 16, 2026", type: "email", title: "Staggered Delivery Proposal Sent", description: "Proposed monthly delivery of 25 brackets to match Horizon's assembly rate.", contact: "Mark Sullivan" },
+      { id: "da-802", date: "Feb 10, 2026", type: "meeting", title: "Production Planning Review", description: "Reviewed production schedule, delivery logistics, and galvanizing coordination.", contact: "Mark Sullivan" },
+      { id: "da-803", date: "Feb 3, 2026", type: "email", title: "Production Quote Submitted", description: "Submitted full production quote for 300 wind turbine nacelle brackets.", contact: "Karen Walsh" },
+      { id: "da-804", date: "Jan 20, 2026", type: "call", title: "WPS/PQR Technical Review", description: "Reviewed welding procedures with Tom Brennan. All qualifications accepted.", contact: "Tom Brennan" },
+    ],
+    competitors: [
+      { id: "ci-801", name: "Great Plains Fabrication", threatLevel: "medium", strengths: ["Closer to Horizon's Iowa facility (lower freight)", "Experience with wind energy components"], weaknesses: ["Smaller shop — capacity concern for 300 units", "No in-house galvanizing coordination"], estimatedPrice: "$880K", incumbent: false },
+    ],
+    winLossFactors: [
+      { factor: "Fabrication Capacity", importance: "critical", ourPosition: "strong", notes: "Our heavy fab cell can handle 30 brackets/month. Great Plains maxes at 20." },
+      { factor: "Welding Qualifications", importance: "critical", ourPosition: "strong", notes: "Full AWS D1.1 and D1.8 qualifications accepted by Horizon engineering." },
+      { factor: "Delivery Schedule Flexibility", importance: "important", ourPosition: "strong", notes: "Proposed staggered monthly delivery matches assembly line rate." },
+      { factor: "Freight Cost", importance: "important", ourPosition: "weak", notes: "Great Plains is 200 miles closer. Freight adds ~$15K over production run." },
+    ],
+    ourDifferentiators: [
+      "Heavy fab cell capacity exceeds 30 brackets/month — 50% more than competitor",
+      "Proven WPS/PQRs accepted by Horizon engineering",
+      "A572-50 plate in stock — 45,000 lbs eliminates material lead time",
+      "Staggered delivery plan aligns with assembly line rate",
+    ],
+    riskFlags: [
+      "Freight cost disadvantage vs. Great Plains (~$15K premium)",
+      "VP Supply Chain has not yet provided final sign-off",
+      "Galvanizing outsourced — need to lock in galvanizer capacity for 300 units",
+    ],
+    quote: {
+      quoteNumber: "QT-2026-0158",
+      quoteDate: "Feb 3, 2026",
+      validUntil: "Mar 5, 2026",
+      lineItems: [
+        { partNumber: "HE-WTB-5500", description: "Wind Turbine Nacelle Bracket (A572-50)", qty: 300, unitPrice: "$3,200", extendedPrice: "$960,000" },
+      ],
+      toolingCost: "$0 (standard fixtures)",
+      nreCost: "$8,500 (production planning & first article)",
+      totalValue: "$968,500",
+      estimatedMarginPct: 27,
+      costBreakdown: [
+        { category: "Material", pct: 25 },
+        { category: "Labor (Fab + Weld)", pct: 32 },
+        { category: "Galvanizing (Outsourced)", pct: 10 },
+        { category: "Machining", pct: 8 },
+        { category: "Overhead", pct: 14 },
+        { category: "Margin", pct: 11 },
+      ],
+      paymentTerms: "Net 30, monthly invoicing per delivery batch",
+      pricingBenchmark: "Heavy steel brackets at this size/volume: $2,800-$3,600/unit. Our $3,200 is competitive.",
+    },
+    missingStakeholders: [],
+    daysInStage: 14,
+    stageEnteredDate: "Feb 3, 2026",
+  },
+};

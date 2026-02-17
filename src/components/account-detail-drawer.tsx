@@ -531,7 +531,7 @@ export function AccountDetailDrawer({ account, open, onOpenChange }: AccountDeta
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full sm:max-w-[620px] overflow-y-auto p-0">
+      <SheetContent side="right" className="w-full sm:max-w-[620px] overflow-y-auto overflow-x-hidden p-0">
         <SheetHeader className="px-4 pt-4 pb-2">
           <div className="flex items-center gap-2">
             <HealthBadge health={account.health} />
@@ -546,31 +546,31 @@ export function AccountDetailDrawer({ account, open, onOpenChange }: AccountDeta
         <InsightsSection erp={erp} />
 
         {/* Tabs */}
-        <Tabs defaultValue="details" className="px-4 pb-4">
-          <TabsList variant="line" className="mb-3 overflow-x-auto no-scrollbar">
-            <TabsTrigger value="details" className="text-[11px] px-2">
+        <Tabs defaultValue="details" className="px-4 pb-4 min-w-0">
+          <TabsList variant="line" className="mb-3 overflow-x-auto no-scrollbar w-full">
+            <TabsTrigger value="details" className="text-[11px] px-2 shrink-0 flex-none">
               Details
             </TabsTrigger>
-            <TabsTrigger value="deals" className="text-[11px] px-2">
+            <TabsTrigger value="deals" className="text-[11px] px-2 shrink-0 flex-none">
               Deals
               <TabBadge count={accountDeals.length} />
             </TabsTrigger>
-            <TabsTrigger value="history" className="text-[11px] px-2">
+            <TabsTrigger value="history" className="text-[11px] px-2 shrink-0 flex-none">
               History
               <TabBadge count={erp?.orders.length ?? 0} />
             </TabsTrigger>
-            <TabsTrigger value="rfqs" className="text-[11px] px-2">
+            <TabsTrigger value="rfqs" className="text-[11px] px-2 shrink-0 flex-none">
               RFQs
               <TabBadge count={erp?.rfqs.length ?? 0} />
             </TabsTrigger>
-            <TabsTrigger value="contacts" className="text-[11px] px-2">
+            <TabsTrigger value="contacts" className="text-[11px] px-2 shrink-0 flex-none">
               Contacts
               <TabBadge count={erp?.contacts.length ?? 0} />
             </TabsTrigger>
-            <TabsTrigger value="activity" className="text-[11px] px-2">
+            <TabsTrigger value="activity" className="text-[11px] px-2 shrink-0 flex-none">
               Activity
             </TabsTrigger>
-            <TabsTrigger value="quality" className="text-[11px] px-2">
+            <TabsTrigger value="quality" className="text-[11px] px-2 shrink-0 flex-none">
               Quality
             </TabsTrigger>
           </TabsList>
