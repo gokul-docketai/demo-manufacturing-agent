@@ -16,6 +16,16 @@ import {
   Link,
   File,
 } from "lucide-react";
+import {
+  SiSap,
+  SiSalesforce,
+  SiOracle,
+  SiHubspot,
+  SiSnowflake,
+  SiSlack,
+  SiJira,
+  SiTableau,
+} from "react-icons/si";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import {
@@ -34,8 +44,7 @@ interface Integration {
   name: string;
   category: string;
   description: string;
-  color: string;
-  abbr: string;
+  iconColor: string;
 }
 
 interface KnowledgeBaseDocument {
@@ -103,6 +112,76 @@ function DocTypeIcon({ type }: { type: KnowledgeBaseDocument["type"] }) {
   }
 }
 
+function IntegrationIcon({ id, className }: { id: string; className?: string }) {
+  const iconClass = className || "h-5 w-5";
+
+  switch (id) {
+    case "sap":
+      return <SiSap className={iconClass} />;
+    case "salesforce":
+      return <SiSalesforce className={iconClass} />;
+    case "oracle":
+      return <SiOracle className={iconClass} />;
+    case "dynamics":
+      return (
+        <svg viewBox="0 0 24 24" fill="currentColor" className={iconClass}>
+          <path d="M12 2L3 7v10l9 5 9-5V7l-9-5zm0 2.18L18.36 7.5 12 10.82 5.64 7.5 12 4.18zM5 8.82l6 3.32v6.36l-6-3.32V8.82zm8 9.68V12.14l6-3.32v6.36l-6 3.32z" />
+        </svg>
+      );
+    case "netsuite":
+      return (
+        <svg viewBox="0 0 24 24" fill="currentColor" className={iconClass}>
+          <path d="M4 4h5v16H4V4zm11 0h5v16h-5V4zM9 4h6l-6 16h6" />
+        </svg>
+      );
+    case "workday":
+      return (
+        <svg viewBox="0 0 24 24" fill="currentColor" className={iconClass}>
+          <circle cx="12" cy="8" r="3" />
+          <circle cx="6" cy="14" r="2.5" />
+          <circle cx="18" cy="14" r="2.5" />
+          <circle cx="12" cy="18" r="2" />
+        </svg>
+      );
+    case "hubspot":
+      return <SiHubspot className={iconClass} />;
+    case "servicenow":
+      return (
+        <svg viewBox="0 0 24 24" fill="currentColor" className={iconClass}>
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c3.86 0 7 3.14 7 7s-3.14 7-7 7-7-3.14-7-7 3.14-7 7-7zm0 2.5a4.5 4.5 0 100 9 4.5 4.5 0 000-9z" />
+        </svg>
+      );
+    case "snowflake":
+      return <SiSnowflake className={iconClass} />;
+    case "slack":
+      return <SiSlack className={iconClass} />;
+    case "teams":
+      return (
+        <svg viewBox="0 0 24 24" fill="currentColor" className={iconClass}>
+          <path d="M19.2 6.4a2.4 2.4 0 11-4.8 0 2.4 2.4 0 014.8 0zM22 10.4v5.2a2.4 2.4 0 01-4.8 0v-5.2a1.2 1.2 0 011.2-1.2h2.4A1.2 1.2 0 0122 10.4zM16 5.2a3.2 3.2 0 11-6.4 0 3.2 3.2 0 016.4 0zM4 10h10.4a1.2 1.2 0 011.2 1.2v6.4A3.6 3.6 0 0112 21.2H6.4A3.6 3.6 0 012.8 17.6v-6.4A1.2 1.2 0 014 10z" />
+        </svg>
+      );
+    case "jira":
+      return <SiJira className={iconClass} />;
+    case "docusign":
+      return (
+        <svg viewBox="0 0 24 24" fill="currentColor" className={iconClass}>
+          <path d="M3 17.5l4.5-4.5L12 17.5l-4.5 4.5L3 17.5zm6-6L13.5 7 18 11.5 13.5 16 9 11.5zM15 5.5L17.5 3 22 7.5 19.5 10 15 5.5z" />
+        </svg>
+      );
+    case "tableau":
+      return <SiTableau className={iconClass} />;
+    case "zuora":
+      return (
+        <svg viewBox="0 0 24 24" fill="currentColor" className={iconClass}>
+          <path d="M4 5h16v3H9.5L20 16v3H4v-3h10.5L4 8V5z" />
+        </svg>
+      );
+    default:
+      return <Plug className={iconClass} />;
+  }
+}
+
 const mockDocuments: KnowledgeBaseDocument[] = [
   {
     id: "doc-1",
@@ -160,120 +239,105 @@ const integrations: Integration[] = [
     name: "SAP S/4HANA",
     category: "ERP",
     description: "Enterprise resource planning and manufacturing",
-    color: "bg-blue-600",
-    abbr: "SAP",
+    iconColor: "text-[#0070F2]",
   },
   {
     id: "salesforce",
     name: "Salesforce",
     category: "CRM",
     description: "Customer relationship management",
-    color: "bg-sky-500",
-    abbr: "SF",
+    iconColor: "text-[#00A1E0]",
   },
   {
     id: "oracle",
     name: "Oracle ERP Cloud",
     category: "ERP",
     description: "Cloud-based enterprise resource planning",
-    color: "bg-red-600",
-    abbr: "ORC",
+    iconColor: "text-[#C74634]",
   },
   {
     id: "dynamics",
     name: "Microsoft Dynamics 365",
     category: "CRM/ERP",
     description: "Unified business applications platform",
-    color: "bg-indigo-600",
-    abbr: "D365",
+    iconColor: "text-[#002050]",
   },
   {
     id: "netsuite",
     name: "NetSuite",
     category: "ERP",
     description: "Cloud ERP for financials and operations",
-    color: "bg-gray-700",
-    abbr: "NS",
+    iconColor: "text-[#1A1A1A]",
   },
   {
     id: "workday",
     name: "Workday",
     category: "HCM/Finance",
     description: "Human capital and financial management",
-    color: "bg-orange-500",
-    abbr: "WD",
+    iconColor: "text-[#F68D2E]",
   },
   {
     id: "hubspot",
     name: "HubSpot",
     category: "Marketing",
     description: "Inbound marketing and sales platform",
-    color: "bg-orange-600",
-    abbr: "HS",
+    iconColor: "text-[#FF7A59]",
   },
   {
     id: "servicenow",
     name: "ServiceNow",
     category: "ITSM",
     description: "IT service and workflow management",
-    color: "bg-green-600",
-    abbr: "SN",
+    iconColor: "text-[#81B5A1]",
   },
   {
     id: "snowflake",
     name: "Snowflake",
     category: "Data",
     description: "Cloud data warehouse and analytics",
-    color: "bg-cyan-500",
-    abbr: "SF",
+    iconColor: "text-[#29B5E8]",
   },
   {
     id: "slack",
     name: "Slack",
     category: "Communication",
     description: "Team messaging and collaboration",
-    color: "bg-purple-600",
-    abbr: "SL",
+    iconColor: "text-[#611F69]",
   },
   {
     id: "teams",
     name: "Microsoft Teams",
     category: "Communication",
     description: "Enterprise communication platform",
-    color: "bg-violet-600",
-    abbr: "MT",
+    iconColor: "text-[#6264A7]",
   },
   {
     id: "jira",
     name: "Jira",
     category: "Project Mgmt",
     description: "Issue tracking and project management",
-    color: "bg-blue-500",
-    abbr: "JR",
+    iconColor: "text-[#0052CC]",
   },
   {
     id: "docusign",
     name: "DocuSign",
     category: "E-Signature",
     description: "Electronic signature and agreements",
-    color: "bg-yellow-600",
-    abbr: "DS",
+    iconColor: "text-[#FFCC22]",
   },
   {
     id: "tableau",
     name: "Tableau",
     category: "Analytics",
     description: "Business intelligence and visualization",
-    color: "bg-blue-700",
-    abbr: "TB",
+    iconColor: "text-[#E97627]",
   },
   {
     id: "zuora",
     name: "Zuora",
     category: "Billing",
     description: "Subscription billing and revenue",
-    color: "bg-teal-600",
-    abbr: "ZR",
+    iconColor: "text-[#2E6599]",
   },
 ];
 
@@ -494,13 +558,8 @@ export function SettingsPage() {
                             : "bg-white border-warm-200 hover:border-warm-300 hover:shadow-sm"
                         )}
                       >
-                        <div
-                          className={cn(
-                            "h-10 w-10 rounded-lg flex items-center justify-center shrink-0 text-white text-[11px] font-bold tracking-wide",
-                            integration.color
-                          )}
-                        >
-                          {integration.abbr}
+                        <div className="h-10 w-10 rounded-lg flex items-center justify-center shrink-0 bg-warm-50 border border-warm-200/60">
+                          <IntegrationIcon id={integration.id} className={cn("h-6 w-6", integration.iconColor)} />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
