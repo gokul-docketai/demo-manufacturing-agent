@@ -10,6 +10,9 @@ import {
   MaterialAlternative,
   MaterialThreadMessage,
   MaterialPickInfo,
+  RecommendedAction,
+  ActionThreadMessage,
+  ActionResultInfo,
   mockRFQs,
 } from "@/lib/concierge-data";
 import { Button } from "@/components/ui/button";
@@ -26,6 +29,7 @@ import {
 import { cn } from "@/lib/utils";
 import { QuoteCanvasDrawer, QuoteData } from "@/components/quote-canvas-drawer";
 import { MaterialExplorerPanel } from "@/components/material-thread-drawer";
+import { ActionExplorerPanel } from "@/components/action-thread-drawer";
 import {
   Inbox,
   Send,
@@ -48,8 +52,6 @@ import {
   ClipboardList,
   HelpCircle,
   Database,
-  ThumbsUp,
-  ThumbsDown,
   ExternalLink,
   Phone,
   Globe,
@@ -62,6 +64,7 @@ import {
   AlertTriangle,
   ArrowRight,
   MessageCircle,
+  Zap,
 } from "lucide-react";
 
 // ─── Main Concierge Page ────────────────────────────────────────────────────
@@ -83,6 +86,13 @@ export function ConciergePage() {
   const [activeMessageId, setActiveMessageId] = useState<string | null>(null);
   const [selectedMaterials, setSelectedMaterials] = useState<Record<string, MaterialPickInfo>>({});
   const [materialThreads, setMaterialThreads] = useState<Record<string, MaterialThreadMessage[]>>({});
+
+  // Action thread state
+  const [actionDrawerOpen, setActionDrawerOpen] = useState(false);
+  const [activeAction, setActiveAction] = useState<RecommendedAction | null>(null);
+  const [activeActionMessageId, setActiveActionMessageId] = useState<string | null>(null);
+  const [completedActions, setCompletedActions] = useState<Record<string, ActionResultInfo>>({});
+  const [actionThreads, setActionThreads] = useState<Record<string, ActionThreadMessage[]>>({});
 
   const selectedRFQ = mockRFQs.find((r) => r.id === selectedRFQId) || null;
 
@@ -120,6 +130,17 @@ export function ConciergePage() {
       setActiveMaterial(material);
       setActiveMessageId(messageId);
       setMaterialDrawerOpen(true);
+      setActionDrawerOpen(false);
+    },
+    []
+  );
+
+  const handleExploreAction = useCallback(
+    (action: RecommendedAction, messageId: string) => {
+      setActiveAction(action);
+      setActiveActionMessageId(messageId);
+      setActionDrawerOpen(true);
+      setMaterialDrawerOpen(false);
     },
     []
   );
@@ -158,6 +179,40 @@ export function ConciergePage() {
       }));
     },
     [activeMaterial]
+  );
+
+  const handleActionThreadMessagesChange = useCallback(
+    (msgs: ActionThreadMessage[]) => {
+      if (!activeAction) return;
+      setActionThreads((prev) => ({
+        ...prev,
+        [activeAction.id]: msgs,
+      }));
+    },
+    [activeAction]
+  );
+
+  const handleCompleteAction = useCallback(
+    (result: ActionResultInfo) => {
+      if (!activeActionMessageId || !selectedRFQId) return;
+
+      setCompletedActions((prev) => ({
+        ...prev,
+        [activeActionMessageId]: result,
+      }));
+
+      const confirmMsg: ConciergeMessage = {
+        id: `action-confirm-${Date.now()}`,
+        role: "user",
+        content: `Completed action: **${result.title}**. ${result.summary}`,
+        timestamp: new Date().toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+      };
+      setMessages(selectedRFQId, (prev) => [...prev, confirmMsg]);
+    },
+    [activeActionMessageId, selectedRFQId, setMessages]
   );
 
   // Build a brief RFQ summary for the material sub-agent
@@ -247,6 +302,8 @@ export function ConciergePage() {
               onOpenQuote={handleOpenQuote}
               onExploreMaterial={handleExploreMaterial}
               selectedMaterials={selectedMaterials}
+              onExploreAction={handleExploreAction}
+              completedActions={completedActions}
             />
           ) : (
             <div className="flex-1 flex items-center justify-center text-muted-foreground">
@@ -272,6 +329,21 @@ export function ConciergePage() {
               onSelectMaterial={handleSelectMaterial}
               selectedPick={activeMessageId ? (selectedMaterials[activeMessageId] || null) : null}
               onClose={() => setMaterialDrawerOpen(false)}
+            />
+          </div>
+        )}
+
+        {/* Right panel — Action Explorer (conditional, mutually exclusive with material) */}
+        {actionDrawerOpen && activeAction && !materialDrawerOpen && (
+          <div className="w-[420px] shrink-0 border-l border-warm-200/60 flex flex-col min-h-0 bg-card">
+            <ActionExplorerPanel
+              action={activeAction}
+              rfqSummary={rfqSummary}
+              messages={actionThreads[activeAction.id] || []}
+              onMessagesChange={handleActionThreadMessagesChange}
+              onCompleteAction={handleCompleteAction}
+              completedResult={activeActionMessageId ? (completedActions[activeActionMessageId] ?? null) : null}
+              onClose={() => setActionDrawerOpen(false)}
             />
           </div>
         )}
@@ -399,6 +471,8 @@ function ConversationPanel({
   onOpenQuote,
   onExploreMaterial,
   selectedMaterials,
+  onExploreAction,
+  completedActions,
 }: {
   rfq: RFQ;
   messages: ConciergeMessage[];
@@ -406,6 +480,8 @@ function ConversationPanel({
   onOpenQuote: (data: QuoteData) => void;
   onExploreMaterial: (material: MaterialAlternative, messageId: string) => void;
   selectedMaterials: Record<string, MaterialPickInfo>;
+  onExploreAction: (action: RecommendedAction, messageId: string) => void;
+  completedActions: Record<string, ActionResultInfo>;
 }) {
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -630,6 +706,8 @@ function ConversationPanel({
                 onOpenQuote={onOpenQuote}
                 onExploreMaterial={onExploreMaterial}
                 selectedMaterialPick={selectedMaterials[msg.id] || null}
+                onExploreAction={onExploreAction}
+                completedActionResult={completedActions[msg.id] ?? null}
               />
             )
           )}
@@ -972,13 +1050,13 @@ function RFQCard({ rfq }: { rfq: RFQ }) {
 // ─── Email / Quote Draft Parser ──────────────────────────────────────────────
 
 interface ParsedContent {
-  type: "markdown" | "email_draft" | "quote_draft" | "material_alternatives";
+  type: "markdown" | "email_draft" | "quote_draft" | "material_alternatives" | "recommended_actions";
   content: string;
 }
 
 function parseAgentMessage(content: string): ParsedContent[] {
   const parts: ParsedContent[] = [];
-  const blockRegex = /<!-- (EMAIL_DRAFT|QUOTE_DRAFT|MATERIAL_ALTERNATIVES) -->([\s\S]*?)<!-- \/\1 -->/g;
+  const blockRegex = /<!-- (EMAIL_DRAFT|QUOTE_DRAFT|MATERIAL_ALTERNATIVES|RECOMMENDED_ACTIONS) -->([\s\S]*?)<!-- \/\1 -->/g;
   let lastIndex = 0;
   let match;
 
@@ -992,8 +1070,10 @@ function parseAgentMessage(content: string): ParsedContent[] {
         ? "quote_draft"
         : match[1] === "MATERIAL_ALTERNATIVES"
           ? "material_alternatives"
-          : "email_draft";
-    parts.push({ type: blockType, content: match[2].trim() });
+          : match[1] === "RECOMMENDED_ACTIONS"
+            ? "recommended_actions"
+            : "email_draft";
+    parts.push({ type: blockType as ParsedContent["type"], content: match[2].trim() });
     lastIndex = match.index + match[0].length;
   }
 
@@ -1063,119 +1143,115 @@ function CitationAwareText({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-// ─── Recommended Actions Block ───────────────────────────────────────────────
+// ─── Recommended Actions Card ────────────────────────────────────────────────
 
-function RecommendedActionsBlock({ items }: { items: string[] }) {
-  const [feedback, setFeedback] = useState<Record<number, "up" | "down" | null>>({});
-
-  const handleFeedback = (index: number, type: "up" | "down") => {
-    setFeedback((prev) => ({
-      ...prev,
-      [index]: prev[index] === type ? null : type,
-    }));
+function RecommendedActionCategoryBadge({ category }: { category: RecommendedAction["category"] }) {
+  const config: Record<RecommendedAction["category"], { label: string; className: string }> = {
+    email: { label: "Email", className: "bg-blue-50 text-blue-600 border-blue-200" },
+    analysis: { label: "Analysis", className: "bg-violet-50 text-violet-600 border-violet-200" },
+    "follow-up": { label: "Follow-up", className: "bg-amber-50 text-amber-600 border-amber-200" },
+    internal: { label: "Internal", className: "bg-warm-50 text-warm-600 border-warm-200" },
+    strategic: { label: "Strategic", className: "bg-indigo-50 text-indigo-600 border-indigo-200" },
   };
-
+  const c = config[category];
   return (
-    <div className="mb-2">
-      <div className="space-y-1.5">
-        {items.map((item, idx) => (
-          <div
-            key={idx}
-            className="flex items-start gap-2 group rounded-lg border border-warm-200/40 bg-warm-50/30 px-3 py-2"
-          >
-            <span className="shrink-0 mt-0.5 w-1.5 h-1.5 rounded-full bg-warm-400" />
-            <div className="flex-1 min-w-0 text-[13px] leading-relaxed text-foreground/85 break-words">
-              <CitationAwareText>{item}</CitationAwareText>
-            </div>
-            <div className="shrink-0 flex items-center gap-1 ml-2">
-              <button
-                onClick={() => handleFeedback(idx, "up")}
-                className={cn(
-                  "p-1 rounded-md transition-colors",
-                  feedback[idx] === "up"
-                    ? "bg-green-100 text-green-600"
-                    : "text-warm-300 hover:text-green-500 hover:bg-green-50"
-                )}
-                title="Helpful"
-              >
-                <ThumbsUp className="h-3 w-3" />
-              </button>
-              <button
-                onClick={() => handleFeedback(idx, "down")}
-                className={cn(
-                  "p-1 rounded-md transition-colors",
-                  feedback[idx] === "down"
-                    ? "bg-red-100 text-red-500"
-                    : "text-warm-300 hover:text-red-400 hover:bg-red-50"
-                )}
-                title="Not helpful"
-              >
-                <ThumbsDown className="h-3 w-3" />
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
+    <span className={cn("inline-flex items-center px-1.5 py-0.5 rounded-md border text-[9px] font-semibold", c.className)}>
+      {c.label}
+    </span>
   );
 }
 
-// ─── Markdown Section Splitter ───────────────────────────────────────────────
+function RecommendedActionsCard({
+  jsonContent,
+  messageId,
+  completedActionResult,
+  onExploreAction,
+}: {
+  jsonContent: string;
+  messageId: string;
+  completedActionResult: ActionResultInfo | null;
+  onExploreAction: (action: RecommendedAction, messageId: string) => void;
+}) {
+  const actions = useMemo<RecommendedAction[]>(() => {
+    try {
+      const parsed = JSON.parse(jsonContent);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }, [jsonContent]);
 
-interface MarkdownSection {
-  type: "markdown" | "recommended_actions";
-  content: string;
-  items?: string[];
-}
-
-function splitRecommendedActions(content: string): MarkdownSection[] {
-  const headingRegex = /^(#{1,3})\s+.*Recommended\s+(?:Actions|[Nn]ext\s+[Ss]teps|[Ss]teps).*/im;
-  const boldHeadingRegex = /^\*\*.*Recommended\s+(?:Actions|[Nn]ext\s+[Ss]teps|[Ss]teps).*\*\*/im;
-  const colonHeadingRegex = /^Recommended\s+(?:actions|next\s+steps|steps)[^:]*:/im;
-
-  const match = content.match(headingRegex) || content.match(boldHeadingRegex) || content.match(colonHeadingRegex);
-  if (!match || match.index === undefined) {
-    return [{ type: "markdown", content }];
+  if (actions.length === 0) {
+    return (
+      <div className="rounded-lg border border-red-200/60 bg-red-50/30 px-3 py-2 mt-2 mb-1 text-[12px] text-red-600">
+        Failed to parse recommended actions data.
+      </div>
+    );
   }
 
-  const sections: MarkdownSection[] = [];
-  const beforeSection = content.slice(0, match.index).trim();
-  if (beforeSection) {
-    sections.push({ type: "markdown", content: beforeSection });
-  }
+  const hasCompletion = completedActionResult !== null;
 
-  const afterHeading = content.slice(match.index + match[0].length);
+  return (
+    <div className="rounded-lg border border-indigo-200/60 bg-indigo-50/20 overflow-hidden mt-2 mb-1">
+      {/* Header */}
+      <div className="px-3 py-2 bg-indigo-50/60 border-b border-indigo-200/40 flex items-center gap-2">
+        <Zap className="h-3.5 w-3.5 text-indigo-600" />
+        <span className="text-[11px] font-semibold text-indigo-700 uppercase tracking-wider">
+          Recommended Actions
+        </span>
+        {hasCompletion && (
+          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 text-[9px] font-semibold border border-green-200 ml-1">
+            <CheckCircle className="h-2.5 w-2.5" />
+            Action completed
+          </span>
+        )}
+        <span className="text-[10px] text-indigo-500 ml-auto">
+          {actions.length} action{actions.length !== 1 ? "s" : ""}
+        </span>
+      </div>
 
-  const nextHeadingMatch = afterHeading.match(/\n(?=#{1,3}\s|\*\*Section)/m);
-  const sectionBody = nextHeadingMatch && nextHeadingMatch.index !== undefined
-    ? afterHeading.slice(0, nextHeadingMatch.index)
-    : afterHeading;
+      {/* Actions list */}
+      <div className="divide-y divide-indigo-200/30">
+        {actions.map((action) => {
+          const priorityDotColor =
+            action.priority === "high"
+              ? "bg-red-400"
+              : action.priority === "medium"
+                ? "bg-amber-400"
+                : "bg-warm-300";
 
-  const remainder = nextHeadingMatch && nextHeadingMatch.index !== undefined
-    ? afterHeading.slice(nextHeadingMatch.index).trim()
-    : "";
+          return (
+            <div key={action.id} className="px-3 py-2.5 transition-colors">
+              <div className="flex items-start gap-2.5">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className={cn("shrink-0 w-1.5 h-1.5 rounded-full", priorityDotColor)} />
+                    <span className="text-[13px] font-semibold text-foreground">
+                      {action.title}
+                    </span>
+                    <RecommendedActionCategoryBadge category={action.category} />
+                  </div>
+                  <p className="text-[11px] text-foreground/60 leading-relaxed ml-3.5">
+                    {action.description}
+                  </p>
+                </div>
 
-  const bulletLines = sectionBody
-    .split("\n")
-    .map((l) => l.trim())
-    .filter((l) => /^[-*]\s+/.test(l) || /^\d+\.\s+/.test(l))
-    .map((l) => l.replace(/^[-*]\s+/, "").replace(/^\d+\.\s+/, ""));
-
-  if (bulletLines.length > 0) {
-    sections.push({
-      type: "recommended_actions",
-      content: match[0],
-      items: bulletLines,
-    });
-  } else {
-    sections.push({ type: "markdown", content: match[0] + sectionBody });
-  }
-
-  if (remainder) {
-    sections.push({ type: "markdown", content: remainder });
-  }
-
-  return sections;
+                <Button
+                  size="sm"
+                  variant="default"
+                  onClick={() => onExploreAction(action, messageId)}
+                  className="h-7 px-3 text-[10px] font-medium gap-1.5 shrink-0 bg-indigo-600 hover:bg-indigo-500 text-white"
+                >
+                  <Zap className="h-3 w-3" />
+                  Verify
+                </Button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
 }
 
 // ─── Markdown Renderer ──────────────────────────────────────────────────────
@@ -1310,32 +1386,13 @@ function EmailBodyMarkdown({ content }: { content: string }) {
 }
 
 function AgentMarkdown({ content }: { content: string }) {
-  const sections = useMemo(() => splitRecommendedActions(content), [content]);
-
   return (
-    <div>
-      {sections.map((section, idx) => {
-        if (section.type === "recommended_actions" && section.items) {
-          return (
-            <div key={idx}>
-              <h3 className="text-[13px] font-semibold text-foreground mt-2 mb-1.5">
-                Recommended Actions
-              </h3>
-              <RecommendedActionsBlock items={section.items} />
-            </div>
-          );
-        }
-        return (
-          <ReactMarkdown
-            key={idx}
-            remarkPlugins={[remarkGfm]}
-            components={markdownComponents as never}
-          >
-            {section.content}
-          </ReactMarkdown>
-        );
-      })}
-    </div>
+    <ReactMarkdown
+      remarkPlugins={[remarkGfm]}
+      components={markdownComponents as never}
+    >
+      {content}
+    </ReactMarkdown>
   );
 }
 
@@ -1767,11 +1824,15 @@ function MessageBubble({
   onOpenQuote,
   onExploreMaterial,
   selectedMaterialPick,
+  onExploreAction,
+  completedActionResult,
 }: {
   message: ConciergeMessage;
   onOpenQuote: (data: QuoteData) => void;
   onExploreMaterial: (material: MaterialAlternative, messageId: string) => void;
   selectedMaterialPick: MaterialPickInfo | null;
+  onExploreAction: (action: RecommendedAction, messageId: string) => void;
+  completedActionResult: ActionResultInfo | null;
 }) {
   const isAgent = message.role === "agent";
 
@@ -1825,6 +1886,14 @@ function MessageBubble({
                   messageId={message.id}
                   selectedMaterialPick={selectedMaterialPick}
                   onExploreMaterial={onExploreMaterial}
+                />
+              ) : part.type === "recommended_actions" ? (
+                <RecommendedActionsCard
+                  key={idx}
+                  jsonContent={part.content}
+                  messageId={message.id}
+                  completedActionResult={completedActionResult}
+                  onExploreAction={onExploreAction}
                 />
               ) : (
                 <AgentMarkdown key={idx} content={part.content} />
