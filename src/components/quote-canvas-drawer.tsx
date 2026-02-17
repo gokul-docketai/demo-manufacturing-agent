@@ -1,11 +1,6 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import {
-  Sheet,
-  SheetContent,
-  SheetTitle,
-} from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
@@ -20,6 +15,7 @@ import {
   Building2,
   Calendar,
   Hash,
+  X,
 } from "lucide-react";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -46,17 +42,15 @@ export interface QuoteData {
 }
 
 interface QuoteCanvasDrawerProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
   quoteData: QuoteData | null;
+  onClose: () => void;
 }
 
 // ─── Component ──────────────────────────────────────────────────────────────
 
 export function QuoteCanvasDrawer({
-  open,
-  onOpenChange,
   quoteData,
+  onClose,
 }: QuoteCanvasDrawerProps) {
   const [quote, setQuote] = useState<QuoteData | null>(null);
 
@@ -395,61 +389,60 @@ export function QuoteCanvasDrawer({
   if (!quote) return null;
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent
-        side="right"
-        className="w-full sm:max-w-[700px] p-0 flex flex-col"
-        showCloseButton={false}
-      >
-        <SheetTitle className="sr-only">Quote {quote.quoteNumber}</SheetTitle>
-
-        {/* ── Action Bar ─────────────────────────────────────────────── */}
-        <div className="shrink-0 flex items-center justify-between px-5 py-3 border-b border-warm-200/60 bg-card/80 backdrop-blur-sm">
-          <div className="flex items-center gap-2">
-            <div className="h-7 w-7 rounded-lg bg-warm-800 text-warm-50 flex items-center justify-center">
-              <FileText className="h-3.5 w-3.5" />
-            </div>
-            <div>
-              <span className="text-sm font-semibold text-foreground">
-                {quote.quoteNumber}
-              </span>
-              <span className="text-[11px] text-muted-foreground ml-2">
-                Draft
-              </span>
-            </div>
+    <div className="flex flex-col h-full min-h-0">
+      {/* ── Action Bar ─────────────────────────────────────────────── */}
+      <div className="shrink-0 flex items-center justify-between px-4 py-3 border-b border-warm-200/60 bg-card/80 backdrop-blur-sm">
+        <div className="flex items-center gap-2 min-w-0">
+          <div className="h-7 w-7 rounded-lg bg-warm-800 text-warm-50 flex items-center justify-center shrink-0">
+            <FileText className="h-3.5 w-3.5" />
           </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleShare}
-              className="h-8 px-3 text-[11px] font-medium border-warm-300 text-warm-700 hover:bg-warm-100 gap-1.5"
-            >
-              <Share2 className="h-3.5 w-3.5" />
-              Share
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleDownload}
-              className="h-8 px-3 text-[11px] font-medium border-warm-300 text-warm-700 hover:bg-warm-100 gap-1.5"
-            >
-              <Download className="h-3.5 w-3.5" />
-              Download
-            </Button>
-            <Button
-              size="sm"
-              onClick={handleSend}
-              className="h-8 px-3 text-[11px] font-medium bg-warm-800 hover:bg-warm-700 text-warm-50 gap-1.5"
-            >
-              <Send className="h-3.5 w-3.5" />
-              Send
-            </Button>
+          <div className="min-w-0">
+            <span className="text-sm font-semibold text-foreground truncate block">
+              {quote.quoteNumber}
+            </span>
+            <span className="text-[11px] text-muted-foreground">
+              Draft
+            </span>
           </div>
         </div>
+        <div className="flex items-center gap-1.5 shrink-0">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleShare}
+            className="h-7 px-2 text-[10px] font-medium border-warm-300 text-warm-700 hover:bg-warm-100 gap-1"
+          >
+            <Share2 className="h-3 w-3" />
+            Share
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleDownload}
+            className="h-7 px-2 text-[10px] font-medium border-warm-300 text-warm-700 hover:bg-warm-100 gap-1"
+          >
+            <Download className="h-3 w-3" />
+            Download
+          </Button>
+          <Button
+            size="sm"
+            onClick={handleSend}
+            className="h-7 px-2 text-[10px] font-medium bg-warm-800 hover:bg-warm-700 text-warm-50 gap-1"
+          >
+            <Send className="h-3 w-3" />
+            Send
+          </Button>
+          <button
+            onClick={onClose}
+            className="h-7 w-7 rounded-md flex items-center justify-center text-warm-400 hover:text-foreground hover:bg-warm-100 transition-colors shrink-0 ml-1"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
 
-        {/* ── Quote Document Body ────────────────────────────────────── */}
-        <ScrollArea className="flex-1">
+      {/* ── Quote Document Body ────────────────────────────────────── */}
+      <ScrollArea className="flex-1">
           <div className="p-6">
             <div className="bg-white rounded-xl border border-warm-200/80 shadow-sm overflow-hidden">
               {/* Company Header */}
@@ -691,9 +684,8 @@ export function QuoteCanvasDrawer({
               </div>
             </div>
           </div>
-        </ScrollArea>
-      </SheetContent>
-    </Sheet>
+      </ScrollArea>
+    </div>
   );
 }
 

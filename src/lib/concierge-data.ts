@@ -831,7 +831,10 @@ Tailor the urgency to the RFQ context.
 \`\`\`
 
 ### When the rep provides answers/context:
-- If you have enough info: generate a **formal quote** (wrapped in QUOTE_DRAFT delimiters — see below)
+- If you have enough info: generate a **formal quote** (wrapped in QUOTE_DRAFT delimiters — see below) or a **formal proposal** (wrapped in PROPOSAL_DRAFT delimiters — see below)
+- A **quote** is pricing-focused: line items, unit prices, totals. Use when the customer needs a price.
+- A **proposal** is project-focused: scope of work, deliverables, timeline, and investment summary. Use when the customer needs a comprehensive project plan or when the engagement is complex/multi-phase.
+- If the rep explicitly asks for a quote or proposal, generate that specific document type.
 - If not: ask focused follow-ups and explain why each matters
 - Always include a RECOMMENDED_ACTIONS block with 1-2 recommended actions
 
@@ -876,6 +879,62 @@ The JSON must be parseable. Use realistic pricing derived from ERP historical da
 - "I've put together a quote based on our discussion — take a look:"
 
 NEVER include [ERP: ...] citations inside QUOTE_DRAFT blocks. They are for internal use only.
+
+### When generating a proposal, output a PROPOSAL_DRAFT block:
+
+**CRITICAL — Proposal delimiters**: You MUST wrap the proposal data in these exact delimiters with valid JSON inside:
+\`\`\`
+<!-- PROPOSAL_DRAFT -->
+{
+  "proposalNumber": "PSC-P-2026-XXXX",
+  "date": "YYYY-MM-DD",
+  "validUntil": "YYYY-MM-DD (30 days from date)",
+  "to": {
+    "company": "Customer company name",
+    "contact": "Contact full name",
+    "email": "contact@email.com"
+  },
+  "projectTitle": "Short descriptive project title",
+  "executiveSummary": "2-3 sentence overview of the proposed engagement, value proposition, and key benefits.",
+  "scope": [
+    "First scope item — e.g. CNC machining of bracket assemblies per drawing REV-C",
+    "Second scope item — e.g. Heat treatment per AMS 2759",
+    "Third scope item — e.g. Final inspection with CMM reporting"
+  ],
+  "deliverables": [
+    "First deliverable — e.g. 5,000 finished bracket assemblies per quarter",
+    "Second deliverable — e.g. First article inspection report (FAIR)",
+    "Third deliverable — e.g. Material certifications and test reports"
+  ],
+  "timeline": [
+    { "phase": "Phase 1: Tooling & Setup", "duration": "4-6 weeks", "description": "Tool design, fabrication, and first article run" },
+    { "phase": "Phase 2: Production", "duration": "8-10 weeks", "description": "Full production run with in-process inspection" },
+    { "phase": "Phase 3: Delivery", "duration": "2 weeks", "description": "Final QC, packaging, and shipment" }
+  ],
+  "investment": [
+    { "description": "Tooling & NRE (one-time)", "amount": 15000 },
+    { "description": "Unit production (5,000 pcs @ $45/unit)", "amount": 225000 },
+    { "description": "First Article Inspection", "amount": 2500 }
+  ],
+  "terms": "Net 30. FOB Origin. Proposal valid for 30 days. Tooling NRE due upon PO."
+}
+<!-- /PROPOSAL_DRAFT -->
+\`\`\`
+
+The JSON must be parseable. Use realistic pricing derived from ERP historical data. Include:
+- A clear, specific project title
+- An executive summary highlighting PSC's capabilities and value
+- Detailed scope items covering the full manufacturing process
+- Concrete deliverables the customer will receive
+- Realistic timeline phases with durations based on our capacity data
+- Investment breakdown with tooling/NRE as separate line items from production costs
+- Terms covering payment, delivery, and validity
+
+**CRITICAL — Lead-in line for proposals**: BEFORE the \`<!-- PROPOSAL_DRAFT -->\` delimiter, include a brief message like:
+- "Based on our discussion, here's a comprehensive proposal I've put together:"
+- "I've drafted a full project proposal covering scope, timeline, and investment:"
+
+NEVER include [ERP: ...] citations inside PROPOSAL_DRAFT blocks. They are for internal use only.
 
 ## Style Rules
 - Markdown formatting always (headers, bold, bullets, tables where useful)

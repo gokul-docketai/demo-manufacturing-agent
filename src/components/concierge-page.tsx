@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { QuoteCanvasDrawer, QuoteData } from "@/components/quote-canvas-drawer";
+import { ProposalCanvasDrawer, ProposalData } from "@/components/proposal-canvas-drawer";
 import { MaterialExplorerPanel } from "@/components/material-thread-drawer";
 import { ActionExplorerPanel } from "@/components/action-thread-drawer";
 import {
@@ -89,6 +90,8 @@ export function ConciergePage() {
   const [addEnquiryOpen, setAddEnquiryOpen] = useState(false);
   const [quoteDrawerOpen, setQuoteDrawerOpen] = useState(false);
   const [quoteDrawerData, setQuoteDrawerData] = useState<QuoteData | null>(null);
+  const [proposalDrawerOpen, setProposalDrawerOpen] = useState(false);
+  const [proposalDrawerData, setProposalDrawerData] = useState<ProposalData | null>(null);
 
   // Material thread state
   const [materialDrawerOpen, setMaterialDrawerOpen] = useState(false);
@@ -133,6 +136,17 @@ export function ConciergePage() {
   const handleOpenQuote = useCallback((data: QuoteData) => {
     setQuoteDrawerData(data);
     setQuoteDrawerOpen(true);
+    setProposalDrawerOpen(false);
+    setMaterialDrawerOpen(false);
+    setActionDrawerOpen(false);
+  }, []);
+
+  const handleOpenProposal = useCallback((data: ProposalData) => {
+    setProposalDrawerData(data);
+    setProposalDrawerOpen(true);
+    setQuoteDrawerOpen(false);
+    setMaterialDrawerOpen(false);
+    setActionDrawerOpen(false);
   }, []);
 
   const handleExploreMaterial = useCallback(
@@ -141,6 +155,8 @@ export function ConciergePage() {
       setActiveMessageId(messageId);
       setMaterialDrawerOpen(true);
       setActionDrawerOpen(false);
+      setQuoteDrawerOpen(false);
+      setProposalDrawerOpen(false);
     },
     []
   );
@@ -151,6 +167,8 @@ export function ConciergePage() {
       setActiveActionMessageId(messageId);
       setActionDrawerOpen(true);
       setMaterialDrawerOpen(false);
+      setQuoteDrawerOpen(false);
+      setProposalDrawerOpen(false);
     },
     []
   );
@@ -320,6 +338,7 @@ export function ConciergePage() {
               messages={getMessages(selectedEnquiry.id)}
               setMessages={(msgs) => setMessages(selectedEnquiry.id, msgs)}
               onOpenQuote={handleOpenQuote}
+              onOpenProposal={handleOpenProposal}
               onExploreMaterial={handleExploreMaterial}
               selectedMaterials={selectedMaterials}
               onExploreAction={handleExploreAction}
@@ -353,7 +372,7 @@ export function ConciergePage() {
           </div>
         )}
 
-        {/* Right panel — Action Explorer (conditional, mutually exclusive with material) */}
+        {/* Right panel — Action Explorer (conditional, mutually exclusive with others) */}
         {actionDrawerOpen && activeAction && !materialDrawerOpen && (
           <div className="w-[420px] shrink-0 border-l border-warm-200/60 flex flex-col min-h-0 bg-card">
             <ActionExplorerPanel
@@ -367,14 +386,27 @@ export function ConciergePage() {
             />
           </div>
         )}
-      </div>
 
-      {/* Quote Canvas Drawer */}
-      <QuoteCanvasDrawer
-        open={quoteDrawerOpen}
-        onOpenChange={setQuoteDrawerOpen}
-        quoteData={quoteDrawerData}
-      />
+        {/* Right panel — Quote Canvas (conditional, mutually exclusive with others) */}
+        {quoteDrawerOpen && quoteDrawerData && !materialDrawerOpen && !actionDrawerOpen && (
+          <div className="flex-1 max-w-[600px] shrink-0 border-l border-warm-200/60 flex flex-col min-h-0 bg-card">
+            <QuoteCanvasDrawer
+              quoteData={quoteDrawerData}
+              onClose={() => setQuoteDrawerOpen(false)}
+            />
+          </div>
+        )}
+
+        {/* Right panel — Proposal Canvas (conditional, mutually exclusive with others) */}
+        {proposalDrawerOpen && proposalDrawerData && !materialDrawerOpen && !actionDrawerOpen && !quoteDrawerOpen && (
+          <div className="flex-1 max-w-[600px] shrink-0 border-l border-warm-200/60 flex flex-col min-h-0 bg-card">
+            <ProposalCanvasDrawer
+              proposalData={proposalDrawerData}
+              onClose={() => setProposalDrawerOpen(false)}
+            />
+          </div>
+        )}
+      </div>
 
       {/* Add Enquiry Modal */}
       <AddEnquiryModal
@@ -768,6 +800,7 @@ function ConversationPanel({
   messages,
   setMessages,
   onOpenQuote,
+  onOpenProposal,
   onExploreMaterial,
   selectedMaterials,
   onExploreAction,
@@ -777,6 +810,7 @@ function ConversationPanel({
   messages: ConciergeMessage[];
   setMessages: (msgs: ConciergeMessage[] | ((prev: ConciergeMessage[]) => ConciergeMessage[])) => void;
   onOpenQuote: (data: QuoteData) => void;
+  onOpenProposal: (data: ProposalData) => void;
   onExploreMaterial: (material: MaterialAlternative, messageId: string) => void;
   selectedMaterials: Record<string, MaterialPickInfo>;
   onExploreAction: (action: RecommendedAction, messageId: string) => void;
@@ -940,6 +974,87 @@ function ConversationPanel({
     }
   };
 
+  const handleSendSuggestion = async (text: string) => {
+    if (isLoading) return;
+
+    const userMsg: ConciergeMessage = {
+      id: `user-${Date.now()}`,
+      role: "user",
+      content: text,
+      timestamp: new Date().toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+    };
+
+    const updatedMessages = [...messages, userMsg];
+    setMessages(updatedMessages);
+    setIsLoading(true);
+
+    const loadingMsg: ConciergeMessage = {
+      id: `agent-loading-${Date.now()}`,
+      role: "agent",
+      content: "",
+      timestamp: "Now",
+      isLoading: true,
+    };
+    setMessages((prev) => [...prev, loadingMsg]);
+
+    try {
+      const response = await fetch("/api/concierge/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          enquiryId: enquiry.id,
+          enquiry,
+          messages: updatedMessages.filter((m) => !m.isLoading),
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to get response");
+      }
+
+      const agentMsg: ConciergeMessage = {
+        id: `agent-${Date.now()}`,
+        role: "agent",
+        content: data.content,
+        timestamp: new Date().toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+      };
+
+      setMessages((prev) => prev.filter((m) => !m.isLoading).concat(agentMsg));
+    } catch (error) {
+      console.error("Suggestion send error:", error);
+      const errorMsg: ConciergeMessage = {
+        id: `agent-error-${Date.now()}`,
+        role: "agent",
+        content:
+          "I encountered an error generating a response. Please try again.",
+        timestamp: new Date().toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+      };
+      setMessages((prev) => prev.filter((m) => !m.isLoading).concat(errorMsg));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const lastAgentMessageIndex = (() => {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      if (messages[i].role === "agent" && !messages[i].isLoading) return i;
+    }
+    return -1;
+  })();
+
+  const showSuggestions = !isLoading && lastAgentMessageIndex >= 0 && lastAgentMessageIndex === messages.length - 1;
+
   return (
     <div className="flex flex-col h-full">
       {/* Conversation header — fixed at top */}
@@ -1013,12 +1128,18 @@ function ConversationPanel({
                 key={msg.id}
                 message={msg}
                 onOpenQuote={onOpenQuote}
+                onOpenProposal={onOpenProposal}
                 onExploreMaterial={onExploreMaterial}
                 selectedMaterialPick={selectedMaterials[msg.id] || null}
                 onExploreAction={onExploreAction}
                 completedActionResult={completedActions[msg.id] ?? null}
               />
             )
+          )}
+
+          {/* Suggestion chips */}
+          {showSuggestions && (
+            <SuggestionChips onSendSuggestion={handleSendSuggestion} />
           )}
 
           {/* Scroll anchor */}
@@ -1376,13 +1497,21 @@ function EnquiryCard({ enquiry }: { enquiry: Enquiry }) {
 // ─── Email / Quote Draft Parser ──────────────────────────────────────────────
 
 interface ParsedContent {
-  type: "markdown" | "email_draft" | "quote_draft" | "material_alternatives" | "recommended_actions";
+  type: "markdown" | "email_draft" | "quote_draft" | "proposal_draft" | "material_alternatives" | "recommended_actions";
   content: string;
 }
 
+const BLOCK_TYPE_MAP: Record<string, ParsedContent["type"]> = {
+  EMAIL_DRAFT: "email_draft",
+  QUOTE_DRAFT: "quote_draft",
+  PROPOSAL_DRAFT: "proposal_draft",
+  MATERIAL_ALTERNATIVES: "material_alternatives",
+  RECOMMENDED_ACTIONS: "recommended_actions",
+};
+
 function parseAgentMessage(content: string): ParsedContent[] {
   const parts: ParsedContent[] = [];
-  const blockRegex = /<!-- (EMAIL_DRAFT|QUOTE_DRAFT|MATERIAL_ALTERNATIVES|RECOMMENDED_ACTIONS) -->([\s\S]*?)<!-- \/\1 -->/g;
+  const blockRegex = /<!-- (EMAIL_DRAFT|QUOTE_DRAFT|PROPOSAL_DRAFT|MATERIAL_ALTERNATIVES|RECOMMENDED_ACTIONS) -->([\s\S]*?)<!-- \/\1 -->/g;
   let lastIndex = 0;
   let match;
 
@@ -1391,15 +1520,8 @@ function parseAgentMessage(content: string): ParsedContent[] {
       const before = content.slice(lastIndex, match.index).trim();
       if (before) parts.push({ type: "markdown", content: before });
     }
-    const blockType =
-      match[1] === "QUOTE_DRAFT"
-        ? "quote_draft"
-        : match[1] === "MATERIAL_ALTERNATIVES"
-          ? "material_alternatives"
-          : match[1] === "RECOMMENDED_ACTIONS"
-            ? "recommended_actions"
-            : "email_draft";
-    parts.push({ type: blockType as ParsedContent["type"], content: match[2].trim() });
+    const blockType = BLOCK_TYPE_MAP[match[1]] || "markdown";
+    parts.push({ type: blockType, content: match[2].trim() });
     lastIndex = match.index + match[0].length;
   }
 
@@ -2007,6 +2129,77 @@ function QuotePreviewCard({
   );
 }
 
+// ─── Proposal Preview Card ───────────────────────────────────────────────────
+
+function ProposalPreviewCard({
+  jsonContent,
+  onOpenProposal,
+}: {
+  jsonContent: string;
+  onOpenProposal: (data: ProposalData) => void;
+}) {
+  const proposalData = useMemo<ProposalData | null>(() => {
+    try {
+      return JSON.parse(jsonContent);
+    } catch {
+      return null;
+    }
+  }, [jsonContent]);
+
+  if (!proposalData) {
+    return (
+      <div className="rounded-lg border border-red-200/60 bg-red-50/30 px-3 py-2 mt-2 mb-1 text-[12px] text-red-600">
+        Failed to parse proposal data.
+      </div>
+    );
+  }
+
+  const totalInvestment = proposalData.investment.reduce(
+    (sum, inv) => sum + inv.amount,
+    0
+  );
+
+  return (
+    <div className="rounded-lg border border-indigo-200/60 bg-indigo-50/30 overflow-hidden mt-2 mb-1">
+      <div className="px-3 py-2 bg-indigo-50/60 border-b border-indigo-200/40 flex items-center gap-2">
+        <FileText className="h-3.5 w-3.5 text-indigo-600" />
+        <span className="text-[11px] font-semibold text-indigo-700 uppercase tracking-wider">
+          Proposal Generated
+        </span>
+      </div>
+      <div className="px-3 py-3">
+        <div className="flex items-center justify-between mb-1">
+          <div>
+            <span className="text-[13px] font-semibold text-foreground block">
+              {proposalData.proposalNumber}
+            </span>
+            <span className="text-[11px] text-muted-foreground">
+              {proposalData.to.company}
+            </span>
+          </div>
+          <span className="text-sm font-bold text-foreground">
+            {totalInvestment.toLocaleString("en-US", {
+              style: "currency",
+              currency: "USD",
+            })}
+          </span>
+        </div>
+        <p className="text-[11px] text-foreground/60 mb-2 line-clamp-2">
+          {proposalData.projectTitle}
+        </p>
+        <Button
+          size="sm"
+          onClick={() => onOpenProposal(proposalData)}
+          className="w-full h-8 text-[11px] font-medium bg-indigo-700 hover:bg-indigo-600 text-white gap-1.5"
+        >
+          <ExternalLink className="h-3 w-3" />
+          Open Proposal
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 // ─── Material Alternatives Card ──────────────────────────────────────────────
 
 function MaterialAlternativeCostBadge({ delta }: { delta: string }) {
@@ -2148,6 +2341,7 @@ function MaterialAlternativesCard({
 function MessageBubble({
   message,
   onOpenQuote,
+  onOpenProposal,
   onExploreMaterial,
   selectedMaterialPick,
   onExploreAction,
@@ -2155,6 +2349,7 @@ function MessageBubble({
 }: {
   message: ConciergeMessage;
   onOpenQuote: (data: QuoteData) => void;
+  onOpenProposal: (data: ProposalData) => void;
   onExploreMaterial: (material: MaterialAlternative, messageId: string) => void;
   selectedMaterialPick: MaterialPickInfo | null;
   onExploreAction: (action: RecommendedAction, messageId: string) => void;
@@ -2203,6 +2398,12 @@ function MessageBubble({
                   jsonContent={part.content}
                   onOpenQuote={onOpenQuote}
                 />
+              ) : part.type === "proposal_draft" ? (
+                <ProposalPreviewCard
+                  key={idx}
+                  jsonContent={part.content}
+                  onOpenProposal={onOpenProposal}
+                />
               ) : part.type === "email_draft" ? (
                 <EmailDraftCard key={idx} draftContent={part.content} />
               ) : part.type === "material_alternatives" ? (
@@ -2240,6 +2441,41 @@ function MessageBubble({
           {message.timestamp}
         </span>
       </div>
+    </div>
+  );
+}
+
+// ─── Suggestion Chips ────────────────────────────────────────────────────────
+
+function SuggestionChips({
+  onSendSuggestion,
+}: {
+  onSendSuggestion: (text: string) => void;
+}) {
+  return (
+    <div className="flex items-center gap-2 ml-10">
+      <button
+        onClick={() =>
+          onSendSuggestion(
+            "Please generate a formal proposal for this enquiry, including scope of work, deliverables, timeline, and investment breakdown."
+          )
+        }
+        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-indigo-200 bg-indigo-50/60 text-[11px] font-medium text-indigo-700 hover:bg-indigo-100 hover:border-indigo-300 transition-colors"
+      >
+        <FileText className="h-3 w-3" />
+        Create a Proposal
+      </button>
+      <button
+        onClick={() =>
+          onSendSuggestion(
+            "Please generate a formal quote for this enquiry with line items, pricing, and terms."
+          )
+        }
+        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-emerald-200 bg-emerald-50/60 text-[11px] font-medium text-emerald-700 hover:bg-emerald-100 hover:border-emerald-300 transition-colors"
+      >
+        <DollarSign className="h-3 w-3" />
+        Create a Quote
+      </button>
     </div>
   );
 }
