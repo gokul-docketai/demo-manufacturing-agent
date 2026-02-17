@@ -181,6 +181,7 @@ export function Workspace() {
           <AccountsPage
             selectedAccountId={selectedAccountId}
             onAccountSelect={setSelectedAccountId}
+            onNavigate={handleNavigate}
           />
         </div>
       </div>

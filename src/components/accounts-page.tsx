@@ -26,15 +26,15 @@ interface CRMColumn {
 
 const defaultColumns: CRMColumn[] = [
   { key: "name", label: "Account Name" },
+  { key: "annualRevenue", label: "Annual Revenue" },
+  { key: "health", label: "Health" },
   { key: "ai_sellOpportunities", label: "Sales Opportunities", isAI: true },
   { key: "ai_upsellCrossSell", label: "Upsell / Cross-sell", isAI: true },
   { key: "ai_similarEnquiries", label: "Similar Inquiries", isAI: true },
   { key: "industry", label: "Industry" },
   { key: "primaryContact", label: "Primary Contact" },
-  { key: "annualRevenue", label: "Annual Revenue" },
   { key: "dealCount", label: "Deals" },
   { key: "totalValue", label: "Pipeline Value" },
-  { key: "health", label: "Health" },
   { key: "nextAction", label: "Next Step" },
 ];
 
@@ -195,11 +195,12 @@ function HealthDot({ health }: { health: Account["health"] }) {
 interface AccountsPageProps {
   selectedAccountId?: string | null;
   onAccountSelect?: (accountId: string | null) => void;
+  onNavigate?: (page: string) => void;
 }
 
 const TOTAL_PAGES = 34;
 
-export function AccountsPage({ selectedAccountId, onAccountSelect }: AccountsPageProps) {
+export function AccountsPage({ selectedAccountId, onAccountSelect, onNavigate }: AccountsPageProps) {
   const [columns, setColumns] = useState<CRMColumn[]>(defaultColumns);
   const [aiData, setAiData] = useState<Record<string, string[]>>(builtInAiData);
   const [popoverOpen, setPopoverOpen] = useState(false);
@@ -399,12 +400,28 @@ export function AccountsPage({ selectedAccountId, onAccountSelect }: AccountsPag
                       if (col.isAI) {
                         const vals = aiData[col.key];
                         const val = vals ? vals[rowIdx] || "" : "";
+                        const rfqMatch = col.key === "ai_similarEnquiries" ? val.match(/^(RFQ-[\w-]+)(.*)$/) : null;
                         return (
                           <td
                             key={col.key}
                             className="px-3 py-3.5 bg-purple-100/50 text-foreground font-medium min-w-[220px] max-w-[300px]"
                           >
-                            {val}
+                            {rfqMatch ? (
+                              <>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    onNavigate?.("concierge");
+                                  }}
+                                  className="text-blue-600 hover:text-blue-800 underline underline-offset-2 decoration-blue-300 hover:decoration-blue-500 transition-colors"
+                                >
+                                  {rfqMatch[1]}
+                                </button>
+                                {rfqMatch[2]}
+                              </>
+                            ) : (
+                              val
+                            )}
                           </td>
                         );
                       }
