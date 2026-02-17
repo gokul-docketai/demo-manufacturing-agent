@@ -182,7 +182,7 @@ function SpreadsheetRenderer({
                   className={cn(
                     "bg-warm-100/60 border-b border-r border-warm-200/60 px-3 py-1.5 text-left font-semibold text-warm-700",
                     data.highlightColumn === i && "bg-warm-200/40",
-                    data.aiColumns?.includes(i) && "bg-purple-50/60"
+                    data.aiColumns?.includes(i) && "bg-purple-100/70"
                   )}
                 >
                   <span className="flex items-center gap-1">
@@ -205,7 +205,7 @@ function SpreadsheetRenderer({
                     className={cn(
                       "border-b border-r border-warm-200/60 px-3 py-2 text-foreground",
                       data.highlightColumn === ci && "bg-warm-50/60 font-semibold",
-                      data.aiColumns?.includes(ci) && "bg-purple-50/30 italic text-[11px]",
+                      data.aiColumns?.includes(ci) && "bg-purple-100/40 italic text-[11px]",
                       typeof cell === "number" && "text-right font-mono",
                       editable && "cursor-text hover:bg-warm-50"
                     )}
@@ -434,7 +434,7 @@ function ComparisonRenderer({
                     i === 0
                       ? "bg-warm-100/40 text-warm-600 w-[28%]"
                       : "bg-warm-50 text-warm-800",
-                    data.aiColumns?.includes(i) && "bg-purple-50/60"
+                    data.aiColumns?.includes(i) && "bg-purple-100/70"
                   )}
                 >
                   <span className="flex items-center gap-1">
@@ -466,7 +466,7 @@ function ComparisonRenderer({
                     className={cn(
                       "border-b border-warm-200/60 px-4 py-2.5 text-foreground",
                       vi < row.values.length - 1 && "border-r",
-                      data.aiColumns?.includes(vi + 1) && "bg-purple-50/30 text-purple-700 italic text-[11px]"
+                      data.aiColumns?.includes(vi + 1) && "bg-purple-100/40 text-purple-700 italic text-[11px]"
                     )}
                   >
                     {val}

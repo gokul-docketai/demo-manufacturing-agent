@@ -261,7 +261,7 @@ export function ConciergePage() {
                 Concierge
               </h1>
               <p className="text-xs text-muted-foreground">
-                Enquiry processing &amp; quoting assistant
+                Inquiry processing &amp; quoting assistant
               </p>
             </div>
           </div>
@@ -270,7 +270,7 @@ export function ConciergePage() {
               variant="secondary"
               className="text-[10px] px-2 py-0.5 font-semibold bg-warm-100 text-warm-600 border-warm-200"
             >
-              {enquiries.length} Enquiries
+              {enquiries.length} Inquiries
             </Badge>
             <Badge
               variant="secondary"
@@ -284,7 +284,7 @@ export function ConciergePage() {
 
       {/* Two-panel layout */}
       <div className="flex flex-1 min-h-0 overflow-hidden">
-        {/* Left sidebar — Enquiry list */}
+        {/* Left sidebar — Inquiry list */}
         <div className="w-[320px] shrink-0 border-r border-warm-200/60 flex flex-col min-h-0 bg-card">
           {/* Search + Add */}
           <div className="p-3 border-b border-warm-200/40">
@@ -294,7 +294,7 @@ export function ConciergePage() {
                 <Input
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search enquiries..."
+                  placeholder="Search inquiries..."
                   className="h-8 pl-8 text-xs bg-warm-50 border-warm-200 placeholder:text-warm-400 focus-visible:ring-warm-300"
                 />
               </div>
@@ -309,7 +309,7 @@ export function ConciergePage() {
             </div>
           </div>
 
-          {/* Enquiry List */}
+          {/* Inquiry List */}
           <ScrollArea className="flex-1">
             <div className="divide-y divide-warm-200/40">
               {filteredEnquiries.map((enquiry) => (
@@ -323,7 +323,7 @@ export function ConciergePage() {
               ))}
               {filteredEnquiries.length === 0 && (
                 <div className="py-10 text-center text-sm text-muted-foreground">
-                  No enquiries match your search.
+                  No inquiries match your search.
                 </div>
               )}
             </div>
@@ -348,7 +348,7 @@ export function ConciergePage() {
             <div className="flex-1 flex items-center justify-center text-muted-foreground">
               <div className="text-center">
                 <Inbox className="h-10 w-10 mx-auto mb-3 text-warm-300" />
-                <p className="text-sm font-medium">Select an enquiry to begin</p>
+                <p className="text-sm font-medium">Select an inquiry to begin</p>
                 <p className="text-xs mt-1">
                   Choose from the list on the left to start processing
                 </p>
@@ -408,7 +408,7 @@ export function ConciergePage() {
         )}
       </div>
 
-      {/* Add Enquiry Modal */}
+      {/* Add Inquiry Modal */}
       <AddEnquiryModal
         open={addEnquiryOpen}
         onClose={() => setAddEnquiryOpen(false)}
@@ -422,7 +422,7 @@ export function ConciergePage() {
   );
 }
 
-// ─── Add Enquiry Modal ──────────────────────────────────────────────────────
+// ─── Add Inquiry Modal ──────────────────────────────────────────────────────
 
 function AddEnquiryModal({
   open,
@@ -530,18 +530,18 @@ function AddEnquiryModal({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-base">
             <Plus className="h-4 w-4 text-warm-600" />
-            Add New Enquiry
+            Add New Inquiry
           </DialogTitle>
         </DialogHeader>
 
         <div className="flex-1 min-h-0 overflow-y-auto space-y-4 py-2">
           {/* Title */}
           <div className="space-y-1.5">
-            <Label htmlFor="enquiry-title" className="text-xs font-medium">
+            <Label htmlFor="inquiry-title" className="text-xs font-medium">
               Title <span className="text-red-500">*</span>
             </Label>
             <Input
-              id="enquiry-title"
+              id="inquiry-title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. CNC Machined Bracket for EV Motor Assembly"
@@ -551,14 +551,14 @@ function AddEnquiryModal({
 
           {/* Description */}
           <div className="space-y-1.5">
-            <Label htmlFor="enquiry-description" className="text-xs font-medium">
+            <Label htmlFor="inquiry-description" className="text-xs font-medium">
               Description <span className="text-red-500">*</span>
             </Label>
             <Textarea
-              id="enquiry-description"
+              id="inquiry-description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Describe the enquiry details, requirements, specifications..."
+              placeholder="Describe the inquiry details, requirements, specifications..."
               className="min-h-[120px] text-sm resize-none"
             />
           </div>
@@ -580,7 +580,7 @@ function AddEnquiryModal({
               <div className="flex items-center gap-2">
                 <RadioGroupItem value="general" id="type-general" />
                 <Label htmlFor="type-general" className="text-sm font-normal cursor-pointer">
-                  Enquiry
+                  Inquiry
                 </Label>
               </div>
             </RadioGroup>
@@ -648,7 +648,7 @@ function AddEnquiryModal({
             disabled={!isValid || isReadingFiles}
             className="bg-warm-800 hover:bg-warm-900 text-white"
           >
-            Add Enquiry
+            Add Inquiry
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -705,7 +705,7 @@ function formatReceivedAt(value: string): string {
   });
 }
 
-// ─── Enquiry List Item ───────────────────────────────────────────────────────
+// ─── Inquiry List Item ───────────────────────────────────────────────────────
 
 function EnquiryListItem({
   enquiry,
@@ -888,7 +888,7 @@ function ConversationPanel({
         id: `agent-error-${Date.now()}`,
         role: "agent",
         content:
-          "I encountered an error processing this enquiry. Please check the OpenAI API key configuration and try again.",
+          "I encountered an error processing this inquiry. Please check the OpenAI API key configuration and try again.",
         timestamp: new Date().toLocaleTimeString([], {
           hour: "2-digit",
           minute: "2-digit",
@@ -1116,7 +1116,7 @@ function ConversationPanel({
       {/* Messages area — scrollable middle section */}
       <div className="flex-1 min-h-0 overflow-y-auto px-5 py-4">
         <div className="max-w-3xl mx-auto space-y-4">
-          {/* Enquiry card — always the first "message" */}
+          {/* Inquiry card — always the first "message" */}
           <EnquiryCard enquiry={enquiry} />
 
           {/* Conversation messages */}
@@ -1173,7 +1173,7 @@ function ConversationPanel({
   );
 }
 
-// ─── Enquiry Card (First message) ────────────────────────────────────────────
+// ─── Inquiry Card (First message) ────────────────────────────────────────────
 
 const attachmentTypeConfig = {
   drawing: {
@@ -1379,13 +1379,13 @@ function EnquiryCard({ enquiry }: { enquiry: Enquiry }) {
 
   return (
     <div className="rounded-xl border border-warm-200/80 bg-card shadow-sm overflow-hidden">
-      {/* Enquiry header bar */}
+      {/* Inquiry header bar */}
       <div className="px-4 py-2.5 bg-warm-50/80 border-b border-warm-200/60 flex items-center gap-2">
         <div className="h-6 w-6 rounded-md bg-blue-100 flex items-center justify-center">
           <Inbox className="h-3 w-3 text-blue-600" />
         </div>
         <span className="text-[11px] font-semibold text-warm-500 uppercase tracking-wider">
-          Enquiry
+          Inquiry
         </span>
         {enquiry.type === "rfq" && (
           <Badge
@@ -1400,7 +1400,7 @@ function EnquiryCard({ enquiry }: { enquiry: Enquiry }) {
         </span>
       </div>
 
-      {/* Enquiry body */}
+      {/* Inquiry body */}
       <div className="p-4">
         <h3 className="text-base font-semibold text-foreground mb-1">
           {enquiry.title}
@@ -2461,7 +2461,7 @@ function SuggestionChips({
       <button
         onClick={() =>
           onSendSuggestion(
-            "Please generate a formal proposal for this enquiry, including scope of work, deliverables, timeline, and investment breakdown."
+            "Please generate a formal proposal for this inquiry, including scope of work, deliverables, timeline, and investment breakdown."
           )
         }
         className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-indigo-200 bg-indigo-50/60 text-[11px] font-medium text-indigo-700 hover:bg-indigo-100 hover:border-indigo-300 transition-colors"
@@ -2472,7 +2472,7 @@ function SuggestionChips({
       <button
         onClick={() =>
           onSendSuggestion(
-            "Please generate a formal quote for this enquiry with line items, pricing, and terms."
+            "Please generate a formal quote for this inquiry with line items, pricing, and terms."
           )
         }
         className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-emerald-200 bg-emerald-50/60 text-[11px] font-medium text-emerald-700 hover:bg-emerald-100 hover:border-emerald-300 transition-colors"
@@ -2506,7 +2506,7 @@ function TypingIndicator() {
             />
           </div>
           <span className="text-[11px] text-warm-400 ml-1">
-            Analyzing enquiry...
+            Analyzing inquiry...
           </span>
         </div>
       </div>

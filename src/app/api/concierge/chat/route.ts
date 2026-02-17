@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
     const enquiry: Enquiry | undefined =
       mockEnquiries.find((r) => r.id === enquiryId) || inlineEnquiry;
     if (!enquiry) {
-      return NextResponse.json({ error: "Enquiry not found" }, { status: 404 });
+      return NextResponse.json({ error: "Inquiry not found" }, { status: 404 });
     }
 
     // Build the enquiry context to inject into the conversation

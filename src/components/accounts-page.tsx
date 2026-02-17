@@ -26,9 +26,9 @@ interface CRMColumn {
 
 const defaultColumns: CRMColumn[] = [
   { key: "name", label: "Account Name" },
-  { key: "ai_sellOpportunities", label: "Sell Opportunities", isAI: true },
+  { key: "ai_sellOpportunities", label: "Sales Opportunities", isAI: true },
   { key: "ai_upsellCrossSell", label: "Upsell / Cross-sell", isAI: true },
-  { key: "ai_similarEnquiries", label: "Similar Enquiries", isAI: true },
+  { key: "ai_similarEnquiries", label: "Similar Inquiries", isAI: true },
   { key: "industry", label: "Industry" },
   { key: "primaryContact", label: "Primary Contact" },
   { key: "annualRevenue", label: "Annual Revenue" },
@@ -140,31 +140,31 @@ const builtInAiData: Record<string, string[]> = {
     "RFQ-2026-0847 from Pacific Aero for similar Ti brackets — won at $312/ea",
     "RFQ-2025-1134 from BioSynth for PEEK housings — pending technical review",
     "RFQ-2025-0982 from Heartland Ag for stamped chassis — quoted last month",
-    "No similar enquiries found in the last 12 months",
+    "No similar inquiries found in the last 12 months",
     "RFQ-2026-0091 from Northrop for aero shrouds — same alloy specs",
     "RFQ-2024-1188 from Cascade Fluid for manifold blocks — closed won at $175K",
     "RFQ-2025-0773 from Eclipse Semi for die-cast heat sinks — lost on lead time",
-    "No similar enquiries found in the last 12 months",
+    "No similar inquiries found in the last 12 months",
     "RFQ-2025-0654 from MedCore for SS vessel components — in negotiation",
     "RFQ-2024-1042 from TerraCore for wear plates — repeat order likely in Q2",
     "RFQ-2025-1201 from NovaTech for precision arm joints — spec review ongoing",
     "RFQ-2024-0891 from Apex Turbine for turbine mounts — won at $960K",
-    "No similar enquiries found in the last 12 months",
+    "No similar inquiries found in the last 12 months",
     "RFQ-2025-0467 from Sentinel for defense housings — ITAR-cleared, quoting",
-    "No similar enquiries found in the last 12 months",
+    "No similar inquiries found in the last 12 months",
     "RFQ-2025-0312 from Cobalt Aero for turbine fixtures — in final negotiation",
-    "No similar enquiries found in the last 12 months",
+    "No similar inquiries found in the last 12 months",
     "RFQ-2025-0889 from AutoPrime for progressive die brackets — won at $195K",
     "RFQ-2025-1067 from Vanguard for optics housings — lost on surface finish",
     "RFQ-2024-0756 from Atlas Heavy for forged flanges — repeat order placed",
     "RFQ-2025-0534 from Ironclad for EMI enclosures — MIL-STD qualified",
-    "No similar enquiries found in the last 12 months",
+    "No similar inquiries found in the last 12 months",
     "RFQ-2025-0923 from ClearPath for instrument chassis — awaiting feedback",
     "RFQ-2024-1155 from Wolverine for gearbox housings — closed won at $340K",
     "RFQ-2024-0621 from Northrop for landing gear parts — multi-year LTA signed",
-    "No similar enquiries found in the last 12 months",
+    "No similar inquiries found in the last 12 months",
     "RFQ-2025-0745 from Sierra Power for bus bar machining — quoting phase",
-    "No similar enquiries found in the last 12 months",
+    "No similar inquiries found in the last 12 months",
     "RFQ-2025-0398 from Orion Rail for bogie castings — negotiating volume pricing",
     "RFQ-2025-1089 from Stellar Micro for wafer fixtures — lost on cleanroom cert",
   ],
@@ -303,7 +303,7 @@ export function AccountsPage({ selectedAccountId, onAccountSelect }: AccountsPag
                       className={cn(
                         "px-3 py-2.5 text-left text-[10px] font-semibold uppercase tracking-wider whitespace-nowrap",
                         col.isAI
-                          ? "text-warm-500 bg-purple-50/60"
+                          ? "text-warm-500 bg-purple-100/70"
                           : "text-warm-500"
                       )}
                     >
@@ -402,7 +402,7 @@ export function AccountsPage({ selectedAccountId, onAccountSelect }: AccountsPag
                         return (
                           <td
                             key={col.key}
-                            className="px-3 py-3.5 bg-purple-50/40 text-foreground font-medium min-w-[220px] max-w-[300px]"
+                            className="px-3 py-3.5 bg-purple-100/50 text-foreground font-medium min-w-[220px] max-w-[300px]"
                           >
                             {val}
                           </td>

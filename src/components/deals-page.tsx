@@ -320,7 +320,7 @@ export function DealsPage({ onAccountClick }: DealsPageProps) {
                       className={cn(
                         "px-3 py-2.5 text-left text-[10px] font-semibold uppercase tracking-wider whitespace-nowrap",
                         col.isAI
-                          ? "text-warm-500 bg-purple-50/60"
+                          ? "text-warm-500 bg-purple-100/70"
                           : "text-warm-500"
                       )}
                     >
@@ -416,7 +416,7 @@ export function DealsPage({ onAccountClick }: DealsPageProps) {
                         return (
                           <td
                             key={col.key}
-                            className="px-3 py-3.5 bg-purple-50/40 text-foreground font-medium min-w-[220px] max-w-[300px]"
+                            className="px-3 py-3.5 bg-purple-100/50 text-foreground font-medium min-w-[220px] max-w-[300px]"
                           >
                             {val}
                           </td>

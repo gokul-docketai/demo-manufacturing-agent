@@ -1,4 +1,4 @@
-// ─── Concierge Enquiry Data & Types ─────────────────────────────────────────
+// ─── Concierge Inquiry Data & Types ─────────────────────────────────────────
 
 export interface EnquiryAttachment {
   name: string;
@@ -87,7 +87,7 @@ export interface ActionResultInfo {
   content: string;
 }
 
-// ─── Mock Enquiries ─────────────────────────────────────────────────────────
+// ─── Mock Inquiries ─────────────────────────────────────────────────────────
 
 export const mockEnquiries: Enquiry[] = [
   {
