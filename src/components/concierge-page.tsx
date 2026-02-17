@@ -74,6 +74,7 @@ import {
   Plus,
   Upload,
   Trash2,
+  Filter,
 } from "lucide-react";
 
 // ─── Main Concierge Page ────────────────────────────────────────────────────
@@ -278,6 +279,14 @@ export function ConciergePage() {
             >
               {enquiries.filter((r) => r.status === "new").length} new
             </Badge>
+            <Button
+              size="sm"
+              onClick={() => setAddEnquiryOpen(true)}
+              className="h-8 px-3 text-xs font-medium bg-warm-800 hover:bg-warm-700 text-warm-50 gap-1.5"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              Create New
+            </Button>
           </div>
         </div>
       </header>
@@ -302,9 +311,8 @@ export function ConciergePage() {
                 size="icon"
                 variant="outline"
                 className="h-8 w-8 shrink-0 border-warm-200 hover:bg-warm-100"
-                onClick={() => setAddEnquiryOpen(true)}
               >
-                <Plus className="h-4 w-4" />
+                <Filter className="h-4 w-4" />
               </Button>
             </div>
           </div>
