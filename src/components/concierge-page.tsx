@@ -580,7 +580,7 @@ function AddEnquiryModal({
               <div className="flex items-center gap-2">
                 <RadioGroupItem value="general" id="type-general" />
                 <Label htmlFor="type-general" className="text-sm font-normal cursor-pointer">
-                  General Enquiry
+                  Enquiry
                 </Label>
               </div>
             </RadioGroup>
@@ -1385,7 +1385,7 @@ function EnquiryCard({ enquiry }: { enquiry: Enquiry }) {
           <Inbox className="h-3 w-3 text-blue-600" />
         </div>
         <span className="text-[11px] font-semibold text-warm-500 uppercase tracking-wider">
-          Incoming Enquiry
+          Enquiry
         </span>
         {enquiry.type === "rfq" && (
           <Badge
@@ -1408,24 +1408,28 @@ function EnquiryCard({ enquiry }: { enquiry: Enquiry }) {
         <div className="flex items-center flex-wrap gap-x-3 gap-y-1 text-[11px] text-muted-foreground mb-3">
           <span className="flex items-center gap-1">
             <Building2 className="h-3 w-3" />
-            {enquiry.accountName || "-"}
+            <span className="font-semibold text-foreground/70">Account:</span>
+            <a href="#" className="text-blue-600 hover:text-blue-800 underline underline-offset-2">
+              {enquiry.accountName || "-"}
+            </a>
           </span>
-          <span className="text-warm-300">|</span>
-          <span>{enquiry.contactName || "-"}</span>
           <span className="text-warm-300">|</span>
           <span className="flex items-center gap-1">
-            <DollarSign className="h-3 w-3" />
-            {enquiry.dealValue || "-"}
+            <span className="font-semibold text-foreground/70">Account Owner:</span>
+            {enquiry.contactName || "-"}
           </span>
-          {enquiry.dealTitle && (
-            <>
-              <span className="text-warm-300">|</span>
-              <span className="flex items-center gap-1">
-                <FileText className="h-3 w-3" />
-                {enquiry.dealTitle}
-              </span>
-            </>
-          )}
+          <span className="text-warm-300">|</span>
+          <span className="flex items-center gap-1">
+            <FileText className="h-3 w-3" />
+            <span className="font-semibold text-foreground/70">Associated Deal:</span>
+            {enquiry.dealTitle ? (
+              <a href="#" className="text-blue-600 hover:text-blue-800 underline underline-offset-2">
+                {enquiry.dealTitle}{enquiry.dealValue ? ` (${enquiry.dealValue})` : ""}
+              </a>
+            ) : (
+              <span>{enquiry.dealValue || "-"}</span>
+            )}
+          </span>
         </div>
 
         <p className="text-[13px] text-foreground/80 leading-relaxed whitespace-pre-wrap mb-4">
