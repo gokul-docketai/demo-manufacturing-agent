@@ -22,10 +22,12 @@ import {
   SiOracle,
   SiHubspot,
   SiSnowflake,
-  SiSlack,
   SiJira,
   SiTableau,
+  SiSage,
 } from "react-icons/si";
+import { BsMicrosoftTeams } from "react-icons/bs";
+import { PiMicrosoftOutlookLogoFill } from "react-icons/pi";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import {
@@ -154,13 +156,16 @@ function IntegrationIcon({ id, className }: { id: string; className?: string }) 
     case "snowflake":
       return <SiSnowflake className={iconClass} />;
     case "slack":
-      return <SiSlack className={iconClass} />;
-    case "teams":
       return (
-        <svg viewBox="0 0 24 24" fill="currentColor" className={iconClass}>
-          <path d="M19.2 6.4a2.4 2.4 0 11-4.8 0 2.4 2.4 0 014.8 0zM22 10.4v5.2a2.4 2.4 0 01-4.8 0v-5.2a1.2 1.2 0 011.2-1.2h2.4A1.2 1.2 0 0122 10.4zM16 5.2a3.2 3.2 0 11-6.4 0 3.2 3.2 0 016.4 0zM4 10h10.4a1.2 1.2 0 011.2 1.2v6.4A3.6 3.6 0 0112 21.2H6.4A3.6 3.6 0 012.8 17.6v-6.4A1.2 1.2 0 014 10z" />
+        <svg viewBox="0 0 128 128" className={iconClass}>
+          <path d="M27.255 80.719c0 7.33-5.978 13.317-13.309 13.317C6.616 94.036.63 88.049.63 80.719s5.987-13.317 13.317-13.317h13.309zm6.709 0c0-7.33 5.987-13.317 13.317-13.317s13.317 5.986 13.317 13.317v33.335c0 7.33-5.986 13.317-13.317 13.317-7.33 0-13.317-5.987-13.317-13.317zm0 0" fill="#e01e5a"/>
+          <path d="M47.281 27.255c-7.33 0-13.317-5.978-13.317-13.309C33.964 6.616 39.951.63 47.281.63s13.317 5.987 13.317 13.317v13.309zm0 6.709c7.33 0 13.317 5.987 13.317 13.317s-5.986 13.317-13.317 13.317H13.946C6.616 60.598.63 54.612.63 47.281c0-7.33 5.987-13.317 13.317-13.317zm0 0" fill="#36c5f0"/>
+          <path d="M100.745 47.281c0-7.33 5.978-13.317 13.309-13.317 7.33 0 13.317 5.987 13.317 13.317s-5.987 13.317-13.317 13.317h-13.309zm-6.709 0c0 7.33-5.987 13.317-13.317 13.317s-13.317-5.986-13.317-13.317V13.946C67.402 6.616 73.388.63 80.719.63c7.33 0 13.317 5.987 13.317 13.317zm0 0" fill="#2eb67d"/>
+          <path d="M80.719 100.745c7.33 0 13.317 5.978 13.317 13.309 0 7.33-5.987 13.317-13.317 13.317s-13.317-5.987-13.317-13.317v-13.309zm0-6.709c-7.33 0-13.317-5.987-13.317-13.317s5.986-13.317 13.317-13.317h33.335c7.33 0 13.317 5.986 13.317 13.317 0 7.33-5.987 13.317-13.317 13.317zm0 0" fill="#ecb22e"/>
         </svg>
       );
+    case "teams":
+      return <BsMicrosoftTeams className={iconClass} />;
     case "jira":
       return <SiJira className={iconClass} />;
     case "docusign":
@@ -177,6 +182,46 @@ function IntegrationIcon({ id, className }: { id: string; className?: string }) 
           <path d="M4 5h16v3H9.5L20 16v3H4v-3h10.5L4 8V5z" />
         </svg>
       );
+    case "gdrive":
+      return (
+        <svg viewBox="0 0 87.3 78" className={iconClass}>
+          <path d="M6.6 66.85l3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3L29 52.2H0c0 1.55.4 3.1 1.2 4.5z" fill="#0066da"/>
+          <path d="M43.65 25.15L29.05 0c-1.35.8-2.5 1.9-3.3 3.3l-25.4 44A9.06 9.06 0 000 52.2h29z" fill="#00ac47"/>
+          <path d="M73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5H58.3l6.7 11.9z" fill="#ea4335"/>
+          <path d="M43.65 25.15L58.25 0H29.05l-14.6 25.15z" fill="#00832d"/>
+          <path d="M58.3 52.2H29l-15.25 24.6c1.35.8 2.85 1.2 4.45 1.2h50.7c1.6 0 3.1-.45 4.45-1.2z" fill="#2684fc"/>
+          <path d="M73.4 26.5L58.25 0c-1.35.8-2.5 1.9-3.3 3.3L29.55 47.3c-.4.7-.65 1.4-.8 2.2h58.55c0-1.55-.4-3.1-1.2-4.5z" fill="#ffba00"/>
+        </svg>
+      );
+    case "outlook":
+      return <PiMicrosoftOutlookLogoFill className={iconClass} />;
+    case "sap-ariba":
+      return (
+        <svg viewBox="0 0 24 24" fill="currentColor" className={iconClass}>
+          <path d="M4 4h16v4H4V4zm0 6h10v10H4V10zm12 0h4v10h-4V10z" />
+        </svg>
+      );
+    case "coupa":
+      return (
+        <svg viewBox="0 0 24 24" fill="currentColor" className={iconClass}>
+          <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm-1 14.5a4.5 4.5 0 010-9v2a2.5 2.5 0 100 5v2zm2-4a4.5 4.5 0 010-9v2a2.5 2.5 0 100 5v2z" />
+        </svg>
+      );
+    case "epicor":
+      return (
+        <svg viewBox="0 0 24 24" fill="currentColor" className={iconClass}>
+          <path d="M3 4h18v3H7v3h12v3H7v3h14v3H3V4z" />
+        </svg>
+      );
+    case "infor":
+      return (
+        <svg viewBox="0 0 24 24" fill="currentColor" className={iconClass}>
+          <circle cx="12" cy="5" r="2.5" />
+          <rect x="10" y="9" width="4" height="12" rx="1" />
+        </svg>
+      );
+    case "sage":
+      return <SiSage className={iconClass} />;
     default:
       return <Plug className={iconClass} />;
   }
@@ -339,13 +384,62 @@ const integrations: Integration[] = [
     description: "Subscription billing and revenue",
     iconColor: "text-[#2E6599]",
   },
+  {
+    id: "gdrive",
+    name: "Google Drive",
+    category: "Document",
+    description: "Cloud document storage and collaboration",
+    iconColor: "text-[#4285F4]",
+  },
+  {
+    id: "outlook",
+    name: "Outlook",
+    category: "Email",
+    description: "Email and calendar integration",
+    iconColor: "text-[#0078D4]",
+  },
+  {
+    id: "sap-ariba",
+    name: "SAP Ariba",
+    category: "Procurement",
+    description: "Supplier management and procurement network",
+    iconColor: "text-[#F0AB00]",
+  },
+  {
+    id: "coupa",
+    name: "Coupa",
+    category: "Procurement",
+    description: "Business spend management platform",
+    iconColor: "text-[#E4002B]",
+  },
+  {
+    id: "epicor",
+    name: "Epicor",
+    category: "ERP",
+    description: "Manufacturing ERP and supply chain management",
+    iconColor: "text-[#ED1C24]",
+  },
+  {
+    id: "infor",
+    name: "Infor",
+    category: "ERP",
+    description: "Industry-specific cloud ERP solutions",
+    iconColor: "text-[#007DC3]",
+  },
+  {
+    id: "sage",
+    name: "Sage",
+    category: "Finance",
+    description: "Accounting and financial management",
+    iconColor: "text-[#00D639]",
+  },
 ];
 
 export function SettingsPage() {
   const [activeTab, setActiveTab] = useState<SettingsTab>("integrations");
   const [search, setSearch] = useState("");
   const [connectedIds, setConnectedIds] = useState<Set<string>>(
-    new Set(["sap", "salesforce", "snowflake", "slack", "docusign", "jira", "tableau"])
+    new Set(["sap", "salesforce", "snowflake", "slack", "docusign", "jira", "tableau", "gdrive", "outlook", "sap-ariba"])
   );
 
   // Knowledge Base state
