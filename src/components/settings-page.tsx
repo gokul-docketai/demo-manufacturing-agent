@@ -345,7 +345,7 @@ export function SettingsPage() {
   const [activeTab, setActiveTab] = useState<SettingsTab>("integrations");
   const [search, setSearch] = useState("");
   const [connectedIds, setConnectedIds] = useState<Set<string>>(
-    new Set(["sap", "salesforce"])
+    new Set(["sap", "salesforce", "snowflake", "slack", "docusign", "jira", "tableau"])
   );
 
   // Knowledge Base state

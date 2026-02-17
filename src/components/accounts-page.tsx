@@ -303,9 +303,9 @@ export function AccountsPage({ selectedAccountId, onAccountSelect, onNavigate }:
                     <th
                       key={col.key}
                       className={cn(
-                        "px-3 py-2.5 text-left text-[10px] font-semibold uppercase tracking-wider whitespace-nowrap",
+                        "px-4 py-2.5 text-left text-[10px] font-semibold uppercase tracking-wider whitespace-nowrap",
                         col.isAI
-                          ? "text-warm-500 bg-purple-100/70"
+                          ? "text-warm-500 bg-purple-100/45"
                           : "text-warm-500"
                       )}
                     >
@@ -405,7 +405,7 @@ export function AccountsPage({ selectedAccountId, onAccountSelect, onNavigate }:
                         return (
                           <td
                             key={col.key}
-                            className="px-3 py-3.5 bg-purple-100/50 text-foreground font-medium min-w-[220px] max-w-[300px]"
+                            className="px-4 py-3.5 bg-purple-100/30 text-foreground font-medium min-w-[220px] max-w-[300px]"
                           >
                             {rfqMatch ? (
                               <>
@@ -429,7 +429,7 @@ export function AccountsPage({ selectedAccountId, onAccountSelect, onNavigate }:
 
                       if (col.key === "health") {
                         return (
-                          <td key={col.key} className="px-3 py-3.5 whitespace-nowrap">
+                          <td key={col.key} className="px-4 py-3.5 whitespace-nowrap">
                             <HealthDot health={acc.health} />
                           </td>
                         );
@@ -439,7 +439,7 @@ export function AccountsPage({ selectedAccountId, onAccountSelect, onNavigate }:
                         return (
                           <td
                             key={col.key}
-                            className="px-3 py-3.5 whitespace-nowrap"
+                            className="px-4 py-3.5 whitespace-nowrap"
                           >
                             <div className="font-medium text-foreground leading-tight">{acc.name}</div>
                             <div className="text-[10px] text-warm-500 mt-0.5">Owner: {acc.accountOwner}</div>
@@ -451,7 +451,7 @@ export function AccountsPage({ selectedAccountId, onAccountSelect, onNavigate }:
                         return (
                           <td
                             key={col.key}
-                            className="px-3 py-3.5 font-medium text-foreground whitespace-nowrap"
+                            className="px-4 py-3.5 font-medium text-foreground whitespace-nowrap"
                           >
                             {getCellValue(acc, col.key)}
                           </td>
@@ -461,7 +461,7 @@ export function AccountsPage({ selectedAccountId, onAccountSelect, onNavigate }:
                       return (
                         <td
                           key={col.key}
-                          className="px-3 py-3.5 text-warm-600 whitespace-nowrap"
+                          className="px-4 py-3.5 text-warm-600 whitespace-nowrap"
                         >
                           {String(getCellValue(acc, col.key))}
                         </td>
