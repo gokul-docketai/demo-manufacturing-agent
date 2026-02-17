@@ -1,15 +1,18 @@
-// ─── Concierge RFQ Data & Types ─────────────────────────────────────────────
+// ─── Concierge Enquiry Data & Types ─────────────────────────────────────────
 
-export interface RFQAttachment {
+export interface EnquiryAttachment {
   name: string;
   type: "questions" | "specs" | "drawing";
   content: string;
 }
 
-export type RFQSource = "email" | "call" | "manual" | "web-form";
+export type EnquirySource = "email" | "call" | "manual" | "web-form";
 
-export interface RFQ {
+export type EnquiryType = "rfq" | "general";
+
+export interface Enquiry {
   id: string;
+  type: EnquiryType;
   title: string;
   description: string;
   accountName: string;
@@ -18,14 +21,14 @@ export interface RFQ {
   dealTitle: string;
   dealValue: string;
   status: "new" | "in-progress" | "quoted";
-  source: RFQSource;
+  source: EnquirySource;
   receivedAt: string;
-  attachments: RFQAttachment[];
+  attachments: EnquiryAttachment[];
 }
 
 export interface ConciergeMessage {
   id: string;
-  role: "rfq" | "agent" | "user";
+  role: "enquiry" | "agent" | "user";
   content: string;
   timestamp: string;
   isLoading?: boolean;
@@ -84,11 +87,12 @@ export interface ActionResultInfo {
   content: string;
 }
 
-// ─── Mock RFQs ──────────────────────────────────────────────────────────────
+// ─── Mock Enquiries ─────────────────────────────────────────────────────────
 
-export const mockRFQs: RFQ[] = [
+export const mockEnquiries: Enquiry[] = [
   {
     id: "rfq-1",
+    type: "rfq",
     title: "Electric Power Steering Column Brackets",
     description:
       `Hi Derek,
@@ -202,6 +206,7 @@ REVISION HISTORY
   },
   {
     id: "rfq-2",
+    type: "rfq",
     title: "Steering Knuckle Forgings — R1T Platform",
     description:
       `Hello team,
@@ -304,6 +309,7 @@ SURFACE FINISH
   },
   {
     id: "rfq-3",
+    type: "rfq",
     title: "Steering Rack Housing — Lucid Air",
     description:
       `Hi Derek,
@@ -402,6 +408,7 @@ NOTES
   },
   {
     id: "rfq-4",
+    type: "rfq",
     title: "Steering Sensor Mounting Plate — 3 Series",
     description:
       `Dear Mr. Morrison,
@@ -519,6 +526,7 @@ REVISION HISTORY
   },
   {
     id: "rfq-5",
+    type: "rfq",
     title: "Universal Joint Yoke — Driveline Program",
     description:
       `Hi there,

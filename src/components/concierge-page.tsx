@@ -4,8 +4,8 @@ import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import {
-  RFQ,
-  RFQSource,
+  Enquiry,
+  EnquirySource,
   ConciergeMessage,
   MaterialAlternative,
   MaterialThreadMessage,
@@ -13,7 +13,7 @@ import {
   RecommendedAction,
   ActionThreadMessage,
   ActionResultInfo,
-  mockRFQs,
+  mockEnquiries,
 } from "@/lib/concierge-data";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -70,8 +70,8 @@ import {
 // ─── Main Concierge Page ────────────────────────────────────────────────────
 
 export function ConciergePage() {
-  const [selectedRFQId, setSelectedRFQId] = useState<string | null>(
-    mockRFQs[0]?.id || null
+  const [selectedEnquiryId, setSelectedEnquiryId] = useState<string | null>(
+    mockEnquiries[0]?.id || null
   );
   const [conversations, setConversations] = useState<
     Record<string, ConciergeMessage[]>
@@ -94,12 +94,12 @@ export function ConciergePage() {
   const [completedActions, setCompletedActions] = useState<Record<string, ActionResultInfo>>({});
   const [actionThreads, setActionThreads] = useState<Record<string, ActionThreadMessage[]>>({});
 
-  const selectedRFQ = mockRFQs.find((r) => r.id === selectedRFQId) || null;
+  const selectedEnquiry = mockEnquiries.find((r) => r.id === selectedEnquiryId) || null;
 
-  const filteredRFQs = mockRFQs.filter(
-    (rfq) =>
-      rfq.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      rfq.accountName.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredEnquiries = mockEnquiries.filter(
+    (enquiry) =>
+      enquiry.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      enquiry.accountName.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const getMessages = useCallback(
@@ -147,7 +147,7 @@ export function ConciergePage() {
 
   const handleSelectMaterial = useCallback(
     (pick: MaterialPickInfo) => {
-      if (!activeMessageId || !selectedRFQId) return;
+      if (!activeMessageId || !selectedEnquiryId) return;
 
       setSelectedMaterials((prev) => ({
         ...prev,
@@ -165,9 +165,9 @@ export function ConciergePage() {
           minute: "2-digit",
         }),
       };
-      setMessages(selectedRFQId, (prev) => [...prev, confirmMsg]);
+      setMessages(selectedEnquiryId, (prev) => [...prev, confirmMsg]);
     },
-    [activeMessageId, selectedRFQId, activeMaterial, setMessages]
+    [activeMessageId, selectedEnquiryId, activeMaterial, setMessages]
   );
 
   const handleMaterialThreadMessagesChange = useCallback(
@@ -194,7 +194,7 @@ export function ConciergePage() {
 
   const handleCompleteAction = useCallback(
     (result: ActionResultInfo) => {
-      if (!activeActionMessageId || !selectedRFQId) return;
+      if (!activeActionMessageId || !selectedEnquiryId) return;
 
       setCompletedActions((prev) => ({
         ...prev,
@@ -210,16 +210,16 @@ export function ConciergePage() {
           minute: "2-digit",
         }),
       };
-      setMessages(selectedRFQId, (prev) => [...prev, confirmMsg]);
+      setMessages(selectedEnquiryId, (prev) => [...prev, confirmMsg]);
     },
-    [activeActionMessageId, selectedRFQId, setMessages]
+    [activeActionMessageId, selectedEnquiryId, setMessages]
   );
 
-  // Build a brief RFQ summary for the material sub-agent
-  const rfqSummary = useMemo(() => {
-    if (!selectedRFQ) return "";
-    return `RFQ: ${selectedRFQ.title}\nAccount: ${selectedRFQ.accountName}\nContact: ${selectedRFQ.contactName}\nValue: ${selectedRFQ.dealValue}\nDescription: ${selectedRFQ.description.slice(0, 500)}`;
-  }, [selectedRFQ]);
+  // Build a brief enquiry summary for the material sub-agent
+  const enquirySummary = useMemo(() => {
+    if (!selectedEnquiry) return "";
+    return `RFQ: ${selectedEnquiry.title}\nAccount: ${selectedEnquiry.accountName}\nContact: ${selectedEnquiry.contactName}\nValue: ${selectedEnquiry.dealValue}\nDescription: ${selectedEnquiry.description.slice(0, 500)}`;
+  }, [selectedEnquiry]);
 
   return (
     <div className="h-screen flex flex-col overflow-hidden">
@@ -233,7 +233,7 @@ export function ConciergePage() {
                 Concierge
               </h1>
               <p className="text-xs text-muted-foreground">
-                RFQ processing &amp; quoting assistant
+                Enquiry processing &amp; quoting assistant
               </p>
             </div>
           </div>
@@ -242,13 +242,13 @@ export function ConciergePage() {
               variant="secondary"
               className="text-[10px] px-2 py-0.5 font-semibold bg-warm-100 text-warm-600 border-warm-200"
             >
-              {mockRFQs.length} RFQs
+              {mockEnquiries.length} Enquiries
             </Badge>
             <Badge
               variant="secondary"
               className="text-[10px] px-2 py-0.5 font-semibold bg-amber-50 text-amber-700 border-amber-200"
             >
-              {mockRFQs.filter((r) => r.status === "new").length} new
+              {mockEnquiries.filter((r) => r.status === "new").length} new
             </Badge>
           </div>
         </div>
@@ -256,7 +256,7 @@ export function ConciergePage() {
 
       {/* Two-panel layout */}
       <div className="flex flex-1 min-h-0 overflow-hidden">
-        {/* Left sidebar — RFQ list */}
+        {/* Left sidebar — Enquiry list */}
         <div className="w-[320px] shrink-0 border-r border-warm-200/60 flex flex-col min-h-0 bg-card">
           {/* Search */}
           <div className="p-3 border-b border-warm-200/40">
@@ -265,27 +265,27 @@ export function ConciergePage() {
               <Input
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search RFQs..."
+                placeholder="Search enquiries..."
                 className="h-8 pl-8 text-xs bg-warm-50 border-warm-200 placeholder:text-warm-400 focus-visible:ring-warm-300"
               />
             </div>
           </div>
 
-          {/* RFQ List */}
+          {/* Enquiry List */}
           <ScrollArea className="flex-1">
             <div className="divide-y divide-warm-200/40">
-              {filteredRFQs.map((rfq) => (
-                <RFQListItem
-                  key={rfq.id}
-                  rfq={rfq}
-                  isActive={rfq.id === selectedRFQId}
-                  hasMessages={(conversations[rfq.id]?.length || 0) > 0}
-                  onClick={() => setSelectedRFQId(rfq.id)}
+              {filteredEnquiries.map((enquiry) => (
+                <EnquiryListItem
+                  key={enquiry.id}
+                  enquiry={enquiry}
+                  isActive={enquiry.id === selectedEnquiryId}
+                  hasMessages={(conversations[enquiry.id]?.length || 0) > 0}
+                  onClick={() => setSelectedEnquiryId(enquiry.id)}
                 />
               ))}
-              {filteredRFQs.length === 0 && (
+              {filteredEnquiries.length === 0 && (
                 <div className="py-10 text-center text-sm text-muted-foreground">
-                  No RFQs match your search.
+                  No enquiries match your search.
                 </div>
               )}
             </div>
@@ -294,11 +294,11 @@ export function ConciergePage() {
 
         {/* Center panel — Conversation */}
         <div className="flex-1 flex flex-col min-w-0 min-h-0 bg-background">
-          {selectedRFQ ? (
+          {selectedEnquiry ? (
             <ConversationPanel
-              rfq={selectedRFQ}
-              messages={getMessages(selectedRFQ.id)}
-              setMessages={(msgs) => setMessages(selectedRFQ.id, msgs)}
+              enquiry={selectedEnquiry}
+              messages={getMessages(selectedEnquiry.id)}
+              setMessages={(msgs) => setMessages(selectedEnquiry.id, msgs)}
               onOpenQuote={handleOpenQuote}
               onExploreMaterial={handleExploreMaterial}
               selectedMaterials={selectedMaterials}
@@ -309,7 +309,7 @@ export function ConciergePage() {
             <div className="flex-1 flex items-center justify-center text-muted-foreground">
               <div className="text-center">
                 <Inbox className="h-10 w-10 mx-auto mb-3 text-warm-300" />
-                <p className="text-sm font-medium">Select an RFQ to begin</p>
+                <p className="text-sm font-medium">Select an enquiry to begin</p>
                 <p className="text-xs mt-1">
                   Choose from the list on the left to start processing
                 </p>
@@ -323,7 +323,7 @@ export function ConciergePage() {
           <div className="w-[420px] shrink-0 border-l border-warm-200/60 flex flex-col min-h-0 bg-card">
             <MaterialExplorerPanel
               material={activeMaterial}
-              rfqSummary={rfqSummary}
+              enquirySummary={enquirySummary}
               messages={materialThreads[activeMaterial.id] || []}
               onMessagesChange={handleMaterialThreadMessagesChange}
               onSelectMaterial={handleSelectMaterial}
@@ -338,7 +338,7 @@ export function ConciergePage() {
           <div className="w-[420px] shrink-0 border-l border-warm-200/60 flex flex-col min-h-0 bg-card">
             <ActionExplorerPanel
               action={activeAction}
-              rfqSummary={rfqSummary}
+              enquirySummary={enquirySummary}
               messages={actionThreads[activeAction.id] || []}
               onMessagesChange={handleActionThreadMessagesChange}
               onCompleteAction={handleCompleteAction}
@@ -361,7 +361,7 @@ export function ConciergePage() {
 
 // ─── Source Config ───────────────────────────────────────────────────────────
 
-const sourceConfig: Record<RFQSource, { icon: typeof Mail; label: string; className: string }> = {
+const sourceConfig: Record<EnquirySource, { icon: typeof Mail; label: string; className: string }> = {
   email: {
     icon: Mail,
     label: "Email",
@@ -384,15 +384,15 @@ const sourceConfig: Record<RFQSource, { icon: typeof Mail; label: string; classN
   },
 };
 
-// ─── RFQ List Item ──────────────────────────────────────────────────────────
+// ─── Enquiry List Item ───────────────────────────────────────────────────────
 
-function RFQListItem({
-  rfq,
+function EnquiryListItem({
+  enquiry,
   isActive,
   hasMessages,
   onClick,
 }: {
-  rfq: RFQ;
+  enquiry: Enquiry;
   isActive: boolean;
   hasMessages: boolean;
   onClick: () => void;
@@ -412,8 +412,8 @@ function RFQListItem({
     },
   };
 
-  const status = statusConfig[rfq.status];
-  const source = sourceConfig[rfq.source];
+  const status = statusConfig[enquiry.status];
+  const source = sourceConfig[enquiry.source];
   const SourceIcon = source.icon;
 
   return (
@@ -426,25 +426,35 @@ function RFQListItem({
     >
       <div className="flex items-start justify-between gap-2 mb-1">
         <span className="text-[13px] font-medium text-foreground leading-tight line-clamp-2">
-          {rfq.title}
+          {enquiry.title}
         </span>
-        <Badge
-          variant="secondary"
-          className={cn("text-[9px] px-1.5 py-0 font-semibold shrink-0", status.className)}
-        >
-          {status.label}
-        </Badge>
+        <div className="flex items-center gap-1 shrink-0">
+          {enquiry.type === "rfq" && (
+            <Badge
+              variant="secondary"
+              className="text-[9px] px-1.5 py-0 font-semibold bg-purple-50 text-purple-700 border-purple-200"
+            >
+              RFQ
+            </Badge>
+          )}
+          <Badge
+            variant="secondary"
+            className={cn("text-[9px] px-1.5 py-0 font-semibold", status.className)}
+          >
+            {status.label}
+          </Badge>
+        </div>
       </div>
       <div className="flex items-center gap-2 text-[11px] text-muted-foreground mt-1">
         <Building2 className="h-2.5 w-2.5 shrink-0" />
-        <span className="truncate">{rfq.accountName}</span>
+        <span className="truncate">{enquiry.accountName}</span>
         <span className="text-warm-300">|</span>
         <DollarSign className="h-2.5 w-2.5 shrink-0" />
-        <span>{rfq.dealValue}</span>
+        <span>{enquiry.dealValue}</span>
       </div>
       <div className="flex items-center gap-2 text-[10px] text-warm-400 mt-1">
         <Clock className="h-2.5 w-2.5 shrink-0" />
-        <span>{rfq.receivedAt}</span>
+        <span>{enquiry.receivedAt}</span>
         <span className="text-warm-300">|</span>
         <span className={cn("inline-flex items-center gap-1 px-1.5 py-0 rounded-full border text-[9px] font-semibold", source.className)}>
           <SourceIcon className="h-2.5 w-2.5" />
@@ -465,7 +475,7 @@ function RFQListItem({
 // ─── Conversation Panel ─────────────────────────────────────────────────────
 
 function ConversationPanel({
-  rfq,
+  enquiry,
   messages,
   setMessages,
   onOpenQuote,
@@ -474,7 +484,7 @@ function ConversationPanel({
   onExploreAction,
   completedActions,
 }: {
-  rfq: RFQ;
+  enquiry: Enquiry;
   messages: ConciergeMessage[];
   setMessages: (msgs: ConciergeMessage[] | ((prev: ConciergeMessage[]) => ConciergeMessage[])) => void;
   onOpenQuote: (data: QuoteData) => void;
@@ -494,18 +504,18 @@ function ConversationPanel({
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isLoading]);
 
-  // Auto-trigger agent analysis when an RFQ is first opened
+  // Auto-trigger agent analysis when an enquiry is first opened
   useEffect(() => {
-    if (hasInitializedRef.current === rfq.id) return;
+    if (hasInitializedRef.current === enquiry.id) return;
     if (messages.length > 0) {
-      hasInitializedRef.current = rfq.id;
+      hasInitializedRef.current = enquiry.id;
       return;
     }
 
-    hasInitializedRef.current = rfq.id;
+    hasInitializedRef.current = enquiry.id;
     triggerAgentAnalysis();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rfq.id]);
+  }, [enquiry.id]);
 
   const triggerAgentAnalysis = async () => {
     setIsLoading(true);
@@ -525,7 +535,7 @@ function ConversationPanel({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          rfqId: rfq.id,
+          enquiryId: enquiry.id,
           messages: messages.filter((m) => !m.isLoading),
         }),
       });
@@ -554,7 +564,7 @@ function ConversationPanel({
         id: `agent-error-${Date.now()}`,
         role: "agent",
         content:
-          "I encountered an error processing this RFQ. Please check the OpenAI API key configuration and try again.",
+          "I encountered an error processing this enquiry. Please check the OpenAI API key configuration and try again.",
         timestamp: new Date().toLocaleTimeString([], {
           hour: "2-digit",
           minute: "2-digit",
@@ -599,7 +609,7 @@ function ConversationPanel({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          rfqId: rfq.id,
+          enquiryId: enquiry.id,
           messages: updatedMessages.filter((m) => !m.isLoading),
         }),
       });
@@ -646,16 +656,24 @@ function ConversationPanel({
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-sm font-semibold text-foreground">
-              {rfq.title}
+              {enquiry.title}
             </h2>
             <p className="text-[11px] text-muted-foreground mt-0.5">
-              {rfq.accountName} &middot; {rfq.contactName} &middot;{" "}
-              {rfq.dealValue}
+              {enquiry.accountName} &middot; {enquiry.contactName} &middot;{" "}
+              {enquiry.dealValue}
             </p>
           </div>
           <div className="flex items-center gap-2">
+            {enquiry.type === "rfq" && (
+              <Badge
+                variant="secondary"
+                className="text-[10px] px-2 py-0.5 font-semibold bg-purple-50 text-purple-700 border-purple-200"
+              >
+                RFQ
+              </Badge>
+            )}
             {(() => {
-              const src = sourceConfig[rfq.source];
+              const src = sourceConfig[enquiry.source];
               const SrcIcon = src.icon;
               return (
                 <Badge
@@ -671,17 +689,17 @@ function ConversationPanel({
               variant="secondary"
               className={cn(
                 "text-[10px] px-2 py-0.5 font-semibold",
-                rfq.status === "new" &&
+                enquiry.status === "new" &&
                   "bg-blue-50 text-blue-700 border-blue-200",
-                rfq.status === "in-progress" &&
+                enquiry.status === "in-progress" &&
                   "bg-amber-50 text-amber-700 border-amber-200",
-                rfq.status === "quoted" &&
+                enquiry.status === "quoted" &&
                   "bg-green-50 text-green-700 border-green-200"
               )}
             >
-              {rfq.status === "new"
+              {enquiry.status === "new"
                 ? "New"
-                : rfq.status === "in-progress"
+                : enquiry.status === "in-progress"
                   ? "In Progress"
                   : "Quoted"}
             </Badge>
@@ -692,8 +710,8 @@ function ConversationPanel({
       {/* Messages area — scrollable middle section */}
       <div className="flex-1 min-h-0 overflow-y-auto px-5 py-4">
         <div className="max-w-3xl mx-auto space-y-4">
-          {/* RFQ card — always the first "message" */}
-          <RFQCard rfq={rfq} />
+          {/* Enquiry card — always the first "message" */}
+          <EnquiryCard enquiry={enquiry} />
 
           {/* Conversation messages */}
           {messages.map((msg) =>
@@ -743,7 +761,7 @@ function ConversationPanel({
   );
 }
 
-// ─── RFQ Card (First message) ───────────────────────────────────────────────
+// ─── Enquiry Card (First message) ────────────────────────────────────────────
 
 const attachmentTypeConfig = {
   drawing: {
@@ -930,7 +948,7 @@ function AttachmentContentRenderer({ content, type }: { content: string; type: "
   );
 }
 
-function RFQCard({ rfq }: { rfq: RFQ }) {
+function EnquiryCard({ enquiry }: { enquiry: Enquiry }) {
   const [expandedAttachments, setExpandedAttachments] = useState<Set<number>>(
     new Set()
   );
@@ -949,50 +967,58 @@ function RFQCard({ rfq }: { rfq: RFQ }) {
 
   return (
     <div className="rounded-xl border border-warm-200/80 bg-card shadow-sm overflow-hidden">
-      {/* RFQ header bar */}
+      {/* Enquiry header bar */}
       <div className="px-4 py-2.5 bg-warm-50/80 border-b border-warm-200/60 flex items-center gap-2">
         <div className="h-6 w-6 rounded-md bg-blue-100 flex items-center justify-center">
           <Inbox className="h-3 w-3 text-blue-600" />
         </div>
         <span className="text-[11px] font-semibold text-warm-500 uppercase tracking-wider">
-          Incoming RFQ
+          Incoming Enquiry
         </span>
+        {enquiry.type === "rfq" && (
+          <Badge
+            variant="secondary"
+            className="text-[9px] px-1.5 py-0 font-semibold bg-purple-50 text-purple-700 border-purple-200"
+          >
+            RFQ
+          </Badge>
+        )}
         <span className="text-[10px] text-warm-400 ml-auto">
-          {rfq.receivedAt}
+          {enquiry.receivedAt}
         </span>
       </div>
 
-      {/* RFQ body */}
+      {/* Enquiry body */}
       <div className="p-4">
         <h3 className="text-base font-semibold text-foreground mb-1">
-          {rfq.title}
+          {enquiry.title}
         </h3>
         <div className="flex items-center gap-3 text-[11px] text-muted-foreground mb-3">
           <span className="flex items-center gap-1">
             <Building2 className="h-3 w-3" />
-            {rfq.accountName}
+            {enquiry.accountName}
           </span>
           <span className="text-warm-300">|</span>
-          <span>{rfq.contactName}</span>
+          <span>{enquiry.contactName}</span>
           <span className="text-warm-300">|</span>
           <span className="flex items-center gap-1">
             <DollarSign className="h-3 w-3" />
-            {rfq.dealValue}
+            {enquiry.dealValue}
           </span>
         </div>
 
         <p className="text-[13px] text-foreground/80 leading-relaxed whitespace-pre-wrap mb-4">
-          {rfq.description}
+          {enquiry.description}
         </p>
 
         {/* Attachments */}
-        {rfq.attachments.length > 0 && (
+        {enquiry.attachments.length > 0 && (
           <div className="space-y-3">
             <span className="text-[11px] font-semibold text-warm-500 uppercase tracking-wider flex items-center gap-1.5">
               <Paperclip className="h-3 w-3" />
-              Attachments ({rfq.attachments.length})
+              Attachments ({enquiry.attachments.length})
             </span>
-            {rfq.attachments.map((att, idx) => {
+            {enquiry.attachments.map((att, idx) => {
               const config = attachmentTypeConfig[att.type];
               const TypeIcon = config.icon;
               const isExpanded = expandedAttachments.has(idx);
@@ -1940,7 +1966,7 @@ function TypingIndicator() {
             />
           </div>
           <span className="text-[11px] text-warm-400 ml-1">
-            Analyzing RFQ...
+            Analyzing enquiry...
           </span>
         </div>
       </div>

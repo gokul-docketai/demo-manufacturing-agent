@@ -32,7 +32,7 @@ import {
 
 interface ActionExplorerPanelProps {
   action: RecommendedAction;
-  rfqSummary: string;
+  enquirySummary: string;
   messages: ActionThreadMessage[];
   onMessagesChange: (msgs: ActionThreadMessage[]) => void;
   onCompleteAction: (result: ActionResultInfo) => void;
@@ -603,7 +603,7 @@ function PriorityDot({ priority }: { priority: RecommendedAction["priority"] }) 
 
 export function ActionExplorerPanel({
   action,
-  rfqSummary,
+  enquirySummary,
   messages,
   onMessagesChange,
   onCompleteAction,
@@ -651,7 +651,7 @@ export function ActionExplorerPanel({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           action,
-          rfqSummary,
+          enquirySummary,
           messages: conversationMessages
             .filter((m) => !m.isLoading)
             .map((m) => ({

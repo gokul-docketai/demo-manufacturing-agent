@@ -11,9 +11,9 @@ const openai = new OpenAI({
 
 export async function POST(request: NextRequest) {
   try {
-    const { material, rfqSummary, messages } = (await request.json()) as {
+    const { material, enquirySummary, messages } = (await request.json()) as {
       material: MaterialAlternative;
-      rfqSummary: string;
+      enquirySummary: string;
       messages: { role: "user" | "assistant"; content: string }[];
     };
 
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
 **Customer Approval Required:** ${material.requiresApproval ? "Yes" : "No"}
 
 ## RFQ Context
-${rfqSummary}`;
+${enquirySummary}`;
 
     const openaiMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] =
       [

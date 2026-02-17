@@ -30,7 +30,7 @@ import {
 
 interface MaterialExplorerPanelProps {
   material: MaterialAlternative;
-  rfqSummary: string;
+  enquirySummary: string;
   messages: MaterialThreadMessage[];
   onMessagesChange: (msgs: MaterialThreadMessage[]) => void;
   onSelectMaterial: (pick: MaterialPickInfo) => void;
@@ -432,7 +432,7 @@ function CostDeltaBadge({ delta }: { delta: string }) {
 
 export function MaterialExplorerPanel({
   material,
-  rfqSummary,
+  enquirySummary,
   messages,
   onMessagesChange,
   onSelectMaterial,
@@ -480,7 +480,7 @@ export function MaterialExplorerPanel({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           material,
-          rfqSummary,
+          enquirySummary,
           messages: conversationMessages
             .filter((m) => !m.isLoading)
             .map((m) => ({

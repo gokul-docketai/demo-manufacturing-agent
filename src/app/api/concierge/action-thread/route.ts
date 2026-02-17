@@ -11,9 +11,9 @@ const openai = new OpenAI({
 
 export async function POST(request: NextRequest) {
   try {
-    const { action, rfqSummary, messages } = (await request.json()) as {
+    const { action, enquirySummary, messages } = (await request.json()) as {
       action: RecommendedAction;
-      rfqSummary: string;
+      enquirySummary: string;
       messages: { role: "user" | "assistant"; content: string }[];
     };
 
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
 **Priority:** ${action.priority}
 
 ## RFQ Context
-${rfqSummary}`;
+${enquirySummary}`;
 
     const openaiMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] =
       [
